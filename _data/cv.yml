@@ -1,0 +1,168 @@
+cv:
+  name: Trương Nguyễn Thái Bình
+  name_en: Truong Nguyen Thai Binh
+  label: Kỹ sư Phần mềm
+  label_en: Software Engineer
+  email: truongnguyenthaibinh1050@gmail.com
+  location: TP. Hồ Chí Minh, Việt Nam
+  location_en: Ho Chi Minh City, Vietnam
+  image: ""
+  summary: |-
+    Là một Kỹ sư Phần mềm trẻ đam mê công nghệ, mình luôn không ngừng học hỏi và thử thách bản thân với những công nghệ mới nhất. Thế mạnh của mình là khả năng tư duy logic tốt, xây dựng kiến trúc hệ thống ổn định và phát triển các giao diện người dùng thân thiện. Mình đặc biệt yêu thích việc tối ưu hóa hiệu suất ứng dụng và nghiên cứu các giải pháp Trí tuệ Nhân tạo để mang lại trải nghiệm tốt nhất cho người dùng.
+  summary_en: |-
+    As a young and passionate Software Engineer, I am constantly learning and challenging myself with the latest technologies. My strengths lie in strong logical thinking, building stable system architectures, and developing user-friendly interfaces. I am particularly passionate about optimizing application performance and researching Artificial Intelligence solutions to deliver the best user experience.
+  social_networks: null
+  address:
+    street: null
+    city: null
+    region: null
+    postalCode: null
+    countryCode: VN
+  sections:
+    Education:
+      - institution: Đại học FPT
+        institution_en: FPT University
+        location: Thành phố Hồ Chí Minh
+        location_en: Ho Chi Minh City
+        area: ""
+        area_en: ""
+        studyType: Cử nhân Công nghệ thông tin
+        studyType_en: Bachelor of Information Technology
+        start_date: "2022"
+        start_date_en: "2022"
+        end_date: "2026"
+        end_date_en: "2026"
+        logo: logo-dai-hoc-fpt-tach-nen_043150877.png
+        logo_size: "200"
+        url: ""
+        highlights:
+          - Chuyên ngành Kỹ thuật phần mềm (K18)
+          - Đạt học bổng 100% toàn khóa học
+          - Tích cực tham gia các phong trào sinh viên và câu lạc bộ học thuật
+        highlights_en:
+          - Major in Software Engineering (K18)
+          - Awarded 100% full-ride scholarship
+          - Actively participated in student movements and academic clubs
+      - institution: Đại học Bách Khoa - ĐHQGHCM
+        institution_en: Ho Chi Minh City University of Technology (HCMUT)
+        location: Thành phố Hồ Chí Minh
+        location_en: Ho Chi Minh City
+        area: ""
+        area_en: ""
+        studyType: Khóa học ngắn hạn Robotics
+        studyType_en: Short course in Robotics
+        start_date: 09-2023
+        start_date_en: Sep 2023
+        end_date: 12-2023
+        end_date_en: Dec 2023
+        logo: 01_logobachkhoasang.png
+        logo_size: "150"
+        url: ""
+        highlights:
+          - Nghiên cứu chế tạo xe Mecanum ứng dụng IoT
+          - Đạt điểm A đồ án cuối khóa
+        highlights_en: 
+          - Researched and built a Mecanum robot with IoT applications
+          - Achieved an A grade for the final project
+    Experience:
+      - company: Công ty Cổ phần Công nghệ FPT (FPT Software)
+        company_en: FPT Software JSC
+        position: Thực tập sinh Kỹ sư Phần mềm
+        position_en: Software Engineer Intern
+        location: TP. Hồ Chí Minh
+        location_en: Ho Chi Minh City
+        start_date: "01-2025"
+        start_date_en: "Jan 2025"
+        end_date: PRESENT
+        end_date_en: PRESENT
+        summary: Tham gia phát triển hệ thống quản lý nội bộ sử dụng ReactJS và Node.js.
+        summary_en: Participated in developing an internal management system using ReactJS and Node.js.
+        highlights: 
+          - Xây dựng hơn 20 RESTful APIs cho module Quản lý Nhân sự.
+          - Tối ưu hóa tốc độ tải trang frontend lên 30%.
+        highlights_en: 
+          - Built over 20 RESTful APIs for the Human Resources Management module.
+          - Optimized frontend page load speed by 30%.
+      - company: CLB Học thuật (Academic Club)
+        company_en: Academic Club FPTU
+        position: Trưởng ban Chuyên môn
+        position_en: Head of Academic Department
+        location: Đại học FPT
+        location_en: FPT University
+        start_date: "09-2023"
+        start_date_en: "Sep 2023"
+        end_date: "12-2024"
+        end_date_en: "Dec 2024"
+        summary: Tổ chức các buổi workshop chia sẻ kiến thức lập trình cho sinh viên.
+        summary_en: Organized workshops to share programming knowledge with students.
+        highlights: 
+          - Dẫn dắt đội ngũ 15 thành viên tổ chức chuỗi sự kiện "Code Your Future".
+          - Mentor trực tiếp cho hơn 50 sinh viên khóa dưới làm quen với lập trình Web.
+        highlights_en: 
+          - Led a 15-member team to organize the "Code Your Future" event series.
+          - Directly mentored over 50 junior students to get started with Web programming.
+    Honors and Awards:
+      - title: Học bổng Sáng tạo khởi nghiệp Đại học FPT
+        title_en: FPT University Startup Innovation Scholarship
+        date: "2024"
+        date_en: "2024"
+        issuer: Đại học FPT
+        issuer_en: FPT University
+        location: TP. Hồ Chí Minh
+        location_en: Ho Chi Minh City
+      - title: Giải Nhất Cuộc thi Hackathon Mùa hè 2023
+        title_en: First Prize in Summer Hackathon 2023
+        date: "2023"
+        date_en: "2023"
+        issuer: Hội Sinh viên TP.HCM
+        issuer_en: HCMC Student Association
+        location: TP. Hồ Chí Minh
+        location_en: Ho Chi Minh City
+    Languages:
+      - name: Tiếng Việt
+        name_en: Vietnamese
+        summary: Tiếng mẹ đẻ
+        summary_en: Native
+      - name: Tiếng Anh
+        name_en: English
+        summary: IELTS 7.0 (Giao tiếp lưu loát)
+        summary_en: IELTS 7.0 (Fluent)
+      - name: Tiếng Nhật
+        name_en: Japanese
+        summary: Trình độ N4
+        summary_en: N4 Level
+    Skills:
+      - name: Lập trình Frontend
+        name_en: Frontend Development
+        level: Thành thạo
+        level_en: Advanced
+        icon: fa-laptop-code
+        keywords:
+          - HTML/CSS
+          - JavaScript
+          - ReactJS
+          - Next.js
+          - TailwindCSS
+        keywords_en:
+          - HTML/CSS
+          - JavaScript
+          - ReactJS
+          - Next.js
+          - TailwindCSS
+      - name: Lập trình Backend
+        name_en: Backend Development
+        level: Khá
+        level_en: Intermediate
+        icon: fa-server
+        keywords:
+          - Node.js
+          - Express
+          - Python
+          - MongoDB
+          - PostgreSQL
+        keywords_en:
+          - Node.js
+          - Express
+          - Python
+          - MongoDB
+          - PostgreSQL

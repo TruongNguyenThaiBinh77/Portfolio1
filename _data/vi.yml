@@ -1,0 +1,10 @@
+nav:
+  about: "giới thiệu"
+  blog: "bài viết"
+  publications: "ấn phẩm"
+  projects: "dự án"
+  repositories: "mã nguồn"
+  "Curriculum Vitae": "Curriculum Vitae"
+  teaching: "giảng dạy"
+  people: "mọi người"
+  submenus: "menu con"

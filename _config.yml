@@ -1,0 +1,563 @@
+theme: al_folio_core
+title: blank
+global_bg_color: "#ffffff"
+global_bg_image: ""
+first_name: Trương Nguyễn
+middle_name: Thái
+last_name: Bình
+keywords: jekyll, jekyll-theme, academic-website, portfolio-website
+lang: en
+icon: ⚛️
+url: https://alshedivat.github.io
+baseurl: /al-folio
+last_updated: false
+impressum_path: null
+back_to_top: true
+repo_theme_light: default
+repo_theme_dark: dark
+repo_trophies:
+  enabled: true
+  theme_light: flat
+  theme_dark: gitdimmed
+rss_icon: true
+navbar_fixed: true
+footer_fixed: true
+search_enabled: true
+socials_in_search: true
+bib_search: true
+max_width: 930px
+serve_og_meta: false
+serve_schema_org: false
+og_image: null
+acm_id: null
+blogger_url: null
+bluesky_url: null
+dblp_url: null
+discord_id: your_id
+facebook_id: null
+flickr_id: null
+github_username: your_username
+gitlab_username: null
+ieee_id: null
+instagram_id: null
+kaggle_id: your_id
+keybase_username: null
+lastfm_id: null
+lattes_id: null
+linkedin_username: your_username
+mastodon_username: null
+medium_username: null
+orcid_id: 0000-0000-0000-0000
+osf_id: null
+pinterest_id: null
+publons_id: null
+quora_username: null
+research_gate_profile: your_profile
+scopus_id: 1111111111
+semanticscholar_id: null
+spotify_id: null
+stackoverflow_id: null
+telegram_username: null
+unsplash_id: null
+wechat_qr: null
+whatsapp_number: null
+wikidata_id: null
+wikipedia_id: null
+work_url: null
+x_username: null
+youtube_id: null
+zotero_username: null
+contact_note: |
+  Bạn có thể để lại vài dòng giới thiệu về cách tốt nhất để liên lạc với bạn ở đây.
+contact_note_en: |
+  You can even add a little note about which of these is the best way to reach you.
+google_analytics: null
+cronitor_analytics: null
+pirsch_analytics: null
+google_site_verification: null
+bing_site_verification: null
+blog_name: al-folio
+blog_description: a simple whitespace theme for academics
+permalink: /blog/:year/:title/
+lsi: false
+pagination:
+  enabled: true
+related_blog_posts:
+  enabled: true
+  max_related: 5
+giscus:
+  repo: null
+  repo_id: null
+  category: Comments
+  category_id: null
+  mapping: title
+  strict: 1
+  reactions_enabled: 1
+  input_position: bottom
+  theme: preferred_color_scheme
+  emit_metadata: 0
+  lang: en
+disqus_shortname: al-folio
+newsletter:
+  enabled: false
+  endpoint: null
+collections:
+  news:
+    defaults:
+      layout: post
+    output: true
+    permalink: /:collection/:title/
+  projects:
+    output: true
+    permalink: /:collection/:title/
+announcements:
+  enabled: true
+  scrollable: true
+  limit: 5
+latest_posts:
+  enabled: true
+  scrollable: true
+  limit: 3
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  syntax_highlighter_opts:
+    css_class: highlight
+    span:
+      line_numbers: false
+    block:
+      line_numbers: false
+      start_line: 1
+include:
+  - _pages
+exclude:
+  - bin/
+  - CONTRIBUTING.md
+  - CUSTOMIZE.md
+  - Dockerfile
+  - docker-compose.yml
+  - docker-compose-slim.yml
+  - FAQ.md
+  - Gemfile
+  - Gemfile.lock
+  - INSTALL.md
+  - LICENSE
+  - lighthouse_results/
+  - package.json
+  - package-lock.json
+  - _pages/about_einstein.md
+  - purgecss.config.js
+  - README.md
+  - readme_preview/
+  - vendor
+keep_files:
+  - CNAME
+  - .nojekyll
+plugins:
+  - al_folio_core
+  - al_icons
+  - al_folio_cv
+  - al_folio_distill
+  - al_folio_upgrade
+  - al_folio_bootstrap_compat
+  - al_cookie
+  - al_analytics
+  - al_citations
+  - al_ext_posts
+  - al_img_tools
+  - al_search
+  - al_charts
+  - al_math
+  - al_comments
+  - al_newsletter
+  - al_email_protect
+  - al_marimo
+  - al_rtl
+  - jekyll-email-protect
+  - jekyll-feed
+  - jekyll-get-json
+  - jekyll-imagemagick
+  - jekyll-jupyter-notebook
+  - jekyll-link-attributes
+  - jekyll-minifier
+  - jekyll-paginate-v2
+  - jekyll-regex-replace
+  - jekyll/scholar
+  - jekyll-sitemap
+  - jekyll-tabs
+  - jekyll-toc
+  - jekyll-twitter-plugin
+  - jemoji
+defaults:
+  - scope:
+      path: assets
+    values:
+      sitemap: false
+sass:
+  style: compressed
+jekyll-minifier:
+  exclude:
+    - robots.txt
+    - assets/js/search/*.js
+    - assets/libs/**/*
+  uglifier_args:
+    harmony: true
+display_tags:
+  - formatting
+  - images
+  - links
+  - math
+  - code
+  - blockquotes
+display_categories:
+  - external-services
+scholar:
+  last_name:
+    - Einstein
+  first_name:
+    - Albert
+    - A.
+  style: apa
+  locale: en
+  source: /_bibliography/
+  bibliography: papers.bib
+  bibliography_template: bib
+  bibtex_filters:
+    - latex
+    - smallcaps
+    - superscript
+  replace_strings: true
+  join_strings: true
+  details_dir: bibliography
+  details_link: Details
+  query: "@*"
+  group_by: year
+  group_order: descending
+enable_publication_badges:
+  altmetric: true
+  dimensions: true
+  google_scholar: true
+  inspirehep: true
+filtered_bibtex_keywords:
+  - abbr
+  - abstract
+  - additional_info
+  - altmetric
+  - annotation
+  - arxiv
+  - award
+  - award_name
+  - bibtex_show
+  - blog
+  - code
+  - google_scholar_id
+  - html
+  - inspirehep_id
+  - pdf
+  - poster
+  - preview
+  - selected
+  - slides
+  - supp
+  - video
+  - website
+max_author_limit: 3
+more_authors_animation_delay: 10
+enable_publication_thumbnails: true
+external_links:
+  enabled: true
+  rel: external nofollow noopener
+  target: _blank
+  exclude: null
+imagemagick:
+  enabled: true
+  widths:
+    - 480
+    - 800
+    - 1400
+  input_directories:
+    - assets/img/
+  input_formats:
+    - .jpg
+    - .jpeg
+    - .png
+    - .tiff
+    - .gif
+  output_formats:
+    webp: "-quality 85"
+lazy_loading_images: true
+enable_google_analytics: false
+enable_cronitor_analytics: false
+enable_pirsch_analytics: false
+enable_google_verification: false
+enable_bing_verification: false
+enable_masonry: true
+enable_math: true
+enable_tooltips: false
+enable_darkmode: true
+enable_navbar_social: false
+enable_project_categories: true
+enable_medium_zoom: true
+enable_progressbar: true
+enable_video_embedding: false
+third_party_libraries:
+  download: false
+  bootstrap-table:
+    integrity:
+      css: sha256-uRX+PiRTR4ysKFRCykT8HLuRCub26LgXJZym3Yeom1c=
+      js: sha256-4rppopQE9POKfukn2kEvhJ9Um25Cf6+IDVkARD0xh78=
+    url:
+      css: https://cdn.jsdelivr.net/npm/bootstrap-table@{{version}}/dist/bootstrap-table.min.css
+      js: https://cdn.jsdelivr.net/npm/bootstrap-table@{{version}}/dist/bootstrap-table.min.js
+    version: 1.22.4
+  chartjs:
+    integrity:
+      js: sha256-0q+JdOlScWOHcunpUk21uab1jW7C1deBQARHtKMcaB4=
+    url:
+      js: https://cdn.jsdelivr.net/npm/chart.js@{{version}}/dist/chart.umd.min.js
+    version: 4.4.1
+  d3:
+    integrity:
+      js: sha256-1rA678n2xEx7x4cTZ5x4wpUCj6kUMZEZ5cxLSVSFWxw=
+    url:
+      js: https://cdn.jsdelivr.net/npm/d3@{{version}}/dist/d3.min.js
+    version: 7.8.5
+  diff2html:
+    integrity:
+      css: sha256-IMBK4VNZp0ivwefSn51bswdsrhk0HoMTLc2GqFHFBXg=
+      js: sha256-eU2TVHX633T1o/bTQp6iIJByYJEtZThhF9bKz/DcbbY=
+    url:
+      css: https://cdn.jsdelivr.net/npm/diff2html@{{version}}/bundles/css/diff2html.min.css
+      js: https://cdn.jsdelivr.net/npm/diff2html@{{version}}/bundles/js/diff2html-ui.min.js
+    version: 3.4.47
+  echarts:
+    integrity:
+      js:
+        library: sha256-QvgynZibb2U53SsVu98NggJXYqwRL7tg3FeyfXvPOUY=
+        dark_theme: sha256-sm6Ui9w41++ZCWmIWDLC18a6ki72FQpWDiYTDxEPXwU=
+    url:
+      js:
+        library: https://cdn.jsdelivr.net/npm/echarts@{{version}}/dist/echarts.min.js
+        dark_theme: https://cdn.jsdelivr.net/npm/echarts@{{version}}/theme/dark-fresh-cut.js
+    version: 5.5.0
+  google_fonts:
+    url:
+      fonts: https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&display=swap
+  highlightjs:
+    integrity:
+      css:
+        light: sha256-Oppd74ucMR5a5Dq96FxjEzGF7tTw2fZ/6ksAqDCM8GY=
+        dark: sha256-nyCNAiECsdDHrr/s2OQsp5l9XeY2ZJ0rMepjCT2AkBk=
+    url:
+      css:
+        light: https://cdn.jsdelivr.net/npm/highlight.js@{{version}}/styles/github.min.css
+        dark: https://cdn.jsdelivr.net/npm/highlight.js@{{version}}/styles/github-dark.min.css
+    version: 11.9.0
+  imagesloaded:
+    integrity:
+      js: sha256-htrLFfZJ6v5udOG+3kNLINIKh2gvoKqwEhHYfTTMICc=
+    url:
+      js: https://cdn.jsdelivr.net/npm/imagesloaded@{{version}}/imagesloaded.pkgd.min.js
+    version: 5.0.0
+  img-comparison-slider:
+    integrity:
+      css: sha256-3qTIuuUWIFnnU3LpQMjqiXc0p09rvd0dmj+WkpQXSR8=
+      js: sha256-EXHg3x1K4oIWdyohPeKX2ZS++Wxt/FRPH7Nl01nat1o=
+      map: sha256-3wfqS2WU5kGA/ePcgFzJXl5oSN1QsgZI4/edprTgX8w=
+    url:
+      css: https://cdn.jsdelivr.net/npm/img-comparison-slider@{{version}}/dist/styles.min.css
+      js: https://cdn.jsdelivr.net/npm/img-comparison-slider@{{version}}/dist/index.min.js
+      map: https://cdn.jsdelivr.net/npm/img-comparison-slider@{{version}}/dist/index.js.map
+    version: 8.0.6
+  jquery:
+    integrity:
+      js: sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=
+    url:
+      js: https://cdn.jsdelivr.net/npm/jquery@{{version}}/dist/jquery.min.js
+    version: 3.6.0
+  leaflet:
+    integrity:
+      css: sha256-q9ba7o845pMPFU+zcAll8rv+gC+fSovKsOoNQ6cynuQ=
+      js: sha256-MgH13bFTTNqsnuEoqNPBLDaqxjGH+lCpqrukmXc8Ppg=
+      js_map: sha256-YAoQ3FzREN4GmVENMir8vgHHypC0xfSK3CAxTHCqx1M=
+    local:
+      images: images/
+    url:
+      css: https://cdn.jsdelivr.net/npm/leaflet@{{version}}/dist/leaflet.min.css
+      images: https://cdn.jsdelivr.net/npm/leaflet@{{version}}/dist/images/
+      js: https://cdn.jsdelivr.net/npm/leaflet@{{version}}/dist/leaflet.min.js
+      js_map: https://cdn.jsdelivr.net/npm/leaflet@{{version}}/dist/leaflet.js.map
+    version: 1.9.4
+  mathjax:
+    integrity:
+      js: sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=
+    local:
+      fonts: output/chtml/fonts/woff-v2/
+    url:
+      fonts: https://cdn.jsdelivr.net/npm/mathjax@{{version}}/es5/output/chtml/fonts/woff-v2/
+      js: https://cdn.jsdelivr.net/npm/mathjax@{{version}}/es5/tex-mml-chtml.js
+    version: 3.2.2
+  masonry:
+    integrity:
+      js: sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=
+    url:
+      js: https://cdn.jsdelivr.net/npm/masonry-layout@{{version}}/dist/masonry.pkgd.min.js
+    version: 4.2.2
+  mdb:
+    integrity:
+      css: sha256-jpjYvU3G3N6nrrBwXJoVEYI/0zw8htfFnhT9ljN3JJw=
+      css_map: sha256-iYYMNfsJdVZjvsebJulg09miBXM4/GMTJgv1u5EZFFM=
+      js: sha256-NdbiivsvWt7VYCt6hYNT3h/th9vSTL4EDWeGs5SN3DA=
+      js_map: sha256-UPgyn4YNsT0khkBK5553QwhnlbTlU0aa+igyc6qP1bE=
+    url:
+      css: https://cdn.jsdelivr.net/npm/mdbootstrap@{{version}}/css/mdb.min.css
+      css_map: https://cdn.jsdelivr.net/npm/mdbootstrap@{{version}}/css/mdb.min.css.map
+      js: https://cdn.jsdelivr.net/npm/mdbootstrap@{{version}}/js/mdb.min.js
+      js_map: https://cdn.jsdelivr.net/npm/mdbootstrap@{{version}}/js/mdb.min.js.map
+    version: 4.20.0
+  medium_zoom:
+    integrity:
+      js: sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=
+    url:
+      js: https://cdn.jsdelivr.net/npm/medium-zoom@{{version}}/dist/medium-zoom.min.js
+    version: 1.1.0
+  mermaid:
+    integrity:
+      js: sha256-TtLOdUA8mstPoO6sGvHIGx2ceXrrX4KgIItO06XOn8A=
+    url:
+      js: https://cdn.jsdelivr.net/npm/mermaid@{{version}}/dist/mermaid.min.js
+    version: 10.7.0
+  polyfill:
+    url:
+      js: https://cdnjs.cloudflare.com/polyfill/v{{version}}/polyfill.min.js?features=es6
+    version: "3"
+  pseudocode:
+    integrity:
+      css: sha256-VwMV//xgBPDyRFVSOshhRhzJRDyBmIACniLPpeXNUdc=
+      js: sha256-aVkDxqyzrB+ExUsOY9PdyelkDhn/DfrjWu08aVpqNlo=
+    url:
+      css: https://cdn.jsdelivr.net/npm/pseudocode@{{version}}/build/pseudocode.min.css
+      js: https://cdn.jsdelivr.net/npm/pseudocode@{{version}}/build/pseudocode.min.js
+    version: 2.4.1
+  swiper:
+    integrity:
+      css: sha256-yUoNxsvX+Vo8Trj3lZ/Y5ZBf8HlBFsB6Xwm7rH75/9E=
+      js: sha256-BPrwikijIybg9OQC5SYFFqhBjERYOn97tCureFgYH1E=
+      map: sha256-lbF5CsospW93otqvWOIbbhj80CjazrZXvamD7nC7TBI=
+    url:
+      css: https://cdn.jsdelivr.net/npm/swiper@{{version}}/swiper-bundle.min.css
+      js: https://cdn.jsdelivr.net/npm/swiper@{{version}}/swiper-element-bundle.min.js
+      map: https://cdn.jsdelivr.net/npm/swiper@{{version}}/swiper-element-bundle.min.js.map
+    version: 11.0.5
+  swiper-map:
+    integrity:
+      js: sha256-hlZaH8ySXX97bZaetnrtYlKuhx3oEXFz/s2IXchu6vk=
+    url:
+      js: https://cdn.jsdelivr.net/npm/swiper@11.1.0/swiper-element-bundle.min.js.map
+    version: 11.0.5
+  vega:
+    integrity:
+      js: sha256-Yot/cfgMMMpFwkp/5azR20Tfkt24PFqQ6IQS+80HIZs=
+      js_map: sha256-z0x9ICA65dPkZ0JVa9wTImfF6n7AJsKc6WlFE96/wNA=
+    url:
+      js: https://cdn.jsdelivr.net/npm/vega@{{version}}/build/vega.min.js
+      js_map: https://cdn.jsdelivr.net/npm/vega@{{version}}/build/vega.min.js.map
+    version: 5.27.0
+  vega-embed:
+    integrity:
+      js: sha256-FPCJ9JYCC9AZSpvC/t/wHBX7ybueZhIqOMjpWqfl3DU=
+      js_map: sha256-VBbfSEFYSMdX/rTdGrONEHNP6BprCB7H/LpMMNt/cPA=
+    url:
+      js: https://cdn.jsdelivr.net/npm/vega-embed@{{version}}/build/vega-embed.min.js
+      js_map: https://cdn.jsdelivr.net/npm/vega-embed@{{version}}/build/vega-embed.min.js.map
+    version: 6.24.0
+  vega-lite:
+    integrity:
+      js: sha256-TvBvIS5jUN4BSy009usRjNzjI1qRrHPYv7xVLJyjUyw=
+      js_map: sha256-l2I4D5JC23Ulsu6e3sKVe5AJ+r+DFkzkKnZS8nUGz28=
+    url:
+      js: https://cdn.jsdelivr.net/npm/vega-lite@{{version}}/build/vega-lite.min.js
+      js_map: https://cdn.jsdelivr.net/npm/vega-lite@{{version}}/build/vega-lite.min.js.map
+    version: 5.16.3
+jekyll_get_json:
+  - data: resume
+    json: assets/json/resume.json
+jsonresume:
+  - basics
+  - work
+  - education
+  - publications
+  - projects
+  - volunteer
+  - awards
+  - certificates
+  - skills
+  - languages
+  - interests
+  - references
+description: truongnguyenthaibinh
+footer_text: |-
+
+  <script class="logo-inject">
+         document.addEventListener("DOMContentLoaded", function() {
+               const container = document.querySelector('.navbar .container');
+               const img = document.createElement('img');
+               img.src = '{{ site.baseurl }}/assets/img/MacLenin.jpg';
+               img.style.width = '80px';
+               img.style.height = 'auto';
+               img.style.backgroundColor = '#ffffff';
+               img.style.padding = '5px'; img.style.borderRadius = '5px';
+               img.style.marginRight = '15px';
+               img.style.verticalAlign = 'middle';
+               const link = document.createElement('a');
+               link.href = '{{ site.baseurl }}/';
+               link.style.display = 'flex';
+               link.style.alignItems = 'center';
+               link.appendChild(img);
+               if (container) {
+                  container.prepend(link);
+               }
+         });
+         </script>
+first_name_bold: true
+middle_name_bold: false
+last_name_bold: false
+header_logo: MacLenin.jpg
+header_logo_size: 80px
+header_logo_bg: "#ffffff"
+header_logo_height: auto
+navbar_bg_color: "#FEEAEB"
+global_bg_image_size: "36"
+nav_names:
+  about: Về tôi
+  publications: Ấn phẩm
+  teachings: Thành tích
+  cv: Sơ yếu lý lịch
+  repositories: Lưu trữ
+nav_names_en:
+  about: About
+  publications: Publications
+  teachings: Achievements
+  cv: Curriculum Vitae
+  repositories: Repositories
+navbar_bg_image: e4b318059a7824c886901e16d341eb5f.png
+navbar_bg_image_size: "56"
+email: your_email@example.com
+global_bg_hue: "0"
+global_bg_opacity: "100"
+global_bg_overlay: "#ffffff"
+global_bg_overlay_opacity: "60"
+navbar_bg_hue: "0"
+navbar_bg_opacity: "100"
+navbar_bg_overlay: "#ffffff"
+navbar_bg_overlay_opacity: "67"
+navbar_text_color: ""
+navbar_active_text_color: "#D92D20"
+global_hover_color: "#999405"
+body_bg_image: bgF.jpg
+body_bg_image_size: "46"
+body_bg_hue: "0"
+body_bg_opacity: "100"
+body_bg_overlay: "#ffffff"
+body_bg_overlay_opacity: "70"

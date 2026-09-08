@@ -1,0 +1,24 @@
+{
+  "scripts": {
+    "lint:prettier": "prettier . --check",
+    "test:visual": "playwright test --config test/visual/playwright.config.js",
+    "test:visual:update": "playwright test --config test/visual/playwright.config.js --update-snapshots",
+    "start:admin": "node admin-server.js",
+    "dev": "concurrently \"npm run start:admin\" \"npm run dev --prefix portfolio-react\""
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "gray-matter": "^4.0.3",
+    "js-yaml": "^4.3.2",
+    "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@shopify/prettier-plugin-liquid": "^1.10.0",
+    "concurrently": "^10.0.5",
+    "pixelmatch": "^7.1.0",
+    "pngjs": "^7.0.0",
+    "prettier": "^3.8.0"
+  }
+}

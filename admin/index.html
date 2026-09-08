@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio Admin Panel</title>
+  <link rel="stylesheet" href="style.css?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  
+  <!-- Toast UI Editor -->
+  <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+  <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/theme/toastui-editor-dark.min.css" />
+  <link rel="stylesheet" href="https://uicdn.toast.com/tui-color-picker/latest/tui-color-picker.min.css" />
+  <link rel="stylesheet" href="https://uicdn.toast.com/editor-plugin-color-syntax/latest/toastui-editor-plugin-color-syntax.min.css" />
+  
+  <!-- Cropper.js -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
+</head>
+<body>
+  <!-- Toast notifications -->
+  <div id="toast-container"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fas fa-atom logo-icon"></i>
+        <span class="logo-text">Admin Panel</span>
+      </div>
+      <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-section="site-settings">
+        <i class="fas fa-cog"></i>
+        <span>Cài đặt chung</span>
+      </a>
+      <a href="#" class="nav-item" data-section="pages-settings">
+        <i class="fas fa-file-alt"></i>
+        <span>Tiêu đề trang (Pages)</span>
+      </a>
+      <div class="nav-divider"></div>
+      
+      <div class="nav-section-title">Nội dung</div>
+      <a href="#" class="nav-item" data-section="about">
+        <i class="fas fa-user"></i>
+        <span id="nav-label-about">About</span> <i class="fas fa-pencil-alt" onclick="editNavName(event, 'about')" style="margin-left:auto;opacity:0.5;font-size:12px;"></i>
+      </a>
+      <a href="#" class="nav-item" data-section="cv">
+        <i class="fas fa-file-alt"></i>
+        <span id="nav-label-cv">CV / Resume</span> <i class="fas fa-pencil-alt" onclick="editNavName(event, 'cv')" style="margin-left:auto;opacity:0.5;font-size:12px;"></i>
+      </a>
+      <a href="#" class="nav-item" data-section="socials">
+        <i class="fas fa-share-alt"></i>
+        <span id="nav-label-socials">Socials</span> <i class="fas fa-pencil-alt" onclick="editNavName(event, 'socials')" style="margin-left:auto;opacity:0.5;font-size:12px;"></i>
+      </a>
+      <a href="#" class="nav-item" data-section="repositories">
+        <i class="fab fa-github"></i>
+        <span id="nav-label-repositories">Repositories</span> <i class="fas fa-pencil-alt" onclick="editNavName(event, 'repositories')" style="margin-left:auto;opacity:0.5;font-size:12px;"></i>
+      </a>
+      <a href="#" class="nav-item" data-section="teachings">
+        <i class="fas fa-chalkboard-teacher"></i>
+        <span id="nav-label-teachings">Học vấn</span> <i class="fas fa-pencil-alt" onclick="editNavName(event, 'teachings')" style="margin-left:auto;opacity:0.5;font-size:12px;"></i>
+      </a>
+      <a href="#" class="nav-item" data-section="news">
+        <i class="fas fa-newspaper"></i>
+        <span id="nav-label-news">News</span> <i class="fas fa-pencil-alt" onclick="editNavName(event, 'news')" style="margin-left:auto;opacity:0.5;font-size:12px;"></i>
+      </a>
+      <a href="#" class="nav-item" data-section="bibliography">
+        <i class="fas fa-book"></i>
+        <span id="nav-label-publications">Publications</span> <i class="fas fa-pencil-alt" onclick="editNavName(event, 'publications')" style="margin-left:auto;opacity:0.5;font-size:12px;"></i>
+      </a>
+      <a href="#" class="nav-item" data-section="resume-json">
+        <i class="fas fa-id-card"></i>
+        <span>Resume JSON</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="http://localhost:8080" target="_blank" class="view-site-btn">
+        <i class="fas fa-external-link-alt"></i>
+        <span>View Portfolio</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content" id="main-content">
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <button class="mobile-toggle" id="mobile-toggle">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="top-bar-title" style="display: flex; align-items: center; width: 100%;">
+        <h1 id="page-title">Site Settings</h1>
+      </div>
+      <div class="top-bar-actions" style="display: flex; gap: 15px; align-items: center;">
+        <div class="font-size-controls" style="display: flex; gap: 5px; align-items: center; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 2px;">
+          <button id="btnDecreaseFont" class="btn" style="padding: 4px 10px; font-size: 13px; font-weight: bold;" title="Giảm cỡ chữ (Admin UI)">A-</button>
+          <button id="btnIncreaseFont" class="btn" style="padding: 4px 10px; font-size: 15px; font-weight: bold; border-left: 1px solid var(--border-color);" title="Tăng cỡ chữ (Admin UI)">A+</button>
+        </div>
+        <button class="btn btn-primary save-btn" id="global-save" style="display:none">
+          <i class="fas fa-save"></i>
+          <span>Lưu thay đổi</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Content Area -->
+    <div class="content-area" id="content-area">
+      <!-- Loading spinner -->
+      <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+        <p>Đang tải...</p>
+      </div>
+
+      <!-- Dynamic content will be rendered here by app.js -->
+    </div>
+  </main>
+
+  <!-- Custom Prompt Modal -->
+  <div id="customPromptModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3 id="customPromptTitle">Nhập tên mới</h3>
+      <input type="text" id="customPromptInput" class="form-control" style="margin: 15px 0;">
+      <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button id="customPromptCancel" class="btn btn-secondary">Hủy</button>
+        <button id="customPromptConfirm" class="btn btn-primary">Lưu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cropper Modal -->
+  <div id="cropperModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 600px; width: 100%;">
+      <h3>Tùy chỉnh ảnh đại diện</h3>
+      <div style="max-height: 400px; height: 400px; margin: 15px 0;">
+        <img id="cropperImage" style="max-width: 100%; display: block;" src="">
+      </div>
+      <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button id="cropperCancel" class="btn btn-secondary">Hủy</button>
+        <button id="cropperConfirm" class="btn btn-primary">Xong</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast UI Editor Scripts -->
+  <!-- Editor Modal -->
+  <div id="editorModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 900px; width: 95%;">
+      <h3 id="editorModalTitle">Chỉnh sửa nội dung</h3>
+      <div id="modal-editor-container" style="margin: 15px 0;"></div>
+      <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button id="editorModalCancel" class="btn btn-secondary">Hủy</button>
+        <button id="editorModalConfirm" class="btn btn-primary">Xong</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+  <script src="https://uicdn.toast.com/tui-color-picker/latest/tui-color-picker.min.js"></script>
+  <script src="https://uicdn.toast.com/editor-plugin-color-syntax/latest/toastui-editor-plugin-color-syntax.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bibtex-parse-js@0.0.24/bibtexParse.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+  <script src="app.js?v=10"></script>
+</body>
+</html>
