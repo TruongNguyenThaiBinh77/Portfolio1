@@ -66,7 +66,7 @@ export default async function Home({ params }) {
         </header>
 
         <article>
-          <div className="profile float-right">
+          <div className="profile float-none float-md-right mb-4 mb-md-0 ml-md-4 text-center">
             {fm.profile?.image && (
               <figure>
                 <picture>

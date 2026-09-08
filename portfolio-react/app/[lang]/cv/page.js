@@ -69,12 +69,12 @@ export default async function CV({ params }) {
                   {education.map((edu, idx) => (
                     <li className="list-group-item p-3" key={idx} style={{ borderBottom: idx !== education.length - 1 ? '1px solid #e9ecef' : 'none', borderTop: 'none', borderLeft: 'none', borderRight: 'none' }}>
                       <div className="row">
-                        <div className="col-xs-2 cl-sm-2 col-md-2 text-center" style={{ width: '75px' }}>
+                        <div className="col-12 col-md-3 col-lg-2 text-center text-md-left mb-2 mb-md-0">
                           <span className="badge font-weight-bold text-uppercase align-middle" style={{ backgroundColor: 'var(--global-theme-color)', color: 'white', minWidth: '75px', padding: '5px' }}>
                             {edu.start_date} - {edu.end_date}
                           </span>
                         </div>
-                        <div className="col-xs-10 cl-sm-10 col-md-10 mt-2 mt-md-0" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div className="col-12 col-md-9 col-lg-10 mt-2 mt-md-0" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                           <div style={{ flex: 1 }}>
                             <h6 className="title font-weight-bold ml-1 ml-md-4">{edu.studyType}</h6>
                             <h6 className="ml-1 ml-md-4" style={{ fontSize: '0.95rem', fontWeight: '300' }}>
@@ -117,12 +117,12 @@ export default async function CV({ params }) {
                   {experience.map((exp, idx) => (
                     <li className="list-group-item p-3" key={idx} style={{ borderBottom: idx !== experience.length - 1 ? '1px solid #e9ecef' : 'none', borderTop: 'none', borderLeft: 'none', borderRight: 'none' }}>
                       <div className="row">
-                        <div className="col-xs-2 cl-sm-2 col-md-2 text-center" style={{ width: '75px' }}>
+                        <div className="col-12 col-md-3 col-lg-2 text-center text-md-left mb-2 mb-md-0">
                           <span className="badge font-weight-bold text-uppercase align-middle" style={{ backgroundColor: 'var(--global-theme-color)', color: 'white', minWidth: '75px', padding: '5px' }}>
                             {exp.start_date} - {exp.end_date}
                           </span>
                         </div>
-                        <div className="col-xs-10 cl-sm-10 col-md-10 mt-2 mt-md-0">
+                        <div className="col-12 col-md-9 col-lg-10 mt-2 mt-md-0">
                           <h6 className="title font-weight-bold ml-1 ml-md-4">{exp.position}</h6>
                           <h6 className="ml-1 ml-md-4" style={{ fontSize: '0.95rem', fontWeight: '300' }}>{exp.company}</h6>
                         </div>
@@ -141,12 +141,12 @@ export default async function CV({ params }) {
                   {honors.map((honor, idx) => (
                     <li className="list-group-item p-3" key={idx} style={{ borderBottom: idx !== honors.length - 1 ? '1px solid #e9ecef' : 'none', borderTop: 'none', borderLeft: 'none', borderRight: 'none' }}>
                       <div className="row">
-                        <div className="col-xs-2 cl-sm-2 col-md-2 text-center" style={{ width: '75px' }}>
+                        <div className="col-12 col-md-3 col-lg-2 text-center text-md-left mb-2 mb-md-0">
                           <span className="badge font-weight-bold text-uppercase align-middle" style={{ backgroundColor: 'var(--global-theme-color)', color: 'white', minWidth: '75px', padding: '5px' }}>
                             {honor.date}
                           </span>
                         </div>
-                        <div className="col-xs-10 cl-sm-10 col-md-10 mt-2 mt-md-0">
+                        <div className="col-12 col-md-9 col-lg-10 mt-2 mt-md-0">
                           <ul className="items" style={{ listStyleType: 'none', paddingLeft: '0', marginBottom: '0' }} className="ml-1 ml-md-4">
                             <li style={{ display: 'flex', alignItems: 'flex-start' }}>
                               <span style={{ marginRight: '0.5rem', color: '#6c757d', fontSize: '0.9rem', lineHeight: '1.5' }}>&#x25E6;</span>

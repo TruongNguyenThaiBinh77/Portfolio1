@@ -50,8 +50,11 @@ export default async function Publications({ params }) {
           <div className="publications mt-5">
             {sortedYears.length > 0 ? (
               sortedYears.map(year => (
-                <div key={year} className="d-flex mb-5" style={{ position: 'relative' }}>
-                  <div className="flex-grow-1" style={{ paddingRight: '120px' }}>
+                <div key={year} className="d-flex flex-column flex-md-row mb-5">
+                  <div className="year-header order-1 order-md-2 mb-4 mb-md-0 text-left text-md-right" style={{ minWidth: '120px' }}>
+                    <h2 className="year" style={{ color: 'var(--global-divider-color)', fontSize: '2.5rem', fontWeight: 300, margin: 0, lineHeight: 1.2 }}>{year}</h2>
+                  </div>
+                  <div className="flex-grow-1 order-2 order-md-1 pr-0 pr-md-4">
                     <ol className="bibliography" style={{ listStyleType: 'none', paddingLeft: 0, margin: 0 }}>
                       {pubsByYear[year].map((pub, index) => {
                         const tags = pub.entryTags;
@@ -88,10 +91,10 @@ export default async function Publications({ params }) {
                         }
 
                         return (
-                          <li key={index} className="mb-4 d-flex" style={{ backgroundColor: 'transparent', gap: '1.5rem', alignItems: 'flex-start' }}>
+                          <li key={index} className="mb-4 d-flex flex-column flex-md-row" style={{ backgroundColor: 'transparent', gap: '1.5rem', alignItems: 'flex-start' }}>
                             {/* Left Sidebar for Preview and Badge */}
                             {(preview || badgeName) ? (
-                              <div className="pub-sidebar" style={{ width: '120px', flexShrink: 0, display: 'flex', flexDirection: 'column', borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--global-divider-color)', backgroundColor: 'var(--global-bg-color)', minHeight: '120px' }}>
+                              <div className="pub-sidebar w-100" style={{ maxWidth: '120px', flexShrink: 0, display: 'flex', flexDirection: 'column', borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--global-divider-color)', backgroundColor: 'var(--global-bg-color)', minHeight: '120px' }}>
                                 {preview ? (
                                   <div style={{ width: '100%', flexGrow: 1, backgroundImage: `url(/assets/img/${preview})`, backgroundSize: 'cover', backgroundPosition: 'center', minHeight: '80px' }} />
                                 ) : (
@@ -104,7 +107,7 @@ export default async function Publications({ params }) {
                                 </div>
                               </div>
                             ) : (
-                              <div className="pub-sidebar-empty" style={{ width: '120px', flexShrink: 0 }}></div>
+                              <div className="pub-sidebar-empty d-none d-md-block" style={{ width: '120px', flexShrink: 0 }}></div>
                             )}
 
                             {/* Right Content */}
@@ -133,9 +136,6 @@ export default async function Publications({ params }) {
                         );
                       })}
                     </ol>
-                  </div>
-                  <div style={{ position: 'absolute', top: 0, right: 0, width: '100px', textAlign: 'right' }}>
-                    <h2 className="year" style={{ color: 'var(--global-divider-color)', fontSize: '2.5rem', fontWeight: 300, margin: 0, lineHeight: 1.2, border: 'none', paddingTop: 0 }}>{year}</h2>
                   </div>
                 </div>
               ))

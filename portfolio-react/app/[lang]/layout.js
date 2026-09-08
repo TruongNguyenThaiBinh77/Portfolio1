@@ -1,8 +1,6 @@
-
 import { getConfig } from '../../lib/config';
 import LiveReload from '../LiveReload';
-import Navbar from '../../components/Navbar';
-import NavbarBrand from '../../components/NavbarBrand';
+import NavbarWrapper from '../../components/NavbarWrapper';
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
@@ -101,20 +99,7 @@ export default async function RootLayout({ children, params }) {
                 opacity: config.navbar_bg_opacity !== undefined ? config.navbar_bg_opacity / 100 : 1,
               }} />
             )}
-            <div className="container">
-              <NavbarBrand config={config} />
-              
-              <button className="navbar-toggler collapsed navbar-toggler-main" type="button" data-nav-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span className="sr-only">Toggle navigation</span>
-                <span className="icon-bar top-bar"></span>
-                <span className="icon-bar middle-bar"></span>
-                <span className="icon-bar bottom-bar"></span>
-              </button>
-
-              <div className="collapse navbar-collapse navbar-collapse-main" id="navbarNav" style={{ flexGrow: 0 }}>
-                <Navbar config={config} lang={lang} />
-              </div>
-            </div>
+            <NavbarWrapper config={config} lang={lang} />
           </nav>
           <progress id="progress" value="0">
             <div className="progress-container">
