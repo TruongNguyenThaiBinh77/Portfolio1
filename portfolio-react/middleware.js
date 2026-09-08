@@ -14,7 +14,7 @@ export function middleware(request) {
     pathname.startsWith('/assets') ||
     pathname.includes('.')
   ) {
-    return;
+    return NextResponse.next();
   }
 
   const pathnameHasLocale = locales.some(
