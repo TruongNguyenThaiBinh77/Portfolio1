@@ -1,5 +1,5 @@
 export const dynamic = 'force-dynamic';
-import { getPageContent, getCvData } from '../../../lib/config';
+import { getPageContent, getCvData, getConfig } from '../../../lib/config';
 import PrintButton from '../../../components/PrintButton';
 
 const getLogoSize = (size) => {
@@ -12,6 +12,8 @@ export default async function CV({ params }) {
   const lang = resolvedParams.lang || 'vi';
   const { data: fm } = getPageContent('cv.md', lang);
   const cvData = getCvData(lang)?.cv || {};
+  const config = getConfig(lang);
+  const st = lang === 'vi' ? (config.section_titles || {}) : (config.section_titles_en || {});
 
   const generalInfo = [];
   if (cvData.name) generalInfo.push({ name: 'Full Name', value: cvData.name });
@@ -44,7 +46,7 @@ export default async function CV({ params }) {
           <div className="cv">
             {/* General Information */}
             <div className="card mt-3 p-3">
-              <h3 className="card-title font-weight-light">{lang === 'vi' ? 'Thông tin chung' : 'General Information'}</h3>
+              <h3 className="card-title font-weight-light" style={{ color: config.section_titles_color || 'inherit' }}>{st.cv_general || (lang === 'vi' ? 'Thông tin chung' : 'General Information')}</h3>
               <div className="card-body p-0">
                 <table className="table table-sm table-borderless mb-0">
                   <tbody>
@@ -61,7 +63,7 @@ export default async function CV({ params }) {
 
             {/* Education */}
             <div className="card mt-3 p-3">
-              <h3 className="card-title font-weight-light">{lang === 'vi' ? 'Học vấn' : 'Education'}</h3>
+              <h3 className="card-title font-weight-light" style={{ color: config.section_titles_color || 'inherit' }}>{st.cv_education || (lang === 'vi' ? 'Học vấn' : 'Education')}</h3>
               <div className="card-body p-0">
                 <ul className="list-group list-group-flush" style={{ listStyleType: 'none', paddingLeft: 0 }}>
                   {education.map((edu, idx) => (
@@ -109,7 +111,7 @@ export default async function CV({ params }) {
 
             {/* Experience */}
             <div className="card mt-3 p-3">
-              <h3 className="card-title font-weight-light">{lang === 'vi' ? 'Kinh nghiệm' : 'Experience'}</h3>
+              <h3 className="card-title font-weight-light" style={{ color: config.section_titles_color || 'inherit' }}>{st.cv_experience || (lang === 'vi' ? 'Kinh nghiệm' : 'Experience')}</h3>
               <div className="card-body p-0">
                 <ul className="list-group list-group-flush" style={{ listStyleType: 'none', paddingLeft: 0 }}>
                   {experience.map((exp, idx) => (
@@ -133,7 +135,7 @@ export default async function CV({ params }) {
 
             {/* Honors and Awards */}
             <div className="card mt-3 p-3">
-              <h3 className="card-title font-weight-light">{lang === 'vi' ? 'Giải thưởng và Thành tựu' : 'Honors and Awards'}</h3>
+              <h3 className="card-title font-weight-light" style={{ color: config.section_titles_color || 'inherit' }}>{st.cv_honors || (lang === 'vi' ? 'Giải thưởng và Thành tựu' : 'Honors and Awards')}</h3>
               <div className="card-body p-0">
                 <ul className="list-group list-group-flush" style={{ listStyleType: 'none', paddingLeft: 0 }}>
                   {honors.map((honor, idx) => (

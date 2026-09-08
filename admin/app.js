@@ -71,7 +71,7 @@ let currentModalSaveCallback = null;
 
 function openEditorModal(title, initialValue, onSaveCallback) {
   document.getElementById('editorModalTitle').textContent = title;
-  document.getElementById('editorModal').classList.add('active');
+  document.getElementById('editorModal').classList.add('show');
   
   // Initialize the editor inside the modal
   currentModalEditor = initEditor('modal-editor-container', initialValue, '600px');
@@ -79,7 +79,7 @@ function openEditorModal(title, initialValue, onSaveCallback) {
 }
 
 document.getElementById('editorModalCancel')?.addEventListener('click', () => {
-  document.getElementById('editorModal').classList.remove('active');
+  document.getElementById('editorModal').classList.remove('show');
   if (currentModalEditor) {
     currentModalEditor.destroy();
     currentModalEditor = null;
@@ -91,7 +91,7 @@ document.getElementById('editorModalConfirm')?.addEventListener('click', () => {
     const content = currentModalEditor.getMarkdown();
     currentModalSaveCallback(content);
   }
-  document.getElementById('editorModal').classList.remove('active');
+  document.getElementById('editorModal').classList.remove('show');
   if (currentModalEditor) {
     currentModalEditor.destroy();
     currentModalEditor = null;
@@ -193,6 +193,10 @@ async function loadSection(section) {
       case "pages-settings":
         globalSave.onclick = savePagesSettings;
         await loadPagesSettings();
+        break;
+      case "section-titles":
+        globalSave.onclick = saveSectionTitles;
+        await loadSectionTitles();
         break;
       case "about":
         globalSave.onclick = saveAbout;
@@ -310,11 +314,7 @@ async function loadSiteSettings() {
               <input type="checkbox" id="cfg-last_name_bold" ${data.last_name_bold ? 'checked' : ''} /> In đậm (Bold)
             </label>
           </div>
-          <div class="form-group">
-            <label>Title</label>
-            <input type="text" id="cfg-title" value="${escHtml(data.title)}" />
-            <span class="form-help">Ä ể "blank" sẽ dùng full name</span>
-          </div>
+          <!-- Removed duplicate title field -->
         </div>
       </div>
     </div>
@@ -537,8 +537,14 @@ async function loadSiteSettings() {
             <input type="text" id="cfg-keywords" value="${escHtml(data.keywords)}" />
           </div>
           <div class="form-group">
-            <label>Icon (Emoji hoặc file name)</label>
-            <input type="text" id="cfg-icon" value="${escHtml(data.icon)}" />
+            <label>Icon Tab (Favicon)</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <img id="cfg-icon_preview" src="${data.icon ? `/assets/img/${data.icon}` : ''}" style="max-height: 40px; display: ${data.icon ? 'block' : 'none'}; border: 1px solid var(--border-color); border-radius: 4px;" />
+              <input type="text" id="cfg-icon" value="${escHtml(data.icon || "")}" style="flex: 1;" oninput="document.getElementById('cfg-icon_preview').src = this.value ? '/assets/img/' + this.value : ''; document.getElementById('cfg-icon_preview').style.display = this.value ? 'block' : 'none';" />
+              <input type="file" id="cfg-icon_upload" accept="image/*,.ico" style="display: none;" onchange="uploadFavicon(this)" />
+              <button class="btn btn-secondary" onclick="document.getElementById('cfg-icon_upload').click()"><i class="fas fa-upload"></i> Tải icon lên</button>
+            </div>
+            <span class="form-help">VD: favicon.ico hoặc logo.png (file tải lên sẽ lưu trong assets/img)</span>
           </div>
           <div class="form-group">
             <label>URL</label>
@@ -620,7 +626,7 @@ async function saveSiteSettings() {
       last_name: document.getElementById("cfg-last_name").value,
       last_name_bold: document.getElementById("cfg-last_name_bold").checked,
       keywords: document.getElementById("cfg-keywords").value,
-      lang: document.getElementById("cfg-lang").value,
+      lang: document.getElementById("cfg-lang") ? document.getElementById("cfg-lang").value : 'vi',
       url: document.getElementById("cfg-url").value,
       baseurl: document.getElementById("cfg-baseurl").value,
       blog_name: document.getElementById("cfg-blog_name").value,
@@ -670,7 +676,7 @@ async function saveSiteSettings() {
     await fetch(`${API}/config`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify(payload),
     });
     showToast("âœ… Đã lưu! Jekyll đang rebuild (~30-60 giây). Sau đó F5 lại trang portfolio.", "success");
   } catch (err) {
@@ -766,6 +772,137 @@ async function savePagesSettings() {
     showToast("Đã lưu cấu hình trang thành công!");
   } catch (err) {
     showToast(`Lỗi khi lưu: ${err.message}`, "error");
+  }
+}
+
+// ============================================================================
+// Section Titles
+// ============================================================================
+
+async function loadSectionTitles() {
+  const data = await fetch(`${API}/config`).then((r) => r.json());
+  const st = data.section_titles || {};
+  const st_en = data.section_titles_en || {};
+
+  renderContent(`
+    <div class="section-intro">
+      <p>Cấu hình tên các phân mục (Section headings) xuất hiện trong các trang.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-palette"></i> Màu sắc tiêu đề</h2>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label>Màu chữ tiêu đề (để trống nếu dùng màu mặc định)</label>
+            <input type="color" id="cfg-section_titles_color" value="${escHtml(data.section_titles_color || '')}" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-heading"></i> Sơ yếu lý lịch (CV)</h2>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group full-width" style="display: flex; gap: 15px;">
+            <div style="flex: 1;">
+              <label>Thông tin chung (VI)</label>
+              <input type="text" id="cfg-st-cv-general" value="${escHtml(st.cv_general || 'Thông tin chung')}" />
+            </div>
+            <div style="flex: 1;">
+              <label>Thông tin chung (EN)</label>
+              <input type="text" id="cfg-st_en-cv-general" value="${escHtml(st_en.cv_general || 'General Information')}" />
+            </div>
+          </div>
+          <div class="form-group full-width" style="display: flex; gap: 15px;">
+            <div style="flex: 1;">
+              <label>Học vấn (VI)</label>
+              <input type="text" id="cfg-st-cv-education" value="${escHtml(st.cv_education || 'Học vấn')}" />
+            </div>
+            <div style="flex: 1;">
+              <label>Học vấn (EN)</label>
+              <input type="text" id="cfg-st_en-cv-education" value="${escHtml(st_en.cv_education || 'Education')}" />
+            </div>
+          </div>
+          <div class="form-group full-width" style="display: flex; gap: 15px;">
+            <div style="flex: 1;">
+              <label>Kinh nghiệm (VI)</label>
+              <input type="text" id="cfg-st-cv-experience" value="${escHtml(st.cv_experience || 'Kinh nghiệm')}" />
+            </div>
+            <div style="flex: 1;">
+              <label>Kinh nghiệm (EN)</label>
+              <input type="text" id="cfg-st_en-cv-experience" value="${escHtml(st_en.cv_experience || 'Experience')}" />
+            </div>
+          </div>
+          <div class="form-group full-width" style="display: flex; gap: 15px;">
+            <div style="flex: 1;">
+              <label>Giải thưởng và Thành tựu (VI)</label>
+              <input type="text" id="cfg-st-cv-honors" value="${escHtml(st.cv_honors || 'Giải thưởng và Thành tựu')}" />
+            </div>
+            <div style="flex: 1;">
+              <label>Giải thưởng và Thành tựu (EN)</label>
+              <input type="text" id="cfg-st_en-cv-honors" value="${escHtml(st_en.cv_honors || 'Honors and Awards')}" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-heading"></i> Về tôi (About)</h2>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group full-width" style="display: flex; gap: 15px;">
+            <div style="flex: 1;">
+              <label>Tin tức (VI)</label>
+              <input type="text" id="cfg-st-about-news" value="${escHtml(st.about_news || 'Tin tức')}" />
+            </div>
+            <div style="flex: 1;">
+              <label>Tin tức (EN)</label>
+              <input type="text" id="cfg-st_en-about-news" value="${escHtml(st_en.about_news || 'News')}" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+async function saveSectionTitles() {
+  const payload = {
+    section_titles_color: document.getElementById('cfg-section_titles_color').value,
+    section_titles: {
+      cv_general: document.getElementById('cfg-st-cv-general').value,
+      cv_education: document.getElementById('cfg-st-cv-education').value,
+      cv_experience: document.getElementById('cfg-st-cv-experience').value,
+      cv_honors: document.getElementById('cfg-st-cv-honors').value,
+      about_news: document.getElementById('cfg-st-about-news').value,
+    },
+    section_titles_en: {
+      cv_general: document.getElementById('cfg-st_en-cv-general').value,
+      cv_education: document.getElementById('cfg-st_en-cv-education').value,
+      cv_experience: document.getElementById('cfg-st_en-cv-experience').value,
+      cv_honors: document.getElementById('cfg-st_en-cv-honors').value,
+      about_news: document.getElementById('cfg-st_en-about-news').value,
+    }
+  };
+
+  try {
+    await fetch(`${API}/config`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    showToast("Đã lưu Tiêu đề phân mục thành công! Chờ Jekyll rebuild...", "success");
+  } catch (err) {
+    showToast(`Lỗi: ${err.message}`, "error");
   }
 }
 
@@ -3185,6 +3322,10 @@ function uploadGlobalBgImage(input) {
 
 function removeGlobalBgImage() {
   removeImagePreview('cfg-global_bg_image', 'cfg-global_bg_image_preview');
+}
+
+function uploadFavicon(input) {
+  handleImageUpload(input, 'cfg-icon', 'cfg-icon_preview', 'Tải icon lên thành công!');
 }
 
 function uploadProfileImage(input) {

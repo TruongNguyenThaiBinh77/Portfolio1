@@ -10,6 +10,7 @@ export default async function Home({ params }) {
   const config = getConfig(lang);
   const { data: fm, content } = getPageContent('about.md', lang);
   const newsItems = getNews(lang);
+  const st = lang === 'vi' ? (config.section_titles || {}) : (config.section_titles_en || {});
 
   // Convert markdown content to HTML
   const processedContent = await remark().use(html, { sanitize: false }).process(content);
@@ -106,7 +107,7 @@ export default async function Home({ params }) {
           {/* News Section */}
           {processedNews.length > 0 && (fm.news || fm.announcements?.enabled !== false) && (
             <div className="news mt-5">
-              <h2 style={{ marginBottom: '1.5rem' }}>{lang === 'vi' ? 'Tin tức' : 'News'}</h2>
+              <h2 style={{ marginBottom: '1.5rem', color: config.section_titles_color || 'inherit' }}>{st.about_news || (lang === 'vi' ? 'Tin tức' : 'News')}</h2>
               <div className="table-responsive">
                 <table className="table table-sm table-borderless">
                   <tbody>
@@ -140,17 +141,29 @@ export default async function Home({ params }) {
           {fm.social && (
             <div className="social">
               <div className="contact-icons">
-                {config.email && <a href={`mailto:${config.email}`} title="email"><i className="fas fa-envelope"></i></a>}
-                {config.orcid_id && <a href={`https://orcid.org/${config.orcid_id}`} title="ORCID"><i className="ai ai-orcid"></i></a>}
-                {config.scholar_userid && <a href={`https://scholar.google.com/citations?user=${config.scholar_userid}`} title="Google Scholar"><i className="ai ai-google-scholar"></i></a>}
-                {config.scopus_id && <a href={`https://www.scopus.com/authid/detail.uri?authorId=${config.scopus_id}`} title="Scopus"><i className="ai ai-scopus"></i></a>}
-                {config.github_username && <a href={`https://github.com/${config.github_username}`} title="GitHub"><i className="fab fa-github"></i></a>}
-                {config.linkedin_username && <a href={`https://www.linkedin.com/in/${config.linkedin_username}`} title="LinkedIn"><i className="fab fa-linkedin"></i></a>}
-                {config.research_gate_profile && <a href={`https://www.researchgate.net/profile/${config.research_gate_profile}`} title="ResearchGate"><i className="ai ai-researchgate"></i></a>}
-                {config.semantic_scholar_id && <a href={`https://www.semanticscholar.org/author/${config.semantic_scholar_id}`} title="Semantic Scholar"><i className="ai ai-semantic-scholar"></i></a>}
-                {config.kaggle_id && <a href={`https://kaggle.com/${config.kaggle_id}`} title="Kaggle"><i className="fab fa-kaggle"></i></a>}
-                {config.discord_id && <a href={`https://discord.com/users/${config.discord_id}`} title="Discord"><i className="fab fa-discord"></i></a>}
-                {config.rss_icon && <a href="/feed.xml" title="RSS"><i className="fas fa-rss"></i></a>}
+                {(() => {
+                  const getSocialUrl = (id, baseUrl) => {
+                    if (!id) return null;
+                    const strId = String(id);
+                    if (strId.startsWith('http://') || strId.startsWith('https://')) return strId;
+                    return `${baseUrl}${strId}`;
+                  };
+                  return (
+                    <>
+                      {config.email && <a href={String(config.email).startsWith('mailto:') ? String(config.email) : `mailto:${config.email}`} title="email"><i className="fas fa-envelope"></i></a>}
+                      {config.orcid_id && <a href={getSocialUrl(config.orcid_id, 'https://orcid.org/')} title="ORCID"><i className="ai ai-orcid"></i></a>}
+                      {config.scholar_userid && <a href={getSocialUrl(config.scholar_userid, 'https://scholar.google.com/citations?user=')} title="Google Scholar"><i className="ai ai-google-scholar"></i></a>}
+                      {config.scopus_id && <a href={getSocialUrl(config.scopus_id, 'https://www.scopus.com/authid/detail.uri?authorId=')} title="Scopus"><i className="ai ai-scopus"></i></a>}
+                      {config.github_username && <a href={getSocialUrl(config.github_username, 'https://github.com/')} title="GitHub"><i className="fab fa-github"></i></a>}
+                      {config.linkedin_username && <a href={getSocialUrl(config.linkedin_username, 'https://www.linkedin.com/in/')} title="LinkedIn"><i className="fab fa-linkedin"></i></a>}
+                      {config.research_gate_profile && <a href={getSocialUrl(config.research_gate_profile, 'https://www.researchgate.net/profile/')} title="ResearchGate"><i className="ai ai-researchgate"></i></a>}
+                      {config.semantic_scholar_id && <a href={getSocialUrl(config.semantic_scholar_id, 'https://www.semanticscholar.org/author/')} title="Semantic Scholar"><i className="ai ai-semantic-scholar"></i></a>}
+                      {config.kaggle_id && <a href={getSocialUrl(config.kaggle_id, 'https://kaggle.com/')} title="Kaggle"><i className="fab fa-kaggle"></i></a>}
+                      {config.discord_id && <a href={getSocialUrl(config.discord_id, 'https://discord.com/users/')} title="Discord"><i className="fab fa-discord"></i></a>}
+                      {config.rss_icon && <a href="/feed.xml" title="RSS"><i className="fas fa-rss"></i></a>}
+                    </>
+                  );
+                })()}
               </div>
               <div className="contact-note">{config.contact_note}</div>
             </div>

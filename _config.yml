@@ -6,8 +6,8 @@ first_name: Trương Nguyễn
 middle_name: Thái
 last_name: Bình
 keywords: jekyll, jekyll-theme, academic-website, portfolio-website
-lang: en
-icon: ⚛️
+lang: vi
+icon: co-dang_d040e.jpg
 url: https://alshedivat.github.io
 baseurl: /al-folio
 last_updated: false
@@ -521,8 +521,8 @@ footer_text: |-
          });
          </script>
 first_name_bold: true
-middle_name_bold: false
-last_name_bold: false
+middle_name_bold: true
+last_name_bold: true
 header_logo: MacLenin.jpg
 header_logo_size: 80px
 header_logo_bg: "#ffffff"
@@ -561,3 +561,21 @@ body_bg_hue: "0"
 body_bg_opacity: "100"
 body_bg_overlay: "#ffffff"
 body_bg_overlay_opacity: "70"
+title_en: ""
+blog_name_en: ""
+blog_description_en: ""
+description_en: ""
+footer_text_en: ""
+section_titles:
+  cv_general: Thông tin chung
+  cv_education: Trình độ
+  cv_experience: Kinh nghiệm
+  cv_honors: Giải thưởng và Thành tựu
+  about_news: Bài báo
+section_titles_en:
+  cv_general: General Information
+  cv_education: Education
+  cv_experience: Experience
+  cv_honors: Honors and Awards
+  about_news: News
+section_titles_color: "#8c0303"

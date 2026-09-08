@@ -4,9 +4,23 @@ import LiveReload from '../LiveReload';
 import Navbar from '../../components/Navbar';
 import NavbarBrand from '../../components/NavbarBrand';
 
-export const metadata = {
-  title: 'Portfolio',
-  description: 'Academic Portfolio',
+export async function generateMetadata({ params }) {
+  const resolvedParams = await params;
+  const lang = resolvedParams.lang || 'vi';
+  const config = getConfig(lang);
+
+  let pageTitle = config.title;
+  if (!pageTitle || pageTitle.toLowerCase() === 'blank') {
+    pageTitle = [config.first_name, config.middle_name, config.last_name].filter(Boolean).join(' ');
+  }
+
+  return {
+    title: pageTitle || 'Portfolio',
+    description: config.description || 'Academic Portfolio',
+    icons: {
+      icon: config.icon ? `/assets/img/${config.icon}` : '/favicon.ico',
+    }
+  };
 }
 
 export default async function RootLayout({ children, params }) {
@@ -35,10 +49,6 @@ export default async function RootLayout({ children, params }) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-        <title>{`${config.title} | ${config.description}`}</title>
-        <meta name="author" content={`${config.first_name} ${config.middle_name} ${config.last_name}`} />
-        <meta name="description" content={config.description || ''} />
-        <meta name="keywords" content={config.keywords || ''} />
         
         <link rel="stylesheet" href="/assets/css/tailwind.css" />
         <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&display=swap" />

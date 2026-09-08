@@ -200,7 +200,8 @@ app.put("/api/config", (req, res) => {
       "body_bg_image", "body_bg_image_size", "body_bg_hue", "body_bg_opacity", "body_bg_overlay", "body_bg_overlay_opacity",
       "navbar_bg_color", "navbar_bg_image", "navbar_bg_image_size", "navbar_bg_hue", "navbar_bg_opacity", "navbar_bg_overlay", "navbar_bg_overlay_opacity",
       "navbar_text_color", "navbar_active_text_color",
-      "nav_names"
+      "nav_names",
+      "section_titles", "section_titles_en", "section_titles_color"
     ];
     
     editableFields.forEach(key => {
