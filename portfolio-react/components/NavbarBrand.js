@@ -4,11 +4,12 @@ import Link from 'next/link';
 
 export default function NavbarBrand({ config }) {
   const pathname = usePathname();
+  const isHomePage = pathname === '/' || pathname === '/vi' || pathname === '/en';
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+    <div style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
       {config.header_logo && (
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', marginRight: '15px' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', marginRight: '15px', flexShrink: 0 }}>
           <img src={`/assets/img/${config.header_logo}`} style={{
             width: config.header_logo_size || '40px',
             height: config.header_logo_height || 'auto',
@@ -20,12 +21,15 @@ export default function NavbarBrand({ config }) {
         </Link>
       )}
       
-      {pathname !== '/' && (
+      {!isHomePage && (
         <Link href="/" className="navbar-brand title font-weight-lighter" style={{ 
           margin: 0,
           textDecoration: 'none', 
           color: config.navbar_text_color || 'inherit',
-          whiteSpace: 'nowrap'
+          display: 'block',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
         }}>
           <span className="font-weight-bold" style={{ fontWeight: config.first_name_bold ? 'bold' : 'normal' }}>
             {config.first_name}
