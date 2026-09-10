@@ -66,7 +66,21 @@ export default async function Home({ params }) {
         </header>
 
         <article>
-          <div className="profile float-none float-md-right mb-4 mb-md-0 ml-md-4 text-center">
+          <style>{`
+            @media (max-width: 767px) {
+              .profile.float-right {
+                float: none !important;
+                margin-left: 0 !important;
+                margin-bottom: 2rem !important;
+                text-align: center;
+              }
+              .profile.float-right img {
+                max-width: 250px;
+                margin: 0 auto;
+              }
+            }
+          `}</style>
+          <div className="profile float-right">
             {fm.profile?.image && (
               <figure>
                 <picture>

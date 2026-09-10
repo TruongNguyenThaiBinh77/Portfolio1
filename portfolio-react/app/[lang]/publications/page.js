@@ -47,14 +47,24 @@ export default async function Publications({ params }) {
         <article>
           {cleanContent && <ReactMarkdown>{cleanContent}</ReactMarkdown>}
 
+          <style>{`
+            @media (min-width: 768px) {
+              .pub-list-container {
+                padding-right: 120px;
+              }
+            }
+          `}</style>
+
           <div className="publications mt-5">
             {sortedYears.length > 0 ? (
               sortedYears.map(year => (
-                <div key={year} className="d-flex flex-column flex-md-row mb-5">
-                  <div className="year-header order-1 order-md-2 mb-4 mb-md-0 text-left text-md-right" style={{ minWidth: '120px' }}>
+                <div key={year} className="mb-5 position-relative">
+                  {/* Mobile header (hidden on desktop) */}
+                  <div className="d-block d-md-none mb-3">
                     <h2 className="year" style={{ color: 'var(--global-divider-color)', fontSize: '2.5rem', fontWeight: 300, margin: 0, lineHeight: 1.2 }}>{year}</h2>
                   </div>
-                  <div className="flex-grow-1 order-2 order-md-1 pr-0 pr-md-4">
+
+                  <div className="flex-grow-1 pub-list-container">
                     <ol className="bibliography" style={{ listStyleType: 'none', paddingLeft: 0, margin: 0 }}>
                       {pubsByYear[year].map((pub, index) => {
                         const tags = pub.entryTags;
@@ -136,6 +146,11 @@ export default async function Publications({ params }) {
                         );
                       })}
                     </ol>
+                  </div>
+
+                  {/* Desktop header (hidden on mobile) */}
+                  <div className="d-none d-md-block" style={{ position: 'absolute', top: 0, right: 0, width: '100px', textAlign: 'right' }}>
+                    <h2 className="year" style={{ color: 'var(--global-divider-color)', fontSize: '2.5rem', fontWeight: 300, margin: 0, lineHeight: 1.2, border: 'none', paddingTop: 0 }}>{year}</h2>
                   </div>
                 </div>
               ))
