@@ -21,7 +21,7 @@ repo_trophies:
   theme_dark: gitdimmed
 rss_icon: true
 navbar_fixed: true
-footer_fixed: true
+footer_fixed: false
 search_enabled: true
 socials_in_search: true
 bib_search: true
@@ -36,7 +36,7 @@ dblp_url: null
 discord_id: your_id
 facebook_id: null
 flickr_id: null
-github_username: your_username
+github_username: TruongNguyenThaiBinh77
 gitlab_username: null
 ieee_id: null
 instagram_id: null
@@ -504,8 +504,8 @@ footer_text: |-
                const container = document.querySelector('.navbar .container');
                const img = document.createElement('img');
                img.src = '{{ site.baseurl }}/assets/img/MacLenin.jpg';
-               img.style.width = '80px';
-               img.style.height = 'auto';
+               img.style.width = '56px';
+               img.style.height = '32px';
                img.style.backgroundColor = '#ffffff';
                img.style.padding = '5px'; img.style.borderRadius = '5px';
                img.style.marginRight = '15px';
@@ -524,9 +524,13 @@ first_name_bold: true
 middle_name_bold: true
 last_name_bold: true
 header_logo: MacLenin.jpg
-header_logo_size: 80px
+header_logo_size: 56px
 header_logo_bg: "#ffffff"
-header_logo_height: auto
+header_logo_height: 32px
+navbar_scale: 100
+navbar_padding_y: 3px
+navbar_font_size: 13.5px
+navbar_brand_size: 15px
 navbar_bg_color: "#FEEAEB"
 global_bg_image_size: "36"
 nav_names:

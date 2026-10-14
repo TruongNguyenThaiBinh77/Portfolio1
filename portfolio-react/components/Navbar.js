@@ -26,10 +26,10 @@ export default function Navbar({ config }) {
           {currentPath === '/cv' && <span className="sr-only">(current)</span>}
         </Link>
       </li>
-      <li className={`nav-item ${currentPath === '/teaching' ? 'active' : ''}`}>
-        <Link className="nav-link" href={`/${lang}/teaching`}>
-          {navNames.teachings || "teaching"}
-          {currentPath === '/teaching' && <span className="sr-only">(current)</span>}
+      <li className={`nav-item ${currentPath === '/achievements' || currentPath === '/teaching' ? 'active' : ''}`}>
+        <Link className="nav-link" href={`/${lang}/achievements`}>
+          {navNames.teachings || (lang === 'vi' ? 'Thành tích' : 'Achievements')}
+          {(currentPath === '/achievements' || currentPath === '/teaching') && <span className="sr-only">(current)</span>}
         </Link>
       </li>
       <li className={`nav-item ${currentPath === '/publications' ? 'active' : ''}`}>

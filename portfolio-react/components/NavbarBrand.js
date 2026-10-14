@@ -9,14 +9,16 @@ export default function NavbarBrand({ config }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
       {config.header_logo && (
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', marginRight: '15px', flexShrink: 0 }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', marginRight: '12px', flexShrink: 0 }}>
           <img src={`/assets/img/${config.header_logo}`} style={{
-            width: config.header_logo_size || '40px',
-            height: config.header_logo_height || 'auto',
+            width: config.header_logo_size || 'auto',
+            height: config.header_logo_height || '32px',
+            maxHeight: config.header_logo_height && config.header_logo_height !== 'auto' ? config.header_logo_height : '32px',
             backgroundColor: config.header_logo_bg || 'transparent',
-            padding: config.header_logo_bg && config.header_logo_bg !== '#ffffff' ? '5px' : '0',
-            borderRadius: config.header_logo_bg && config.header_logo_bg !== '#ffffff' ? '5px' : '0',
-            verticalAlign: 'middle'
+            padding: config.header_logo_bg && config.header_logo_bg !== '#ffffff' ? '3px' : '0',
+            borderRadius: config.header_logo_bg && config.header_logo_bg !== '#ffffff' ? '4px' : '0',
+            verticalAlign: 'middle',
+            objectFit: 'contain'
           }} alt="Logo" />
         </Link>
       )}
@@ -26,6 +28,7 @@ export default function NavbarBrand({ config }) {
           margin: 0,
           textDecoration: 'none', 
           color: config.navbar_text_color || 'inherit',
+          fontSize: config.navbar_brand_size || '15px',
           display: 'block',
           whiteSpace: 'nowrap',
           overflow: 'hidden',

@@ -136,23 +136,53 @@ const pageTitle = document.getElementById("page-title");
 const breadcrumb = document.getElementById("breadcrumb");
 const contentArea = document.getElementById("content-area");
 
+function initAdminRouter() {
+  const hash = window.location.hash.replace(/^#\/?/, "");
+  const validSections = [
+    "site-settings", "pages-settings", "section-titles",
+    "about", "cv", "socials", "repositories",
+    "teachings", "news", "bibliography", "resume-json"
+  ];
+  const section = validSections.includes(hash) ? hash : "site-settings";
+
+  navItems.forEach((n) => {
+    if (n.dataset.section === section) {
+      n.classList.add("active");
+      const span = n.querySelector("span");
+      if (span) {
+        pageTitle.textContent = span.textContent;
+        if (breadcrumb) {
+          breadcrumb.textContent = `Admin / ${span.textContent}`;
+        }
+      }
+    } else {
+      n.classList.remove("active");
+    }
+  });
+
+  loadSection(section);
+}
+
 navItems.forEach((item) => {
   item.addEventListener("click", (e) => {
     e.preventDefault();
     const section = item.dataset.section;
-    navItems.forEach((n) => n.classList.remove("active"));
-    item.classList.add("active");
-    pageTitle.textContent = item.querySelector("span").textContent;
-    if (breadcrumb) {
-      breadcrumb.textContent = `Admin / ${item.querySelector("span").textContent}`;
+    const targetHash = `#/${section}`;
+    if (window.location.hash === targetHash || window.location.hash === `#${section}`) {
+      initAdminRouter();
+    } else {
+      window.location.hash = targetHash;
     }
-    loadSection(section);
 
     // Close mobile sidebar
     document.getElementById("sidebar").classList.remove("open");
     const backdrop = document.querySelector(".sidebar-backdrop");
     if (backdrop) backdrop.classList.remove("active");
   });
+});
+
+window.addEventListener("hashchange", () => {
+  initAdminRouter();
 });
 
 // Mobile toggle
@@ -343,8 +373,54 @@ async function loadSiteSettings() {
             </div>
           </div>
           <div class="form-group">
-            <label>Màu ná» n (Background Color)</label>
+            <label>Màu nền (Background Color)</label>
             <input type="color" id="cfg-header_logo_bg" value="${escHtml(data.header_logo_bg || "#ffffff")}" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-ruler-combined"></i> Kích thước & Thu phóng Header (Header Scale & Sizing)</h2>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Tỉ lệ thu phóng Header (Scale)</label>
+            <div style="display: flex; gap: 15px; align-items: center;">
+              <input type="range" id="cfg-navbar_scale" min="70" max="115" value="${data.navbar_scale || 88}" oninput="document.getElementById('navbar_scale_val').innerText = this.value + '%'" style="flex: 1;" />
+              <span id="navbar_scale_val" style="min-width: 45px; font-weight: bold; color: var(--primary);">${data.navbar_scale || 88}%</span>
+            </div>
+            <span class="form-help">Thu nhỏ Header (khuyên dùng 80% - 90% để thanh menu thanh thoát, gọn gàng).</span>
+          </div>
+
+          <div class="form-group">
+            <label>Độ đệm trên/dưới Menu (Vertical Padding)</label>
+            <div style="display: flex; gap: 15px; align-items: center;">
+              <input type="range" id="cfg-navbar_padding_y_slider" min="1" max="16" value="${parseInt(data.navbar_padding_y || 3)}" oninput="document.getElementById('cfg-navbar_padding_y').value = this.value + 'px'; document.getElementById('navbar_padding_y_val').innerText = this.value + 'px'" style="flex: 1;" />
+              <span id="navbar_padding_y_val" style="min-width: 45px; font-weight: bold; color: var(--primary);">${data.navbar_padding_y || '3px'}</span>
+            </div>
+            <input type="hidden" id="cfg-navbar_padding_y" value="${escHtml(data.navbar_padding_y || "3px")}" />
+            <span class="form-help">Khoảng cách mép trên/dưới đến nội dung menu (Mặc định 3px).</span>
+          </div>
+
+          <div class="form-group">
+            <label>Cỡ chữ Menu (Menu Font Size)</label>
+            <div style="display: flex; gap: 15px; align-items: center;">
+              <input type="range" id="cfg-navbar_font_size_slider" min="11" max="18" step="0.5" value="${parseFloat(data.navbar_font_size || 13.5)}" oninput="document.getElementById('cfg-navbar_font_size').value = this.value + 'px'; document.getElementById('navbar_font_size_val').innerText = this.value + 'px'" style="flex: 1;" />
+              <span id="navbar_font_size_val" style="min-width: 45px; font-weight: bold; color: var(--primary);">${data.navbar_font_size || '13.5px'}</span>
+            </div>
+            <input type="hidden" id="cfg-navbar_font_size" value="${escHtml(data.navbar_font_size || "13.5px")}" />
+          </div>
+
+          <div class="form-group">
+            <label>Cỡ chữ Tên / Thương hiệu (Brand Font Size)</label>
+            <div style="display: flex; gap: 15px; align-items: center;">
+              <input type="range" id="cfg-navbar_brand_size_slider" min="13" max="22" step="0.5" value="${parseFloat(data.navbar_brand_size || 15)}" oninput="document.getElementById('cfg-navbar_brand_size').value = this.value + 'px'; document.getElementById('navbar_brand_size_val').innerText = this.value + 'px'" style="flex: 1;" />
+              <span id="navbar_brand_size_val" style="min-width: 45px; font-weight: bold; color: var(--primary);">${data.navbar_brand_size || '15px'}</span>
+            </div>
+            <input type="hidden" id="cfg-navbar_brand_size" value="${escHtml(data.navbar_brand_size || "15px")}" />
           </div>
         </div>
       </div>
@@ -644,6 +720,10 @@ async function saveSiteSettings() {
       header_logo_size: document.getElementById("cfg-header_logo_size").value,
       header_logo_height: document.getElementById("cfg-header_logo_height").value,
       header_logo_bg: document.getElementById("cfg-header_logo_bg").value,
+      navbar_scale: parseInt(document.getElementById("cfg-navbar_scale") ? document.getElementById("cfg-navbar_scale").value : 88),
+      navbar_padding_y: document.getElementById("cfg-navbar_padding_y") ? document.getElementById("cfg-navbar_padding_y").value : "3px",
+      navbar_font_size: document.getElementById("cfg-navbar_font_size") ? document.getElementById("cfg-navbar_font_size").value : "13.5px",
+      navbar_brand_size: document.getElementById("cfg-navbar_brand_size") ? document.getElementById("cfg-navbar_brand_size").value : "15px",
   
       global_bg_color: document.getElementById("cfg-global_bg_color").value,
       global_bg_image: document.getElementById("cfg-global_bg_image").value,
@@ -1060,8 +1140,41 @@ async function saveAbout() {
 // ============================================================================
 
 async function loadCV() {
-  const data = await fetch(`${API}/cv`).then((r) => r.json());
+  const [data, pageRes] = await Promise.all([
+    fetch(`${API}/cv`).then((r) => r.json()).catch(() => ({})),
+    fetch(`${API}/pages/cv`).then((r) => r.json()).catch(() => ({}))
+  ]);
   const cv = data.cv || data;
+
+  const pageTitleVi = pageRes.title || "Sơ yếu lý lịch";
+  const pageTitleEn = pageRes.title_en || "Curriculum Vitae";
+  const pageTitleBold = pageRes.page_title_bold !== false;
+  const pageTitleColor = pageRes.page_title_color || "#8c0303";
+
+  const generalTitle = pageRes.general_title || "Thông tin chung";
+  const generalTitleEn = pageRes.general_title_en || "General Information";
+  const generalTitleBold = pageRes.general_title_bold !== false;
+  const generalTitleColor = pageRes.general_title_color || "#8c0303";
+
+  const educationTitle = pageRes.education_title || "Học vấn";
+  const educationTitleEn = pageRes.education_title_en || "Education";
+  const educationTitleBold = pageRes.education_title_bold !== false;
+  const educationTitleColor = pageRes.education_title_color || "#8c0303";
+
+  const experienceTitle = pageRes.experience_title || "Kinh nghiệm";
+  const experienceTitleEn = pageRes.experience_title_en || "Experience";
+  const experienceTitleBold = pageRes.experience_title_bold !== false;
+  const experienceTitleColor = pageRes.experience_title_color || "#8c0303";
+
+  const honorsTitle = pageRes.honors_title || "Giải thưởng và Thành tựu";
+  const honorsTitleEn = pageRes.honors_title_en || "Honors and Awards";
+  const honorsTitleBold = pageRes.honors_title_bold !== false;
+  const honorsTitleColor = pageRes.honors_title_color || "#8c0303";
+
+  const skillsTitle = pageRes.skills_title || "Kỹ năng chuyên môn";
+  const skillsTitleEn = pageRes.skills_title_en || "Skills";
+  const skillsTitleBold = pageRes.skills_title_bold !== false;
+  const skillsTitleColor = pageRes.skills_title_color || "#8c0303";
 
   const sections = cv.sections || {};
   const eduHtml = renderDynamicList(sections.Education || [], "education", renderEducationItem);
@@ -1073,6 +1186,93 @@ async function loadCV() {
   renderContent(`
     <div class="section-intro">
       <p>Chỉnh sửa thông tin CV (Song ngữ) — học vấn, kinh nghiệm làm việc, kỹ năng, v.v.</p>
+    </div>
+
+    <!-- 1. Tùy chỉnh Tiêu đề & Màu sắc CV -->
+    <div class="card mb-4">
+      <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
+        <h2><i class="fas fa-palette" style="color:var(--accent-light);margin-right:8px"></i> Tùy chỉnh Tiêu đề & Màu sắc (Titles & Styling)</h2>
+        <button class="btn btn-primary btn-sm" onclick="saveCVTitles()">
+          <i class="fas fa-save mr-1"></i> Lưu cài đặt tiêu đề
+        </button>
+      </div>
+      <div class="card-body">
+        <p class="text-muted" style="font-size: 0.88rem; margin-bottom: 22px;">
+          Tùy chỉnh nội dung chữ, định dạng <strong>in đậm</strong> và <strong>lựa màu sắc</strong> cho từng tiêu đề trên trang CV. Bạn có thể tự chọn màu bất kỳ hoặc <strong>tích chọn nhanh vào các ô màu đẹp có sẵn</strong> bên dưới (có dấu tích ✔️).
+        </p>
+
+        ${renderTitleStylingBlock({
+          id: 'cv-page-title',
+          num: '1',
+          icon: 'fas fa-heading',
+          label: 'Tiêu đề chính của trang (Page Title)',
+          titleVi: pageTitleVi,
+          titleEn: pageTitleEn,
+          isBold: pageTitleBold,
+          color: pageTitleColor,
+        })}
+
+        ${renderTitleStylingBlock({
+          id: 'cv-general-title',
+          num: '2',
+          icon: 'fas fa-user-circle',
+          label: 'Tiêu đề mục: Thông tin chung (General Information)',
+          titleVi: generalTitle,
+          titleEn: generalTitleEn,
+          isBold: generalTitleBold,
+          color: generalTitleColor,
+        })}
+
+        ${renderTitleStylingBlock({
+          id: 'cv-education-title',
+          num: '3',
+          icon: 'fas fa-graduation-cap',
+          label: 'Tiêu đề mục: Học vấn (Education)',
+          titleVi: educationTitle,
+          titleEn: educationTitleEn,
+          isBold: educationTitleBold,
+          color: educationTitleColor,
+        })}
+
+        ${renderTitleStylingBlock({
+          id: 'cv-experience-title',
+          num: '4',
+          icon: 'fas fa-briefcase',
+          label: 'Tiêu đề mục: Kinh nghiệm (Experience)',
+          titleVi: experienceTitle,
+          titleEn: experienceTitleEn,
+          isBold: experienceTitleBold,
+          color: experienceTitleColor,
+        })}
+
+        ${renderTitleStylingBlock({
+          id: 'cv-honors-title',
+          num: '5',
+          icon: 'fas fa-award',
+          label: 'Tiêu đề mục: Giải thưởng & Thành tựu (Honors & Awards)',
+          titleVi: honorsTitle,
+          titleEn: honorsTitleEn,
+          isBold: honorsTitleBold,
+          color: honorsTitleColor,
+        })}
+
+        ${renderTitleStylingBlock({
+          id: 'cv-skills-title',
+          num: '6',
+          icon: 'fas fa-tools',
+          label: 'Tiêu đề mục: Kỹ năng chuyên môn (Skills)',
+          titleVi: skillsTitle,
+          titleEn: skillsTitleEn,
+          isBold: skillsTitleBold,
+          color: skillsTitleColor,
+        })}
+
+        <div style="margin-top: 15px; display: flex; justify-content: flex-end;">
+          <button class="btn btn-primary" onclick="saveCVTitles()">
+            <i class="fas fa-save mr-1"></i> Lưu tùy chỉnh tiêu đề CV
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="card">
@@ -1124,6 +1324,24 @@ async function loadCV() {
               <label>Mô tả ngắn (Tiếng Anh)</label>
               <textarea id="cv-summary_en" rows="3">${escHtml(cv.summary_en || '')}</textarea>
             </div>
+          </div>
+        </div>
+
+        <!-- Custom Info Items / Các dòng thông tin tùy chỉnh (Ví dụ: Tổ chức, Đơn vị, ...) -->
+        <div class="mt-4 pt-3" style="border-top: 1px dashed var(--border);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <label style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0;">
+              <i class="fas fa-list-ul mr-1" style="color: var(--accent-light);"></i> Các dòng thông tin bổ sung (Tổ chức, Đơn vị, ...)
+            </label>
+            <button type="button" class="btn btn-sm btn-secondary" onclick="addCustomInfoItem()" style="font-size: 12px; padding: 5px 12px;">
+              <i class="fas fa-plus mr-1"></i> Thêm dòng thông tin
+            </button>
+          </div>
+          <p class="text-muted" style="font-size: 0.82rem; margin-bottom: 12px;">
+            Thêm các dòng thông tin hiển thị tại mục <strong>Thông tin chung</strong> trên CV (Ví dụ: <em>Tổ chức: Chi bộ Ấp Gò Cao</em>, <em>Đơn vị công tác</em>, v.v.).
+          </p>
+          <div id="cv-custom-info-list" class="dynamic-list">
+            ${(cv.custom_info || []).map((ci, i) => renderCustomInfoItem(ci, i)).join("")}
           </div>
         </div>
       </div>
@@ -1191,11 +1409,52 @@ async function loadCV() {
   `);
   
   // Make lists sortable
+  initSortable('cv-custom-info-list');
   initSortable('education-list');
   initSortable('experience-list');
   initSortable('honors-list');
   initSortable('languages-list');
   initSortable('skills-list');
+}
+
+function renderCustomInfoItem(ci = {}, i = 0) {
+  return `
+    <div class="dynamic-item" style="padding: 12px 16px; margin-bottom: 10px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <span style="font-size: 0.85rem; font-weight: 600; color: var(--accent-light);">
+          <i class="fas fa-arrows-alt handle mr-2" style="cursor: grab; opacity: 0.5;"></i> ${escHtml(ci.name || "Dòng thông tin mới")}
+        </span>
+        <button type="button" class="btn btn-sm btn-danger btn-icon" onclick="this.closest('.dynamic-item').remove()" title="Xóa dòng này">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px;">
+        <div>
+          <label style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 4px; display: block;">Tên mục (Tiếng Việt) <span style="color: var(--error)">*</span></label>
+          <input type="text" class="custom-info-name" value="${escHtml(ci.name || '')}" placeholder="Ví dụ: Tổ chức" style="width: 100%;" />
+        </div>
+        <div>
+          <label style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 4px; display: block;">Tên mục (Tiếng Anh)</label>
+          <input type="text" class="custom-info-name_en" value="${escHtml(ci.name_en || '')}" placeholder="Ví dụ: Organization" style="width: 100%;" />
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div>
+          <label style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 4px; display: block;">Giá trị / Nội dung (Tiếng Việt) <span style="color: var(--error)">*</span></label>
+          <input type="text" class="custom-info-value" value="${escHtml(ci.value || '')}" placeholder="Ví dụ: Chi bộ Ấp Gò Cao" style="width: 100%;" />
+        </div>
+        <div>
+          <label style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 4px; display: block;">Giá trị / Nội dung (Tiếng Anh)</label>
+          <input type="text" class="custom-info-value_en" value="${escHtml(ci.value_en || '')}" placeholder="Ví dụ: Go Cao Hamlet Party Cell" style="width: 100%;" />
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function addCustomInfoItem() {
+  const list = document.getElementById("cv-custom-info-list");
+  list.insertAdjacentHTML("beforeend", renderCustomInfoItem({}));
 }
 
 function renderEducationItem(edu = {}, i = 0) {
@@ -1540,6 +1799,14 @@ async function saveCV() {
   cv.summary = document.getElementById("cv-summary").value;
   cv.summary_en = document.getElementById("cv-summary_en").value;
 
+  // Collect custom info items (Tổ chức, Đơn vị, ...)
+  cv.custom_info = collectDynamicItems("#cv-custom-info-list .dynamic-item", (el) => ({
+    name: el.querySelector(".custom-info-name") ? el.querySelector(".custom-info-name").value.trim() : "",
+    name_en: el.querySelector(".custom-info-name_en") ? el.querySelector(".custom-info-name_en").value.trim() : "",
+    value: el.querySelector(".custom-info-value") ? el.querySelector(".custom-info-value").value.trim() : "",
+    value_en: el.querySelector(".custom-info-value_en") ? el.querySelector(".custom-info-value_en").value.trim() : "",
+  })).filter((item) => item.name && item.value);
+
   // Collect education
   cv.sections = cv.sections || {};
   cv.sections.Education = collectDynamicItems("#education-list .dynamic-item", (el) => ({
@@ -1617,7 +1884,48 @@ async function saveCV() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ cv }),
     });
-    showToast("CV đã được lưu thành công!", "success");
+
+    const pageTitleInput = document.getElementById("cv-page-title");
+    if (pageTitleInput) {
+      const cvPageData = {
+        title: pageTitleInput.value.trim(),
+        title_en: document.getElementById("cv-page-title-en")?.value.trim() || "",
+        page_title_bold: document.getElementById("cv-page-title-bold")?.checked ?? true,
+        page_title_color: document.getElementById("cv-page-title-color")?.value || "#8c0303",
+
+        general_title: document.getElementById("cv-general-title")?.value.trim() || "Thông tin chung",
+        general_title_en: document.getElementById("cv-general-title-en")?.value.trim() || "General Information",
+        general_title_bold: document.getElementById("cv-general-title-bold")?.checked ?? true,
+        general_title_color: document.getElementById("cv-general-title-color")?.value || "#8c0303",
+
+        education_title: document.getElementById("cv-education-title")?.value.trim() || "Học vấn",
+        education_title_en: document.getElementById("cv-education-title-en")?.value.trim() || "Education",
+        education_title_bold: document.getElementById("cv-education-title-bold")?.checked ?? true,
+        education_title_color: document.getElementById("cv-education-title-color")?.value || "#8c0303",
+
+        experience_title: document.getElementById("cv-experience-title")?.value.trim() || "Kinh nghiệm",
+        experience_title_en: document.getElementById("cv-experience-title-en")?.value.trim() || "Experience",
+        experience_title_bold: document.getElementById("cv-experience-title-bold")?.checked ?? true,
+        experience_title_color: document.getElementById("cv-experience-title-color")?.value || "#8c0303",
+
+        honors_title: document.getElementById("cv-honors-title")?.value.trim() || "Giải thưởng và Thành tựu",
+        honors_title_en: document.getElementById("cv-honors-title-en")?.value.trim() || "Honors and Awards",
+        honors_title_bold: document.getElementById("cv-honors-title-bold")?.checked ?? true,
+        honors_title_color: document.getElementById("cv-honors-title-color")?.value || "#8c0303",
+
+        skills_title: document.getElementById("cv-skills-title")?.value.trim() || "Kỹ năng chuyên môn",
+        skills_title_en: document.getElementById("cv-skills-title-en")?.value.trim() || "Skills",
+        skills_title_bold: document.getElementById("cv-skills-title-bold")?.checked ?? true,
+        skills_title_color: document.getElementById("cv-skills-title-color")?.value || "#8c0303",
+      };
+      await fetch(`${API}/pages/cv`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cvPageData),
+      });
+    }
+
+    showToast("CV và tùy chỉnh tiêu đề đã được lưu thành công!", "success");
   } catch (err) {
     showToast(`Lỗi: ${err.message}`, "error");
   }
@@ -1776,14 +2084,196 @@ async function saveSocials() {
 // ============================================================================
 
 async function loadRepositories() {
-  const data = await fetch(`${API}/repositories`).then((r) => r.json());
+  const [data, pageRes] = await Promise.all([
+    fetch(`${API}/repositories`).then((r) => r.json()).catch(() => ({})),
+    fetch(`${API}/pages/repositories`).then((r) => r.json()).catch(() => ({}))
+  ]);
+
+  const pageTitleVi = data.page_title || pageRes.title || "Lưu trữ";
+  const pageTitleEn = data.page_title_en || pageRes.title_en || "Repositories";
+  const pageTitleBold = data.page_title_bold !== false;
+  const pageTitleColor = data.page_title_color || "#8c0303";
+
+  const overviewTitle = data.overview_title || "Tổng quan GitHub";
+  const overviewTitleEn = data.overview_title_en || "GitHub Overview";
+  const overviewTitleBold = data.overview_title_bold !== false;
+  const overviewTitleColor = data.overview_title_color || "#8c0303";
+
+  const reposTitle = data.repos_title || "Kho lưu trữ nổi bật";
+  const reposTitleEn = data.repos_title_en || "Featured Repositories";
+  const reposTitleBold = data.repos_title_bold !== false;
+  const reposTitleColor = data.repos_title_color || "#8c0303";
+
+  const cardTitleColor = data.card_title_color || "#8c0303";
 
   renderContent(`
     <div class="section-intro">
-      <p>Quản lý danh sách GitHub users và repositories hiển thị trên trang Repositories.</p>
+      <p>Quản lý danh sách GitHub users, repositories và tùy chỉnh định dạng giao diện tiêu đề.</p>
     </div>
 
-    <div class="card">
+    <!-- 1. Tùy chỉnh Tiêu đề & Màu sắc đặt lên hàng đầu -->
+    <div class="card mb-4">
+      <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
+        <h2><i class="fas fa-palette" style="color:var(--accent-light);margin-right:8px"></i> Tùy chỉnh Tiêu đề & Màu sắc (Titles & Styling)</h2>
+        <span class="badge badge-primary" style="font-size:11px;padding:4px 10px;border-radius:12px;background:var(--accent-gradient,#8c0303);color:#fff">
+          Giao diện Repositories
+        </span>
+      </div>
+      <div class="card-body">
+        <p class="text-muted" style="font-size: 0.88rem; margin-bottom: 22px;">
+          Tùy chỉnh nội dung chữ, định dạng <strong>in đậm</strong> và <strong>lựa màu sắc</strong> cho từng tiêu đề trên trang Repositories. Bạn có thể tự chọn màu bất kỳ hoặc <strong>tích chọn nhanh vào các ô màu đẹp có sẵn</strong> bên dưới (có dấu tích ✔️).
+        </p>
+
+        <!-- 1.1 Tiêu đề Trang (Page Title) -->
+        <div class="title-styling-block mb-4 p-3" style="background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+            <span style="font-weight: 600; font-size: 0.96rem; color: var(--text-primary); display: inline-flex; align-items: center; gap: 8px;">
+              <i class="fas fa-heading" style="color: var(--accent-light);"></i> 1. Tiêu đề chính của trang (Page Title)
+            </span>
+            <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.88rem; user-select: none; margin: 0; background: var(--bg-card); padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border);">
+              <input type="checkbox" id="repo-page-title-bold" ${pageTitleBold ? 'checked' : ''} style="cursor: pointer; width: 16px; height: 16px;" onchange="updateLivePreview('repo-page-title')" />
+              <strong style="font-weight: 700;">In đậm (Bold)</strong>
+            </label>
+          </div>
+          <div class="form-grid mb-3" style="grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <label style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 4px; display: block;">Tên tiêu đề (Tiếng Việt)</label>
+              <input type="text" id="repo-page-title" value="${escHtml(pageTitleVi)}" class="form-control" style="width: 100%;" oninput="updateLivePreview('repo-page-title')" />
+            </div>
+            <div>
+              <label style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 4px; display: block;">Tên tiêu đề (Tiếng Anh)</label>
+              <input type="text" id="repo-page-title-en" value="${escHtml(pageTitleEn)}" class="form-control" style="width: 100%;" />
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+            <label style="font-size: 0.82rem; color: var(--text-secondary); width: 80px; margin: 0; font-weight: 500;">Màu sắc:</label>
+            <input type="color" id="repo-page-title-color" value="${escHtml(pageTitleColor)}" style="width: 44px; height: 34px; padding: 2px; cursor: pointer; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card);" oninput="onColorInputChange('repo-page-title-color', this.value)" />
+            <input type="text" class="form-control" id="repo-page-title-color-text" value="${escHtml(pageTitleColor)}" placeholder="#8c0303" style="width: 110px;" oninput="onColorInputChange('repo-page-title-color', this.value)" />
+            <button type="button" class="btn btn-sm btn-secondary" onclick="resetColor('repo-page-title-color', '#8c0303')" style="font-size: 11px; padding: 5px 12px;">Mặc định</button>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
+            <span style="font-size: 12px; color: var(--text-muted); margin-right: 4px; font-weight: 500;"><i class="fas fa-check-circle" style="color:var(--accent-light);margin-right:3px"></i> Tích chọn màu đẹp:</span>
+            ${renderColorPresets('repo-page-title-color', pageTitleColor)}
+          </div>
+          <!-- Live Preview -->
+          <div style="margin-top: 12px; padding: 10px 14px; background: rgba(0,0,0,0.25); border-radius: 6px; border-left: 3px solid ${pageTitleColor}; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Xem trước thực tế:</span>
+            <span id="repo-page-title-preview" style="font-size: 1.3rem; font-weight: ${pageTitleBold ? '700' : '400'}; color: ${pageTitleColor}; transition: all 0.2s ease;">
+              ${escHtml(pageTitleVi)}
+            </span>
+          </div>
+        </div>
+
+        <!-- 1.2 Tiêu đề Phân mục: Tổng quan GitHub -->
+        <div class="title-styling-block mb-4 p-3" style="background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+            <span style="font-weight: 600; font-size: 0.96rem; color: var(--text-primary); display: inline-flex; align-items: center; gap: 8px;">
+              <i class="fab fa-github" style="color: var(--accent-light);"></i> 2. Tiêu đề mục: Tổng quan GitHub (Overview Section)
+            </span>
+            <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.88rem; user-select: none; margin: 0; background: var(--bg-card); padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border);">
+              <input type="checkbox" id="repo-overview-title-bold" ${overviewTitleBold ? 'checked' : ''} style="cursor: pointer; width: 16px; height: 16px;" onchange="updateLivePreview('repo-overview-title')" />
+              <strong style="font-weight: 700;">In đậm (Bold)</strong>
+            </label>
+          </div>
+          <div class="form-grid mb-3" style="grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <label style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 4px; display: block;">Tên tiêu đề (Tiếng Việt)</label>
+              <input type="text" id="repo-overview-title" value="${escHtml(overviewTitle)}" class="form-control" style="width: 100%;" oninput="updateLivePreview('repo-overview-title')" />
+            </div>
+            <div>
+              <label style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 4px; display: block;">Tên tiêu đề (Tiếng Anh)</label>
+              <input type="text" id="repo-overview-title-en" value="${escHtml(overviewTitleEn)}" class="form-control" style="width: 100%;" />
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+            <label style="font-size: 0.82rem; color: var(--text-secondary); width: 80px; margin: 0; font-weight: 500;">Màu sắc:</label>
+            <input type="color" id="repo-overview-title-color" value="${escHtml(overviewTitleColor)}" style="width: 44px; height: 34px; padding: 2px; cursor: pointer; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card);" oninput="onColorInputChange('repo-overview-title-color', this.value)" />
+            <input type="text" class="form-control" id="repo-overview-title-color-text" value="${escHtml(overviewTitleColor)}" placeholder="#8c0303" style="width: 110px;" oninput="onColorInputChange('repo-overview-title-color', this.value)" />
+            <button type="button" class="btn btn-sm btn-secondary" onclick="resetColor('repo-overview-title-color', '#8c0303')" style="font-size: 11px; padding: 5px 12px;">Mặc định</button>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
+            <span style="font-size: 12px; color: var(--text-muted); margin-right: 4px; font-weight: 500;"><i class="fas fa-check-circle" style="color:var(--accent-light);margin-right:3px"></i> Tích chọn màu đẹp:</span>
+            ${renderColorPresets('repo-overview-title-color', overviewTitleColor)}
+          </div>
+          <!-- Live Preview -->
+          <div style="margin-top: 12px; padding: 10px 14px; background: rgba(0,0,0,0.25); border-radius: 6px; border-left: 3px solid ${overviewTitleColor}; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Xem trước thực tế:</span>
+            <span id="repo-overview-title-preview" style="font-size: 1.2rem; font-weight: ${overviewTitleBold ? '700' : '400'}; color: ${overviewTitleColor}; transition: all 0.2s ease;">
+              <i class="fab fa-github mr-1"></i> ${escHtml(overviewTitle)}
+            </span>
+          </div>
+        </div>
+
+        <!-- 1.3 Tiêu đề Phân mục: Kho lưu trữ nổi bật -->
+        <div class="title-styling-block mb-4 p-3" style="background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+            <span style="font-weight: 600; font-size: 0.96rem; color: var(--text-primary); display: inline-flex; align-items: center; gap: 8px;">
+              <i class="fas fa-code-branch" style="color: var(--accent-light);"></i> 3. Tiêu đề mục: Kho lưu trữ nổi bật (Repositories Section)
+            </span>
+            <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.88rem; user-select: none; margin: 0; background: var(--bg-card); padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border);">
+              <input type="checkbox" id="repo-repos-title-bold" ${reposTitleBold ? 'checked' : ''} style="cursor: pointer; width: 16px; height: 16px;" onchange="updateLivePreview('repo-repos-title')" />
+              <strong style="font-weight: 700;">In đậm (Bold)</strong>
+            </label>
+          </div>
+          <div class="form-grid mb-3" style="grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <label style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 4px; display: block;">Tên tiêu đề (Tiếng Việt)</label>
+              <input type="text" id="repo-repos-title" value="${escHtml(reposTitle)}" class="form-control" style="width: 100%;" oninput="updateLivePreview('repo-repos-title')" />
+            </div>
+            <div>
+              <label style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 4px; display: block;">Tên tiêu đề (Tiếng Anh)</label>
+              <input type="text" id="repo-repos-title-en" value="${escHtml(reposTitleEn)}" class="form-control" style="width: 100%;" />
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+            <label style="font-size: 0.82rem; color: var(--text-secondary); width: 80px; margin: 0; font-weight: 500;">Màu sắc:</label>
+            <input type="color" id="repo-repos-title-color" value="${escHtml(reposTitleColor)}" style="width: 44px; height: 34px; padding: 2px; cursor: pointer; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card);" oninput="onColorInputChange('repo-repos-title-color', this.value)" />
+            <input type="text" class="form-control" id="repo-repos-title-color-text" value="${escHtml(reposTitleColor)}" placeholder="#8c0303" style="width: 110px;" oninput="onColorInputChange('repo-repos-title-color', this.value)" />
+            <button type="button" class="btn btn-sm btn-secondary" onclick="resetColor('repo-repos-title-color', '#8c0303')" style="font-size: 11px; padding: 5px 12px;">Mặc định</button>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
+            <span style="font-size: 12px; color: var(--text-muted); margin-right: 4px; font-weight: 500;"><i class="fas fa-check-circle" style="color:var(--accent-light);margin-right:3px"></i> Tích chọn màu đẹp:</span>
+            ${renderColorPresets('repo-repos-title-color', reposTitleColor)}
+          </div>
+          <!-- Live Preview -->
+          <div style="margin-top: 12px; padding: 10px 14px; background: rgba(0,0,0,0.25); border-radius: 6px; border-left: 3px solid ${reposTitleColor}; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Xem trước thực tế:</span>
+            <span id="repo-repos-title-preview" style="font-size: 1.2rem; font-weight: ${reposTitleBold ? '700' : '400'}; color: ${reposTitleColor}; transition: all 0.2s ease;">
+              <i class="fas fa-code-branch mr-1"></i> ${escHtml(reposTitle)}
+            </span>
+          </div>
+        </div>
+
+        <!-- 1.4 Màu sắc tiêu đề trong Card GitHub -->
+        <div class="title-styling-block p-3" style="background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="font-weight: 600; font-size: 0.96rem; color: var(--text-primary); display: inline-flex; align-items: center; gap: 8px;">
+              <i class="fas fa-id-card" style="color: var(--accent-light);"></i> 4. Màu tiêu đề hiển thị bên trong thẻ GitHub Cards (Widget Cards)
+            </span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+            <label style="font-size: 0.82rem; color: var(--text-secondary); width: 80px; margin: 0; font-weight: 500;">Màu sắc:</label>
+            <input type="color" id="repo-card-title-color" value="${escHtml(cardTitleColor)}" style="width: 44px; height: 34px; padding: 2px; cursor: pointer; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card);" oninput="onColorInputChange('repo-card-title-color', this.value)" />
+            <input type="text" class="form-control" id="repo-card-title-color-text" value="${escHtml(cardTitleColor)}" placeholder="#8c0303" style="width: 110px;" oninput="onColorInputChange('repo-card-title-color', this.value)" />
+            <button type="button" class="btn btn-sm btn-secondary" onclick="resetColor('repo-card-title-color', '#8c0303')" style="font-size: 11px; padding: 5px 12px;">Mặc định</button>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
+            <span style="font-size: 12px; color: var(--text-muted); margin-right: 4px; font-weight: 500;"><i class="fas fa-check-circle" style="color:var(--accent-light);margin-right:3px"></i> Tích chọn màu đẹp:</span>
+            ${renderColorPresets('repo-card-title-color', cardTitleColor)}
+          </div>
+          <!-- Live Preview Card -->
+          <div style="margin-top: 12px; padding: 12px 16px; background: rgba(0,0,0,0.25); border-radius: 6px; border-left: 3px solid ${cardTitleColor}; display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Mẫu thẻ repository:</span>
+            <div id="repo-card-title-preview" style="font-size: 1.05rem; font-weight: 700; color: ${cardTitleColor};">
+              <i class="far fa-bookmark mr-1"></i> TruongNguyenThaiBinh77/Portfolio1
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. GitHub Users -->
+    <div class="card mb-4">
       <div class="card-header">
         <h2><i class="fab fa-github"></i> GitHub Users</h2>
       </div>
@@ -1806,9 +2296,13 @@ async function loadRepositories() {
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header">
+    <!-- 3. GitHub Repositories -->
+    <div class="card mb-4">
+      <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
         <h2><i class="fas fa-code-branch"></i> GitHub Repositories</h2>
+        <button class="btn btn-sm btn-secondary" onclick="fetchGitHubReposFromApi()" style="font-size:12px;padding:6px 14px">
+          <i class="fab fa-github" style="color:var(--accent-light);margin-right:6px"></i> Tải Repos từ GitHub
+        </button>
       </div>
       <div class="card-body">
         <div class="dynamic-list" id="gh-repos-list">
@@ -1824,19 +2318,335 @@ async function loadRepositories() {
           `).join("")}
         </div>
         <button class="add-item-btn mt-4" onclick="addGhRepo()">
-          <i class="fas fa-plus"></i> Thêm Repository
+          <i class="fas fa-plus"></i> Thêm Repository thủ công
         </button>
       </div>
     </div>
 
+    <!-- Lưu thay đổi -->
     <div class="card">
-      <div class="card-footer">
-        <button class="btn btn-primary" onclick="saveRepositories()">
-          <i class="fas fa-save"></i> Lưu Repositories
+      <div class="card-footer" style="display:flex;justify-content:flex-end">
+        <button class="btn btn-primary" onclick="saveRepositories()" style="padding: 10px 24px; font-size: 15px;">
+          <i class="fas fa-save mr-2"></i> Lưu Repositories & Tiêu đề
         </button>
       </div>
     </div>
   `);
+}
+
+function renderTitleStylingBlock({ id, num, icon, label, titleVi, titleEn, isBold, color, defaultColor = '#8c0303', previewIcon = '', showTextInputs = true }) {
+  return `
+    <div class="title-styling-block mb-4 p-3" style="background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+        <span style="font-weight: 600; font-size: 0.96rem; color: var(--text-primary); display: inline-flex; align-items: center; gap: 8px;">
+          <i class="${icon}" style="color: var(--accent-light);"></i> ${num}. ${label}
+        </span>
+        <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.88rem; user-select: none; margin: 0; background: var(--bg-card); padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border);">
+          <input type="checkbox" id="${id}-bold" ${isBold ? 'checked' : ''} style="cursor: pointer; width: 16px; height: 16px;" onchange="updateLivePreview('${id}')" />
+          <strong style="font-weight: 700;">In đậm (Bold)</strong>
+        </label>
+      </div>
+      ${showTextInputs ? `
+      <div class="form-grid mb-3" style="grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div>
+          <label style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 4px; display: block;">Tên tiêu đề (Tiếng Việt)</label>
+          <input type="text" id="${id}" value="${escHtml(titleVi || '')}" class="form-control" style="width: 100%;" oninput="updateLivePreview('${id}')" />
+        </div>
+        <div>
+          <label style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 4px; display: block;">Tên tiêu đề (Tiếng Anh)</label>
+          <input type="text" id="${id}-en" value="${escHtml(titleEn || '')}" class="form-control" style="width: 100%;" />
+        </div>
+      </div>
+      ` : ''}
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+        <label style="font-size: 0.82rem; color: var(--text-secondary); width: 80px; margin: 0; font-weight: 500;">Màu sắc:</label>
+        <input type="color" id="${id}-color" value="${escHtml(color)}" style="width: 44px; height: 34px; padding: 2px; cursor: pointer; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card);" oninput="onColorInputChange('${id}-color', this.value)" />
+        <input type="text" class="form-control" id="${id}-color-text" value="${escHtml(color)}" placeholder="${defaultColor}" style="width: 110px;" oninput="onColorInputChange('${id}-color', this.value)" />
+        <button type="button" class="btn btn-sm btn-secondary" onclick="resetColor('${id}-color', '${defaultColor}')" style="font-size: 11px; padding: 5px 12px;">Mặc định</button>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
+        <span style="font-size: 12px; color: var(--text-muted); margin-right: 4px; font-weight: 500;"><i class="fas fa-check-circle" style="color:var(--accent-light);margin-right:3px"></i> Tích chọn màu đẹp:</span>
+        ${renderColorPresets(`${id}-color`, color)}
+      </div>
+      <!-- Live Preview -->
+      <div style="margin-top: 12px; padding: 10px 14px; background: rgba(0,0,0,0.25); border-radius: 6px; border-left: 3px solid ${color}; display: flex; align-items: center; justify-content: space-between;">
+        <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Xem trước thực tế:</span>
+        <span id="${id}-preview" style="font-size: 1.25rem; font-weight: ${isBold ? '700' : '400'}; color: ${color}; transition: all 0.2s ease;">
+          ${previewIcon ? `<i class="${previewIcon} mr-1"></i> ` : ''}${escHtml(titleVi || '')}
+        </span>
+      </div>
+    </div>
+  `;
+}
+
+function renderColorPresets(targetId, currentColor = '#8c0303') {
+  const presets = [
+    { name: "Đỏ Đô", hex: "#8c0303" },
+    { name: "Xanh Navy", hex: "#1e3a8a" },
+    { name: "Xanh Sky", hex: "#0284c7" },
+    { name: "Xanh Lá", hex: "#15803d" },
+    { name: "Vàng Đồng", hex: "#b45309" },
+    { name: "Tím Violet", hex: "#7c3aed" },
+    { name: "Hồng Ruby", hex: "#be185d" },
+    { name: "Đen Chì", hex: "#111827" },
+  ];
+
+  return `
+    <div class="color-preset-group" data-target="${targetId}" style="display: inline-flex; gap: 7px; flex-wrap: wrap; align-items: center;">
+      ${presets.map(p => {
+        const isSelected = p.hex.toLowerCase() === (currentColor || '').toLowerCase();
+        return `
+          <button type="button" 
+            class="color-preset-pill ${isSelected ? 'selected' : ''}"
+            data-hex="${p.hex}"
+            style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 20px; font-size: 11.5px; font-weight: ${isSelected ? '700' : '500'}; background: ${isSelected ? 'rgba(255,255,255,0.1)' : 'var(--bg-card)'}; color: var(--text-primary); border: 2px solid ${isSelected ? p.hex : 'var(--border)'}; cursor: pointer; transition: all 0.2s ease; box-shadow: ${isSelected ? '0 0 8px ' + p.hex + '66' : 'none'};"
+            onclick="setColorPreset('${targetId}', '${p.hex}', this)"
+            title="${p.name} (${p.hex})">
+            <span style="width: 14px; height: 14px; border-radius: 50%; background: ${p.hex}; display: inline-flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.4); font-size: 8.5px; color: #fff;">
+              <i class="fas fa-check" style="display: ${isSelected ? 'inline-block' : 'none'};"></i>
+            </span>
+            <span>${p.name}</span>
+          </button>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function setColorPreset(targetId, hex, clickedBtn) {
+  const colorInput = document.getElementById(targetId);
+  const textInput = document.getElementById(targetId + '-text');
+  if (colorInput) colorInput.value = hex;
+  if (textInput) textInput.value = hex;
+
+  const container = document.querySelector(`.color-preset-group[data-target="${targetId}"]`);
+  if (container) {
+    const buttons = container.querySelectorAll('.color-preset-pill');
+    buttons.forEach(btn => {
+      const btnHex = btn.dataset.hex;
+      const isMatch = btnHex.toLowerCase() === hex.toLowerCase();
+      const checkIcon = btn.querySelector('.fa-check');
+      if (checkIcon) checkIcon.style.display = isMatch ? 'inline-block' : 'none';
+      btn.style.border = isMatch ? `2px solid ${btnHex}` : '2px solid var(--border)';
+      btn.style.background = isMatch ? 'rgba(255,255,255,0.1)' : 'var(--bg-card)';
+      btn.style.boxShadow = isMatch ? `0 0 8px ${btnHex}66` : 'none';
+      const textSpan = btn.querySelector('span:last-child');
+      if (textSpan) textSpan.style.fontWeight = isMatch ? '700' : '500';
+    });
+  }
+
+  updateLivePreview(targetId);
+}
+
+function onColorInputChange(targetId, hex) {
+  const colorInput = document.getElementById(targetId);
+  const textInput = document.getElementById(targetId + '-text');
+  if (colorInput && colorInput.value !== hex) colorInput.value = hex;
+  if (textInput && textInput.value !== hex) textInput.value = hex;
+
+  const container = document.querySelector(`.color-preset-group[data-target="${targetId}"]`);
+  if (container) {
+    const buttons = container.querySelectorAll('.color-preset-pill');
+    buttons.forEach(btn => {
+      const btnHex = btn.dataset.hex;
+      const isMatch = btnHex.toLowerCase() === (hex || '').toLowerCase();
+      const checkIcon = btn.querySelector('.fa-check');
+      if (checkIcon) checkIcon.style.display = isMatch ? 'inline-block' : 'none';
+      btn.style.border = isMatch ? `2px solid ${btnHex}` : '2px solid var(--border)';
+      btn.style.background = isMatch ? 'rgba(255,255,255,0.1)' : 'var(--bg-card)';
+      btn.style.boxShadow = isMatch ? `0 0 8px ${btnHex}66` : 'none';
+      const textSpan = btn.querySelector('span:last-child');
+      if (textSpan) textSpan.style.fontWeight = isMatch ? '700' : '500';
+    });
+  }
+
+  updateLivePreview(targetId);
+}
+
+function resetColor(targetId, defaultHex = '#8c0303') {
+  setColorPreset(targetId, defaultHex);
+}
+
+function updateLivePreview(idPrefix) {
+  const baseId = idPrefix.endsWith('-color') ? idPrefix.replace(/-color$/, '') : idPrefix;
+  const colorInput = document.getElementById(`${baseId}-color`);
+  const boldInput = document.getElementById(`${baseId}-bold`);
+  const textInput = document.getElementById(baseId);
+  const preview = document.getElementById(`${baseId}-preview`);
+
+  const color = colorInput ? colorInput.value : '#8c0303';
+  const isBold = boldInput ? boldInput.checked : true;
+  const text = textInput ? textInput.value : null;
+
+  if (preview) {
+    preview.style.color = color;
+    preview.style.fontWeight = isBold ? '700' : '400';
+    if (preview.parentElement) {
+      preview.parentElement.style.borderLeftColor = color;
+    }
+    if (baseId === 'repo-card-title' || baseId === 'teach-card-title' || baseId === 'pub-article-title') {
+      // Keep card styling / preview
+    } else if (text !== null) {
+      const iconEl = preview.querySelector('i');
+      if (iconEl) {
+        const iconHtml = iconEl.outerHTML;
+        preview.innerHTML = `${iconHtml} ${escHtml(text)}`;
+      } else {
+        preview.textContent = text;
+      }
+    }
+  }
+}
+
+async function saveCVTitles() {
+  const pageTitleInput = document.getElementById("cv-page-title");
+  if (!pageTitleInput) return;
+  const cvPageData = {
+    title: pageTitleInput.value.trim(),
+    title_en: document.getElementById("cv-page-title-en")?.value.trim() || "",
+    page_title_bold: document.getElementById("cv-page-title-bold")?.checked ?? true,
+    page_title_color: document.getElementById("cv-page-title-color")?.value || "#8c0303",
+
+    general_title: document.getElementById("cv-general-title")?.value.trim() || "Thông tin chung",
+    general_title_en: document.getElementById("cv-general-title-en")?.value.trim() || "General Information",
+    general_title_bold: document.getElementById("cv-general-title-bold")?.checked ?? true,
+    general_title_color: document.getElementById("cv-general-title-color")?.value || "#8c0303",
+
+    education_title: document.getElementById("cv-education-title")?.value.trim() || "Học vấn",
+    education_title_en: document.getElementById("cv-education-title-en")?.value.trim() || "Education",
+    education_title_bold: document.getElementById("cv-education-title-bold")?.checked ?? true,
+    education_title_color: document.getElementById("cv-education-title-color")?.value || "#8c0303",
+
+    experience_title: document.getElementById("cv-experience-title")?.value.trim() || "Kinh nghiệm",
+    experience_title_en: document.getElementById("cv-experience-title-en")?.value.trim() || "Experience",
+    experience_title_bold: document.getElementById("cv-experience-title-bold")?.checked ?? true,
+    experience_title_color: document.getElementById("cv-experience-title-color")?.value || "#8c0303",
+
+    honors_title: document.getElementById("cv-honors-title")?.value.trim() || "Giải thưởng và Thành tựu",
+    honors_title_en: document.getElementById("cv-honors-title-en")?.value.trim() || "Honors and Awards",
+    honors_title_bold: document.getElementById("cv-honors-title-bold")?.checked ?? true,
+    honors_title_color: document.getElementById("cv-honors-title-color")?.value || "#8c0303",
+
+    skills_title: document.getElementById("cv-skills-title")?.value.trim() || "Kỹ năng chuyên môn",
+    skills_title_en: document.getElementById("cv-skills-title-en")?.value.trim() || "Skills",
+    skills_title_bold: document.getElementById("cv-skills-title-bold")?.checked ?? true,
+    skills_title_color: document.getElementById("cv-skills-title-color")?.value || "#8c0303",
+  };
+  showLoading();
+  try {
+    const res = await fetch(`${API}/pages/cv`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(cvPageData),
+    });
+    if (res.ok) {
+      showToast("Đã lưu tùy chỉnh tiêu đề CV thành công!", "success");
+    } else {
+      showToast("Lỗi khi lưu tùy chỉnh tiêu đề CV", "error");
+    }
+  } catch (err) {
+    showToast(`Lỗi: ${err.message}`, "error");
+  } finally {
+    hideLoading();
+  }
+}
+
+async function saveTeachingsTitles() {
+  const pageTitle = document.getElementById("teach-page-title")?.value.trim() || "Thành tích";
+  const pageTitleEn = document.getElementById("teach-page-title-en")?.value.trim() || "Achievements";
+  const pageTitleBold = document.getElementById("teach-page-title-bold")?.checked ?? true;
+  const pageTitleColor = document.getElementById("teach-page-title-color")?.value || "#8c0303";
+
+  const honorsTitle = document.getElementById("teach-honors-title")?.value.trim() || "Thành tích nổi bật";
+  const honorsTitleEn = document.getElementById("teach-honors-title-en")?.value.trim() || "Awards & Honors";
+  const honorsTitleBold = document.getElementById("teach-honors-title-bold")?.checked ?? true;
+  const honorsTitleColor = document.getElementById("teach-honors-title-color")?.value || "#1e293b";
+
+  const certTitle = document.getElementById("teach-certificates-title")?.value.trim() || "Chứng chỉ & Bằng cấp";
+  const certTitleEn = document.getElementById("teach-certificates-title-en")?.value.trim() || "Certificates";
+  const certTitleBold = document.getElementById("teach-certificates-title-bold")?.checked ?? true;
+  const certTitleColor = document.getElementById("teach-certificates-title-color")?.value || "#1e293b";
+
+  const cardTitleBold = document.getElementById("teach-card-title-bold")?.checked ?? true;
+  const cardTitleColor = document.getElementById("teach-card-title-color")?.value || "#1e293b";
+
+  showLoading();
+  try {
+    const res = await fetch(`${API}/pages/teaching`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: pageTitle,
+        title_en: pageTitleEn,
+        page_title_bold: pageTitleBold,
+        page_title_color: pageTitleColor,
+
+        honors_title: honorsTitle,
+        honors_title_en: honorsTitleEn,
+        honors_title_bold: honorsTitleBold,
+        honors_title_color: honorsTitleColor,
+
+        certificates_title: certTitle,
+        certificates_title_en: certTitleEn,
+        certificates_title_bold: certTitleBold,
+        certificates_title_color: certTitleColor,
+
+        card_title_bold: cardTitleBold,
+        card_title_color: cardTitleColor,
+      }),
+    });
+    if (res.ok) {
+      showToast("Đã lưu tùy chỉnh tiêu đề Thành tích thành công!", "success");
+    } else {
+      showToast("Lỗi khi lưu tùy chỉnh tiêu đề Thành tích", "error");
+    }
+  } catch (err) {
+    showToast(`Lỗi: ${err.message}`, "error");
+  } finally {
+    hideLoading();
+  }
+}
+
+async function savePublicationsTitles() {
+  const pageTitle = document.getElementById("pub-page-title")?.value.trim() || "Ấn phẩm khoa học";
+  const pageTitleEn = document.getElementById("pub-page-title-en")?.value.trim() || "Publications";
+  const pageTitleBold = document.getElementById("pub-page-title-bold")?.checked ?? true;
+  const pageTitleColor = document.getElementById("pub-page-title-color")?.value || "#8c0303";
+
+  const yearTitleBold = document.getElementById("pub-year-title-bold")?.checked ?? true;
+  const yearTitleColor = document.getElementById("pub-year-title-color")?.value || "#64748b";
+
+  const articleTitleBold = document.getElementById("pub-article-title-bold")?.checked ?? true;
+  const articleTitleColor = document.getElementById("pub-article-title-color")?.value || "#1e293b";
+
+  showLoading();
+  try {
+    const res = await fetch(`${API}/pages/publications`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: pageTitle,
+        title_en: pageTitleEn,
+        page_title_bold: pageTitleBold,
+        page_title_color: pageTitleColor,
+
+        year_title_bold: yearTitleBold,
+        year_title_color: yearTitleColor,
+
+        article_title_bold: articleTitleBold,
+        article_title_color: articleTitleColor,
+      }),
+    });
+    if (res.ok) {
+      showToast("Đã lưu tùy chỉnh tiêu đề Ấn phẩm thành công!", "success");
+    } else {
+      showToast("Lỗi khi lưu tùy chỉnh tiêu đề Ấn phẩm", "error");
+    }
+  } catch (err) {
+    showToast(`Lỗi: ${err.message}`, "error");
+  } finally {
+    hideLoading();
+  }
 }
 
 function addGhUser() {
@@ -1865,11 +2675,61 @@ function addGhRepo() {
   `);
 }
 
+async function fetchGitHubReposFromApi() {
+  const userEl = document.querySelector(".gh-user");
+  const username = userEl ? userEl.value.trim() : "TruongNguyenThaiBinh77";
+  if (!username) {
+    showToast("Vui lòng nhập GitHub username trước!", "error");
+    return;
+  }
+  showToast("Đang tải danh sách Repositories từ GitHub...", "info");
+  try {
+    const res = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=30`);
+    if (!res.ok) throw new Error("Không thể tải dữ liệu từ GitHub API");
+    const repos = await res.json();
+    const list = document.getElementById("gh-repos-list");
+    list.innerHTML = "";
+    repos.forEach(r => {
+      list.insertAdjacentHTML("beforeend", `
+        <div class="dynamic-item" style="padding:10px 16px">
+          <div class="flex items-center justify-between">
+            <input type="text" class="gh-repo" value="${escHtml(r.full_name)}" placeholder="owner/repo" style="flex:1;margin-right:10px" />
+            <button class="btn btn-sm btn-danger btn-icon" onclick="this.closest('.dynamic-item').remove()">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      `);
+    });
+    showToast(`Đã tải thành công ${repos.length} repositories của ${username}! Nhấn "Lưu Repositories" để áp dụng.`, "success");
+  } catch (err) {
+    showToast(`Lỗi: ${err.message}`, "error");
+  }
+}
+
 async function saveRepositories() {
-  const users = Array.from(document.querySelectorAll(".gh-user")).map((el) => el.value).filter(Boolean);
-  const repos = Array.from(document.querySelectorAll(".gh-repo")).map((el) => el.value).filter(Boolean);
+  const users = Array.from(document.querySelectorAll(".gh-user")).map((el) => el.value.trim()).filter(Boolean);
+  const repos = Array.from(document.querySelectorAll(".gh-repo")).map((el) => el.value.trim()).filter(Boolean);
+
+  const pageTitle = document.getElementById("repo-page-title") ? document.getElementById("repo-page-title").value.trim() : "Lưu trữ";
+  const pageTitleEn = document.getElementById("repo-page-title-en") ? document.getElementById("repo-page-title-en").value.trim() : "Repositories";
+  const pageTitleBold = document.getElementById("repo-page-title-bold") ? document.getElementById("repo-page-title-bold").checked : true;
+  const pageTitleColor = document.getElementById("repo-page-title-color") ? document.getElementById("repo-page-title-color").value.trim() : "#8c0303";
+
+  const overviewTitle = document.getElementById("repo-overview-title") ? document.getElementById("repo-overview-title").value.trim() : "Tổng quan GitHub";
+  const overviewTitleEn = document.getElementById("repo-overview-title-en") ? document.getElementById("repo-overview-title-en").value.trim() : "GitHub Overview";
+  const overviewTitleBold = document.getElementById("repo-overview-title-bold") ? document.getElementById("repo-overview-title-bold").checked : true;
+  const overviewTitleColor = document.getElementById("repo-overview-title-color") ? document.getElementById("repo-overview-title-color").value.trim() : "#8c0303";
+
+  const reposTitle = document.getElementById("repo-repos-title") ? document.getElementById("repo-repos-title").value.trim() : "Kho lưu trữ nổi bật";
+  const reposTitleEn = document.getElementById("repo-repos-title-en") ? document.getElementById("repo-repos-title-en").value.trim() : "Featured Repositories";
+  const reposTitleBold = document.getElementById("repo-repos-title-bold") ? document.getElementById("repo-repos-title-bold").checked : true;
+  const reposTitleColor = document.getElementById("repo-repos-title-color") ? document.getElementById("repo-repos-title-color").value.trim() : "#8c0303";
+
+  const cardTitleColor = document.getElementById("repo-card-title-color") ? document.getElementById("repo-card-title-color").value.trim() : "#8c0303";
 
   try {
+    // 1. Update _data/repositories.yml
     await fetch(`${API}/repositories`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -1877,9 +2737,42 @@ async function saveRepositories() {
         github_users: users,
         repo_description_lines_max: 2,
         github_repos: repos,
+        page_title: pageTitle,
+        page_title_en: pageTitleEn,
+        page_title_bold: pageTitleBold,
+        page_title_color: pageTitleColor,
+        overview_title: overviewTitle,
+        overview_title_en: overviewTitleEn,
+        overview_title_bold: overviewTitleBold,
+        overview_title_color: overviewTitleColor,
+        repos_title: reposTitle,
+        repos_title_en: reposTitleEn,
+        repos_title_bold: reposTitleBold,
+        repos_title_color: reposTitleColor,
+        card_title_color: cardTitleColor,
       }),
     });
-    showToast("Repositories đã được lưu!", "success");
+
+    // 2. Synchronize title into _pages/repositories.md as well
+    try {
+      const pageRes = await fetch(`${API}/pages/repositories`).then(r => r.json());
+      if (pageRes && pageRes.frontMatter) {
+        await fetch(`${API}/pages/repositories`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            frontMatter: {
+              ...pageRes.frontMatter,
+              title: pageTitle,
+              title_en: pageTitleEn,
+            },
+            body: pageRes.body || ""
+          })
+        });
+      }
+    } catch (_) {}
+
+    showToast("Đã lưu Repositories & cài đặt tiêu đề thành công!", "success");
   } catch (err) {
     showToast(`Lỗi: ${err.message}`, "error");
   }
@@ -1890,7 +2783,28 @@ async function saveRepositories() {
 // ============================================================================
 
 async function loadTeachings() {
-  const teachings = await fetch(`${API}/teachings`).then((r) => r.json());
+  const [teachings, pageRes] = await Promise.all([
+    fetch(`${API}/teachings`).then((r) => r.json()).catch(() => []),
+    fetch(`${API}/pages/teaching`).then((r) => r.json()).catch(() => ({}))
+  ]);
+
+  const pageTitleVi = pageRes.title || "Thành tích";
+  const pageTitleEn = pageRes.title_en || "Achievements";
+  const pageTitleBold = pageRes.page_title_bold !== false;
+  const pageTitleColor = pageRes.page_title_color || "#8c0303";
+
+  const honorsTitle = pageRes.honors_title || "Thành tích nổi bật";
+  const honorsTitleEn = pageRes.honors_title_en || "Awards & Honors";
+  const honorsTitleBold = pageRes.honors_title_bold !== false;
+  const honorsTitleColor = pageRes.honors_title_color || "#1e293b";
+
+  const certTitle = pageRes.certificates_title || "Chứng chỉ & Bằng cấp";
+  const certTitleEn = pageRes.certificates_title_en || "Certificates";
+  const certTitleBold = pageRes.certificates_title_bold !== false;
+  const certTitleColor = pageRes.certificates_title_color || "#1e293b";
+
+  const cardTitleBold = pageRes.card_title_bold !== false;
+  const cardTitleColor = pageRes.card_title_color || "#1e293b";
 
   const listHtml = teachings.map((t) => `
     <div class="dynamic-item">
@@ -1913,6 +2827,77 @@ async function loadTeachings() {
     <div class="section-intro">
       <h2>Thành tích & Chứng nhận</h2>
       <p>Quản lý danh sách các giải thưởng, học bổng và chứng nhận đạt được.</p>
+    </div>
+
+    <!-- 1. Tùy chỉnh Tiêu đề & Màu sắc Thành tích -->
+    <div class="card mb-4">
+      <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
+        <h2><i class="fas fa-palette" style="color:var(--accent-light);margin-right:8px"></i> Tùy chỉnh Tiêu đề & Màu sắc (Titles & Styling)</h2>
+        <button class="btn btn-primary btn-sm" onclick="saveTeachingsTitles()">
+          <i class="fas fa-save mr-1"></i> Lưu cài đặt tiêu đề
+        </button>
+      </div>
+      <div class="card-body">
+        <p class="text-muted" style="font-size: 0.88rem; margin-bottom: 22px;">
+          Tùy chỉnh nội dung chữ, định dạng <strong>in đậm</strong> và <strong>lựa màu sắc</strong> cho từng tiêu đề trên trang Thành tích & Chứng nhận. Bạn có thể tự chọn màu bất kỳ hoặc <strong>tích chọn nhanh vào các ô màu đẹp có sẵn</strong> bên dưới (có dấu tích ✔️).
+        </p>
+
+        ${renderTitleStylingBlock({
+          id: 'teach-page-title',
+          num: '1',
+          icon: 'fas fa-heading',
+          label: 'Tiêu đề chính của trang (Page Title)',
+          titleVi: pageTitleVi,
+          titleEn: pageTitleEn,
+          isBold: pageTitleBold,
+          color: pageTitleColor,
+        })}
+
+        ${renderTitleStylingBlock({
+          id: 'teach-honors-title',
+          num: '2',
+          icon: 'fas fa-award',
+          label: 'Tiêu đề mục: Thành tích nổi bật (Awards & Honors)',
+          titleVi: honorsTitle,
+          titleEn: honorsTitleEn,
+          isBold: honorsTitleBold,
+          color: honorsTitleColor,
+          defaultColor: '#1e293b',
+          previewIcon: 'fas fa-award',
+        })}
+
+        ${renderTitleStylingBlock({
+          id: 'teach-certificates-title',
+          num: '3',
+          icon: 'fas fa-certificate',
+          label: 'Tiêu đề mục: Chứng chỉ & Bằng cấp (Certificates)',
+          titleVi: certTitle,
+          titleEn: certTitleEn,
+          isBold: certTitleBold,
+          color: certTitleColor,
+          defaultColor: '#1e293b',
+          previewIcon: 'fas fa-certificate',
+        })}
+
+        ${renderTitleStylingBlock({
+          id: 'teach-card-title',
+          num: '4',
+          icon: 'fas fa-id-card',
+          label: 'Tiêu đề bên trong từng Card (Card Titles)',
+          titleVi: 'Huy chương Vàng Olympic Tin học Sinh viên',
+          showTextInputs: false,
+          isBold: cardTitleBold,
+          color: cardTitleColor,
+          defaultColor: '#1e293b',
+          previewIcon: 'fas fa-trophy',
+        })}
+
+        <div style="margin-top: 15px; display: flex; justify-content: flex-end;">
+          <button class="btn btn-primary" onclick="saveTeachingsTitles()">
+            <i class="fas fa-save mr-1"></i> Lưu tùy chỉnh tiêu đề Thành tích
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="card">
@@ -2082,44 +3067,76 @@ async function saveTeaching(slug) {
 }
 
 // ============================================================================
-// News
+// News / Bài báo
 // ============================================================================
 
 async function loadNews() {
   const news = await fetch(`${API}/news`).then((r) => r.json());
 
-  const listHtml = news.map((n) => `
-    <div class="dynamic-item">
-      <div class="dynamic-item-header">
-        <span class="dynamic-item-title">${escHtml(n.frontMatter.title || n.slug)}</span>
-        <div class="dynamic-item-actions">
-          <button class="btn btn-sm btn-secondary" onclick="editNews('${n.slug}')">
-            <i class="fas fa-edit"></i> Sửa
-          </button>
-          <button class="btn btn-sm btn-danger" onclick="deleteNews('${n.slug}')">
-            <i class="fas fa-trash"></i>
-          </button>
+  // Sort descending by date
+  news.sort((a, b) => new Date(b.frontMatter.date || 0) - new Date(a.frontMatter.date || 0));
+
+  const listHtml = news.map((n) => {
+    const fm = n.frontMatter || {};
+    const hasExternal = Boolean(fm.external_url || fm.link);
+    const hasPdf = Boolean(fm.pdf || fm.pdf_url);
+
+    return `
+      <div class="dynamic-item" style="padding: 16px; margin-bottom: 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <div class="dynamic-item-header" style="align-items: flex-start; margin-bottom: 6px;">
+          <div style="flex: 1; padding-right: 12px;">
+            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px; flex-wrap: wrap;">
+              ${fm.journal ? `<span class="badge" style="background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 4px; font-size: 11px;"><i class="fas fa-bookmark"></i> ${escHtml(fm.journal)}</span>` : ''}
+              ${hasExternal ? `<span class="badge" style="background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; font-size: 11px;"><i class="fas fa-external-link-alt"></i> Link online</span>` : ''}
+              ${hasPdf ? `<span class="badge" style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 11px;"><i class="fas fa-file-pdf"></i> Có file PDF</span>` : ''}
+            </div>
+            <strong style="font-size: 15px; color: #1e293b;">${escHtml(fm.title || n.slug)}</strong>
+            ${fm.title_en ? `<div style="font-size: 13px; color: #64748b; margin-top: 2px;"><em>${escHtml(fm.title_en)}</em></div>` : ''}
+            ${fm.description ? `<p style="font-size: 13px; color: #475569; margin: 6px 0 0 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${escHtml(fm.description)}</p>` : ''}
+          </div>
+          <div class="dynamic-item-actions" style="display: flex; gap: 6px; white-space: nowrap;">
+            ${hasExternal ? `
+              <a href="${escHtml(fm.external_url || fm.link)}" target="_blank" class="btn btn-sm btn-outline" title="Mở liên kết">
+                <i class="fas fa-external-link-alt"></i>
+              </a>
+            ` : ''}
+            ${hasPdf ? `
+              <a href="${escHtml(fm.pdf || fm.pdf_url)}" target="_blank" class="btn btn-sm btn-outline text-danger" title="Xem PDF">
+                <i class="fas fa-file-pdf"></i>
+              </a>
+            ` : ''}
+            <button class="btn btn-sm btn-secondary" onclick="editNews('${n.slug}')">
+              <i class="fas fa-edit"></i> Sửa
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteNews('${n.slug}')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div style="font-size: 12px; color: #94a3b8; display: flex; gap: 12px; align-items: center; margin-top: 6px;">
+          <span><i class="fas fa-calendar-alt"></i> ${escHtml(String(fm.date || ""))}</span>
+          ${fm.author ? `<span><i class="fas fa-user-edit"></i> ${escHtml(fm.author)}</span>` : ''}
+          <span style="opacity: 0.7;">Slug: ${escHtml(n.slug)}</span>
         </div>
       </div>
-      <div class="text-muted text-sm">${escHtml(String(n.frontMatter.date || ""))}</div>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 
   renderContent(`
     <div class="section-intro">
-      <p>Quản lý tin tức và thông báo trên trang chủ.</p>
+      <p>Quản lý bài báo khoa học, tin tức và công bố học thuật hiển thị trên trang chủ.</p>
     </div>
 
     <div class="card">
-      <div class="card-header">
-        <h2><i class="fas fa-newspaper"></i> Danh sách tin tức</h2>
-        <button class="btn btn-sm btn-secondary" onclick="createNews()">
-          <i class="fas fa-plus"></i> Thêm mới
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h2><i class="fas fa-newspaper"></i> Danh sách bài báo / Tin tức</h2>
+        <button class="btn btn-sm btn-primary" onclick="createNews()">
+          <i class="fas fa-plus"></i> Thêm bài báo mới
         </button>
       </div>
       <div class="card-body">
         <div class="dynamic-list">
-          ${listHtml || '<div class="empty-state"><i class="fas fa-newspaper"></i><p>Chưa có tin tức nào</p></div>'}
+          ${listHtml || '<div class="empty-state"><i class="fas fa-newspaper"></i><p>Chưa có bài báo hoặc tin tức nào</p></div>'}
         </div>
       </div>
     </div>
@@ -2127,95 +3144,389 @@ async function loadNews() {
 }
 
 function createNews() {
+  const todayStr = new Date().toISOString().split("T")[0];
+  window._newsContentVi = '';
+  window._newsContentEn = '';
+
+  const defaultBadges = [
+    { label: 'IF', value: 'Chưa có data' },
+    { label: 'Q1', value: 'Chưa có data' },
+    { label: 'FWCI', value: 'Chưa có data' },
+    { label: 'ISSN', value: '' },
+  ];
+  const renderedBadgesHtml = renderMetricBadgeRowsHtml(defaultBadges);
+
   renderContent(`
     <div class="section-intro">
-      <p>Tạo tin tức mới</p>
+      <p>Thêm bài báo nghiên cứu / tin tức mới vào trang web.</p>
     </div>
 
     <div class="card">
       <div class="card-header">
-        <h2><i class="fas fa-plus-circle"></i> Tin tức mới</h2>
+        <h2><i class="fas fa-plus-circle"></i> Thêm bài báo / Tin tức mới</h2>
       </div>
       <div class="card-body">
         <div class="form-grid">
-          <div class="form-group">
-            <label>Slug (tên file, không dấu)</label>
-            <input type="text" id="news-slug" placeholder="announcement_4" />
+          <div class="form-group full-width">
+            <label>Slug (tên định danh file, không dấu, ví dụ: <code>2026-10-12-quan-ly-nha-nuoc-tay-ninh</code>)</label>
+            <input type="text" class="form-control" id="news-slug" placeholder="2026-10-12-bai-bao-moi" />
           </div>
-          <div class="form-group">
-            <label>Title</label>
-            <input type="text" id="news-title" />
+
+          <div class="form-group full-width" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+              <label>Tiêu đề (Tiếng Việt) <span class="text-danger">*</span></label>
+              <textarea class="form-control" id="news-title" rows="2" placeholder="Nhập tiêu đề bài báo..."></textarea>
+            </div>
+            <div>
+              <label>Tiêu đề (Tiếng Anh)</label>
+              <textarea class="form-control" id="news-title_en" rows="2" placeholder="Enter article title in English..."></textarea>
+            </div>
           </div>
-          <div class="form-group">
-            <label>Date</label>
-            <input type="text" id="news-date" placeholder="2026-01-01 12:00:00+0700" />
+
+          <div class="form-group full-width" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+              <label>Ngày xuất bản (Date)</label>
+              <input type="text" class="form-control" id="news-date" value="${todayStr} 12:00:00+0700" placeholder="YYYY-MM-DD HH:mm:ss+0700" />
+            </div>
+            <div>
+              <label>Chế độ hiển thị</label>
+              <select class="form-control" id="news-inline">
+                <option value="false" selected>Bài báo / Công bố (Có tiêu đề, tóm tắt, nút xem PDF)</option>
+                <option value="true">Thông báo ngắn (Inline)</option>
+              </select>
+            </div>
           </div>
-          <div class="form-group">
-            <label>Inline?</label>
-            <select id="news-inline">
-              <option value="true">Yes (short)</option>
-              <option value="false">No (full post)</option>
-            </select>
+
+          <div class="form-group full-width" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+              <label>Tạp chí / Nơi xuất bản (Tiếng Việt)</label>
+              <input type="text" class="form-control" id="news-journal" placeholder="Ví dụ: Tạp chí Quản lý nhà nước" oninput="updateNewsBadgePreview()" />
+            </div>
+            <div>
+              <label>Tạp chí / Nơi xuất bản (Tiếng Anh)</label>
+              <input type="text" class="form-control" id="news-journal_en" placeholder="Ví dụ: State Management Review" />
+            </div>
+          </div>
+
+          <div class="form-group full-width" style="background: rgba(255, 255, 255, 0.03); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+              <span style="font-weight: 600;"><i class="fas fa-palette text-warning"></i> Màu sắc huy hiệu Tạp chí (Journal Badge Style)</span>
+              <span id="news-badge-preview" style="font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 12px; display: inline-flex; align-items: center; gap: 5px; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;">
+                <i class="fa-solid fa-bookmark" style="font-size: 11px;"></i> <span id="news-badge-preview-text">Tên tạp chí xem trước</span>
+              </span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 10px;">
+              <div>
+                <label style="font-size: 12px;">Màu nền (Background)</label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <input type="color" id="news-journal-bg-color" value="#fef3c7" style="width: 45px; height: 35px; padding: 0; cursor: pointer; border-radius: 4px;" oninput="document.getElementById('news-journal-bg-color-text').value=this.value; updateNewsBadgePreview();" />
+                  <input type="text" class="form-control" id="news-journal-bg-color-text" value="#fef3c7" oninput="document.getElementById('news-journal-bg-color').value=this.value; updateNewsBadgePreview();" />
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px;">Màu chữ (Text Color)</label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <input type="color" id="news-journal-color" value="#92400e" style="width: 45px; height: 35px; padding: 0; cursor: pointer; border-radius: 4px;" oninput="document.getElementById('news-journal-color-text').value=this.value; updateNewsBadgePreview();" />
+                  <input type="text" class="form-control" id="news-journal-color-text" value="#92400e" oninput="document.getElementById('news-journal-color').value=this.value; updateNewsBadgePreview();" />
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px;">Màu viền (Border Color)</label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <input type="color" id="news-journal-border-color" value="#fcd34d" style="width: 45px; height: 35px; padding: 0; cursor: pointer; border-radius: 4px;" oninput="document.getElementById('news-journal-border-color-text').value=this.value; updateNewsBadgePreview();" />
+                  <input type="text" class="form-control" id="news-journal-border-color-text" value="#fcd34d" oninput="document.getElementById('news-journal-border-color').value=this.value; updateNewsBadgePreview();" />
+                </div>
+              </div>
+            </div>
+            <!-- Quick preset palettes -->
+            <div style="margin-top: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span style="font-size: 12px; color: var(--text-muted);">Mẫu sẵn:</span>
+              <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;" onclick="applyNewsBadgePreset('#fef3c7', '#92400e', '#fcd34d')">✨ Vàng đồng (QL Nhà nước)</button>
+              <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc;" onclick="applyNewsBadgePreset('#e0f2fe', '#0369a1', '#7dd3fc')">☁️ Xanh thanh thiên (Thanh niên)</button>
+              <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;" onclick="applyNewsBadgePreset('#fee2e2', '#991b1b', '#fca5a5')">🔴 Đỏ truyền thống</button>
+              <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: #dcfce7; color: #166534; border: 1px solid #86efac;" onclick="applyNewsBadgePreset('#dcfce7', '#166534', '#86efac')">🟢 Xanh ngọc</button>
+              <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: #f3e8ff; color: #6b21a8; border: 1px solid #d8b4fe;" onclick="applyNewsBadgePreset('#f3e8ff', '#6b21a8', '#d8b4fe')">🟣 Tím thạch anh</button>
+            </div>
+          </div>
+
+          <div class="form-group full-width" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+            <div>
+              <label>Tác giả (Author)</label>
+              <input type="text" class="form-control" id="news-author" placeholder="Trương Nguyễn Thái Bình" />
+            </div>
+            <div>
+              <label>Đơn vị (Institution)</label>
+              <input type="text" class="form-control" id="news-institution" placeholder="Trường Đại học FPT" />
+            </div>
+            <div>
+              <label>Email liên hệ</label>
+              <input type="text" class="form-control" id="news-email" placeholder="binhtntse182370@fpt.edu.vn" />
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label><i class="fas fa-globe text-primary"></i> Link bài báo online (External URL)</label>
+            <input type="url" class="form-control" id="news-external-url" placeholder="https://www.quanlynhanuoc.vn/..." />
+            <small class="text-muted">Khi người dùng nhấp vào tiêu đề bài báo trên trang chủ, hệ thống sẽ mở link này sang tab mới.</small>
+          </div>
+
+          <!-- PDF Upload & Select -->
+          <div class="form-group full-width" style="background: rgba(255, 255, 255, 0.04); padding: 14px; border-radius: 8px; border: 1px dashed rgba(255, 255, 255, 0.15);">
+            <label><i class="fas fa-file-pdf text-danger"></i> Tệp toàn văn PDF (PDF File)</label>
+            <div style="display: flex; gap: 10px; margin-top: 4px;">
+              <input type="text" class="form-control" id="news-pdf" placeholder="/assets/pdf/ten-file.pdf" style="flex: 1;" />
+              <button type="button" class="btn btn-secondary" onclick="document.getElementById('news-pdf-file-input').click()">
+                <i class="fas fa-upload"></i> Tải PDF lên
+              </button>
+              <button type="button" class="btn btn-outline" onclick="selectExistingPdf('news-pdf')">
+                <i class="fas fa-folder-open"></i> Chọn file có sẵn
+              </button>
+              <input type="file" id="news-pdf-file-input" style="display: none;" accept="application/pdf" onchange="uploadNewsPdf(this, 'news-pdf')" />
+            </div>
+            <small class="text-muted">Khi có file PDF, trên trang chủ sẽ xuất hiện nút "Xem file PDF" để người xem đọc trực tiếp.</small>
+          </div>
+
+          <!-- Sidebox Section (Hình chữ nhật nhỏ Text + Hình chữ nhật to Ảnh minh họa) -->
+          <div class="form-group full-width" style="background: rgba(255, 255, 255, 0.03); padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <span style="font-weight: 600; font-size: 15px;">
+                  <i class="fas fa-layer-group text-primary"></i> Khối thông tin & Ảnh minh họa dưới thời gian (Sidebox)
+                </span>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+                  Khối hiển thị ở cột thời gian trang chủ: gồm 1 hình chữ nhật nhỏ (text) và 1 hình chữ nhật to (ảnh minh họa). Kích thước con tự co dãn 100% theo section mẹ.
+                </div>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; align-items: start;">
+              <!-- Cột bên trái: Các trường nhập liệu -->
+              <div>
+                <!-- 1. Kích thước section mẹ -->
+                <div style="margin-bottom: 12px;">
+                  <label style="font-size: 13px; font-weight: 600;">
+                    <i class="fas fa-arrows-alt-h text-info"></i> Chiều rộng Section mẹ: <span id="news-sidebox-width-val" style="color: var(--primary-color, #2563eb); font-weight: 700;">115</span> px
+                  </label>
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <input type="range" class="form-range" id="news-sidebox-width-range" min="80" max="160" step="5" value="115" style="flex: 1;" oninput="document.getElementById('news-sidebox-width').value=this.value; document.getElementById('news-sidebox-width-val').textContent=this.value; updateNewsSideboxPreview();" />
+                    <input type="number" class="form-control" id="news-sidebox-width" value="115" min="80" max="180" style="width: 75px; text-align: center;" oninput="document.getElementById('news-sidebox-width-range').value=this.value; document.getElementById('news-sidebox-width-val').textContent=this.value; updateNewsSideboxPreview();" />
+                  </div>
+                  <small class="text-muted" style="font-size: 11px;">Điều chỉnh kích thước section mẹ (gợi ý: 100px - 130px). Hai hình chữ nhật con tự động co giãn theo.</small>
+                </div>
+
+                <!-- 2. Hình chữ nhật nhỏ: Text & Màu sắc -->
+                <div style="background: rgba(255, 255, 255, 0.02); padding: 12px; border-radius: 6px; border: 1px dashed rgba(255,255,255,0.1); margin-bottom: 12px;">
+                  <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px;">
+                    <i class="fas fa-tag text-danger"></i> 1. Hình chữ nhật nhỏ (Nhãn Text)
+                  </div>
+                  <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px;">
+                    <div>
+                      <label style="font-size: 12px;">Nội dung Text (nhãn)</label>
+                      <input type="text" class="form-control" id="news-sidebox-text" value="APIN" placeholder="Ví dụ: APIN hoặc TẠP CHÍ" oninput="updateNewsSideboxPreview()" />
+                    </div>
+                    <div>
+                      <label style="font-size: 12px;">Màu nền nhãn</label>
+                      <div style="display: flex; gap: 4px; align-items: center;">
+                        <input type="color" id="news-sidebox-bg-color" value="#800000" style="width: 38px; height: 35px; padding: 0; cursor: pointer; border-radius: 4px;" oninput="document.getElementById('news-sidebox-bg-color-text').value=this.value; updateNewsSideboxPreview();" />
+                        <input type="text" class="form-control" id="news-sidebox-bg-color-text" value="#800000" style="font-size: 12px;" oninput="document.getElementById('news-sidebox-bg-color').value=this.value; updateNewsSideboxPreview();" />
+                      </div>
+                    </div>
+                    <div>
+                      <label style="font-size: 12px;">Màu chữ nhãn</label>
+                      <div style="display: flex; gap: 4px; align-items: center;">
+                        <input type="color" id="news-sidebox-text-color" value="#ffffff" style="width: 38px; height: 35px; padding: 0; cursor: pointer; border-radius: 4px;" oninput="document.getElementById('news-sidebox-text-color-text').value=this.value; updateNewsSideboxPreview();" />
+                        <input type="text" class="form-control" id="news-sidebox-text-color-text" value="#ffffff" style="font-size: 12px;" oninput="document.getElementById('news-sidebox-text-color').value=this.value; updateNewsSideboxPreview();" />
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Nút mẫu nhanh màu nhãn -->
+                  <div style="margin-top: 8px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                    <span style="font-size: 11px; color: var(--text-muted);">Mẫu màu nhãn:</span>
+                    <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 1px 7px; border-radius: 10px; background: #800000; color: #fff; border: 1px solid #991b1b;" onclick="applySideboxBadgePreset('#800000', '#ffffff')">🔴 Đỏ APIN</button>
+                    <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 1px 7px; border-radius: 10px; background: #1e3a8a; color: #fff; border: 1px solid #1d4ed8;" onclick="applySideboxBadgePreset('#1e3a8a', '#ffffff')">🔵 Xanh Navy</button>
+                    <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 1px 7px; border-radius: 10px; background: #92400e; color: #fff; border: 1px solid #b45309;" onclick="applySideboxBadgePreset('#92400e', '#ffffff')">🟡 Vàng hổ phách</button>
+                    <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 1px 7px; border-radius: 10px; background: #166534; color: #fff; border: 1px solid #15803d;" onclick="applySideboxBadgePreset('#166534', '#ffffff')">🟢 Xanh lá</button>
+                  </div>
+                </div>
+
+                <!-- 3. Hình chữ nhật to: Ảnh minh họa -->
+                <div style="background: rgba(255, 255, 255, 0.02); padding: 12px; border-radius: 6px; border: 1px dashed rgba(255,255,255,0.1);">
+                  <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px;">
+                    <i class="fas fa-image text-success"></i> 2. Hình chữ nhật to (Ảnh minh họa / Bìa / Sơ đồ)
+                  </div>
+                  <div style="display: flex; gap: 8px; align-items: center;">
+                    <input type="text" class="form-control" id="news-sidebox-image" value="/assets/img/TCQLNC.jpg" placeholder="TCQLNC.jpg hoặc /assets/img/ten-anh.jpg" style="flex: 1;" oninput="updateNewsSideboxPreview()" />
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('news-sidebox-image-file').click()" style="white-space:nowrap;">
+                      <i class="fas fa-upload"></i> Tải ảnh lên
+                    </button>
+                    <button type="button" class="btn btn-outline" onclick="selectExistingImage('news-sidebox-image')" style="white-space:nowrap;">
+                      <i class="fas fa-folder-open"></i> Chọn ảnh
+                    </button>
+                    <input type="file" id="news-sidebox-image-file" style="display: none;" accept="image/*" onchange="uploadNewsImage(this, 'news-sidebox-image')" />
+                  </div>
+                  <small class="text-muted" style="font-size: 11px; display: block; margin-top: 4px;">Có thể chọn ảnh bìa tạp chí, sơ đồ kỹ thuật, hình minh họa. Ảnh sẽ tự co giãn vừa vặn khung chữ nhật to.</small>
+                </div>
+              </div>
+
+              <!-- Cột bên phải: Khung Xem Trước Trực Quan (Live Preview) -->
+              <div style="background: rgba(0,0,0,0.2); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); text-align: center;">
+                <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 10px;">
+                  <i class="fas fa-eye"></i> XEM TRƯỚC SECTION MẸ
+                </div>
+                <div style="display: flex; justify-content: center; align-items: center; min-height: 180px; background: rgba(255,255,255,0.02); border-radius: 6px; padding: 12px;">
+                  <!-- Live Preview Box -->
+                  <div id="sidebox-live-parent" style="width: 115px; display: flex; flex-direction: column; gap: 8px; transition: width 0.2s ease;">
+                    <!-- Hình chữ nhật nhỏ preview -->
+                    <div id="sidebox-live-small" style="width: 100%; background-color: #800000; color: #ffffff; padding: 5px 8px; border-radius: 6px; text-align: center; font-weight: 700; font-size: 0.82rem; line-height: 1.2; box-shadow: 0 2px 4px rgba(0,0,0,0.15); word-break: break-word;">
+                      APIN
+                    </div>
+                    <!-- Hình chữ nhật to preview -->
+                    <div id="sidebox-live-big" style="width: 100%; border-radius: 6px; overflow: hidden; border: 1px solid #cbd5e1; background-color: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.1); padding: 4px; display: flex; align-items: center; justify-content: center; min-height: 90px;">
+                      <img id="sidebox-live-img" src="/assets/img/TCQLNC.jpg" alt="Preview" style="width: 100%; height: auto; max-height: 130px; object-fit: contain; border-radius: 4px; display: block;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                      <span style="display: none; font-size: 11px; color: #94a3b8; padding: 10px;">Chưa có ảnh</span>
+                    </div>
+                  </div>
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">
+                  Hiển thị chính xác như trên trang chủ
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Metric Badges Section (IF, Q1, FWCI, ISSN...) -->
+          <div class="form-group full-width" style="background: rgba(255, 255, 255, 0.03); padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <span style="font-weight: 600; font-size: 15px;">
+                  <i class="fas fa-certificate text-warning"></i> Chỉ số bài báo & Huy hiệu khoa học (Metric Badges: IF, Q1, FWCI, ISSN...)
+                </span>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+                  Hiển thị ngay trên mục "Xem file PDF" và "Đọc bài báo gốc". Nếu có số liệu thì điền vào, chưa có thì ghi <em>Chưa có data</em> hoặc <em>Chưa cập nhật</em>. Admin có thể tự do tạo thêm badge như <strong>ISSN</strong>, <strong>HĐCDGS</strong>, <strong>Scopus</strong>...
+                </div>
+              </div>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+                <span style="font-size: 11px; color: var(--text-muted);">Thêm nhanh:</span>
+                <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="addMetricBadgeRow('IF', 'Chưa có data')">+ IF</button>
+                <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="addMetricBadgeRow('Q1', '(latest)')">+ Q1</button>
+                <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="addMetricBadgeRow('FWCI', 'Chưa có data')">+ FWCI</button>
+                <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="addMetricBadgeRow('ISSN', '')">+ ISSN</button>
+                <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="addMetricBadgeRow('HĐCDGS', '')">+ HĐCDGS</button>
+                <button type="button" class="btn btn-sm btn-primary" style="font-size: 11px; padding: 3px 10px;" onclick="addMetricBadgeRow('', '')">
+                  <i class="fas fa-plus"></i> Tạo badge mới
+                </button>
+              </div>
+            </div>
+
+            <!-- Danh sách các badge hiện tại -->
+            <div id="metric-badges-container" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+              ${renderedBadgesHtml}
+            </div>
+
+            <!-- Live preview -->
+            <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+                <i class="fas fa-eye text-info"></i> Xem trước hiển thị trên thẻ bài báo (Phía trên nút PDF & Đọc báo gốc):
+              </div>
+              <div id="metric-badges-preview" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-height: 32px; padding: 4px; border-radius: 4px;">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group full-width" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+              <label>Nội dung tóm tắt / Abstract (Tiếng Việt)</label>
+              <textarea class="form-control" id="news-desc" rows="4" placeholder="Tóm tắt vài dòng tượng trưng hiển thị dưới tiêu đề..."></textarea>
+            </div>
+            <div>
+              <label>Nội dung tóm tắt / Abstract (Tiếng Anh)</label>
+              <textarea class="form-control" id="news-desc_en" rows="4" placeholder="Abstract summary in English..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-group full-width" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
+            <div>
+              <label>Nội dung chi tiết (Markdown / Tiếng Việt)</label>
+              <textarea class="form-control" id="news-body" rows="6" placeholder="Toàn văn bài báo bằng định dạng Markdown..."></textarea>
+            </div>
+            <div>
+              <label>Nội dung chi tiết (Markdown / Tiếng Anh)</label>
+              <textarea class="form-control" id="news-body_en" rows="6" placeholder="Full article in English Markdown..."></textarea>
+            </div>
           </div>
         </div>
-        <div class="form-group mt-4 full-width" style="display: flex; gap: 15px;">
-            <div style="flex: 1;">
-              <label>Content (Tiếng Việt)</label>
-              <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="text" class="form-control" readonly value="..." style="flex: 1;" />
-                <button class="btn btn-outline" onclick="openEditorModal('Content (Tiếng Việt)', window._newsContentVi, (val) => window._newsContentVi = val)"><i class="fas fa-edit"></i> Chỉnh sửa</button>
-              </div>
-            </div>
-            <div style="flex: 1;">
-              <label>Content (Tiếng Anh)</label>
-              <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="text" class="form-control" readonly value="..." style="flex: 1;" />
-                <button class="btn btn-outline" onclick="openEditorModal('Content (Tiếng Anh)', window._newsContentEn, (val) => window._newsContentEn = val)"><i class="fas fa-edit"></i> Chỉnh sửa</button>
-              </div>
-            </div>
-          </div>
       </div>
-      <div class="card-footer">
+      <div class="card-footer" style="display: flex; justify-content: space-between;">
         <button class="btn btn-secondary" onclick="loadNews()">
           <i class="fas fa-arrow-left"></i> Quay lại
         </button>
         <button class="btn btn-primary" onclick="saveNewNews()">
-          <i class="fas fa-save"></i> Tạo
+          <i class="fas fa-save"></i> Tạo bài báo mới
         </button>
       </div>
     </div>
   `);
-  
-  window._newsContentVi = '';
-    window._newsContentEn = '';
+  updateMetricBadgesPreview();
 }
 
 async function saveNewNews() {
-  const slug = document.getElementById("news-slug").value.trim();
-  if (!slug) return showToast("Slug không được để trống", "error");
+  const slugInput = document.getElementById("news-slug").value.trim();
+  const title = document.getElementById("news-title").value.trim();
+  if (!slugInput) return showToast("Slug (tên file) không được để trống", "error");
+  if (!title) return showToast("Tiêu đề bài báo không được để trống", "error");
+
+  const slug = slugInput.replace(/\.md$/, "");
 
   const frontMatter = {
     layout: "post",
-    title: document.getElementById("news-title").value,
-    date: document.getElementById("news-date").value,
+    title: title,
+    title_en: document.getElementById("news-title_en") ? document.getElementById("news-title_en").value.trim() : "",
+    date: document.getElementById("news-date").value.trim(),
     inline: document.getElementById("news-inline").value === "true",
     related_posts: false,
+    journal: document.getElementById("news-journal") ? document.getElementById("news-journal").value.trim() : "",
+    journal_en: document.getElementById("news-journal_en") ? document.getElementById("news-journal_en").value.trim() : "",
+    journal_bg_color: document.getElementById("news-journal-bg-color-text") ? document.getElementById("news-journal-bg-color-text").value.trim() : "",
+    journal_color: document.getElementById("news-journal-color-text") ? document.getElementById("news-journal-color-text").value.trim() : "",
+    journal_border_color: document.getElementById("news-journal-border-color-text") ? document.getElementById("news-journal-border-color-text").value.trim() : "",
+    sidebox_text: document.getElementById("news-sidebox-text") ? document.getElementById("news-sidebox-text").value.trim() : "",
+    sidebox_bg_color: document.getElementById("news-sidebox-bg-color-text") ? document.getElementById("news-sidebox-bg-color-text").value.trim() : "",
+    sidebox_text_color: document.getElementById("news-sidebox-text-color-text") ? document.getElementById("news-sidebox-text-color-text").value.trim() : "",
+    sidebox_image: document.getElementById("news-sidebox-image") ? document.getElementById("news-sidebox-image").value.trim() : "",
+    sidebox_width: document.getElementById("news-sidebox-width") ? parseInt(document.getElementById("news-sidebox-width").value, 10) || 115 : 115,
+    author: document.getElementById("news-author") ? document.getElementById("news-author").value.trim() : "",
+    institution: document.getElementById("news-institution") ? document.getElementById("news-institution").value.trim() : "",
+    email: document.getElementById("news-email") ? document.getElementById("news-email").value.trim() : "",
+    external_url: document.getElementById("news-external-url") ? document.getElementById("news-external-url").value.trim() : "",
+    pdf: document.getElementById("news-pdf") ? document.getElementById("news-pdf").value.trim() : "",
+    metric_badges: getMetricBadgesFromForm(),
+    description: document.getElementById("news-desc") ? document.getElementById("news-desc").value.trim() : "",
+    description_en: document.getElementById("news-desc_en") ? document.getElementById("news-desc_en").value.trim() : "",
   };
-  const body = currentEditor ? currentEditor.getMarkdown() : "";
 
+  const body_en = document.getElementById("news-body_en") ? document.getElementById("news-body_en").value.trim() : "";
+  if (body_en) {
+    frontMatter.content_en = body_en;
+  }
+
+  const body = document.getElementById("news-body") ? document.getElementById("news-body").value : "";
+
+  showLoading();
   try {
     const resp = await fetch(`${API}/news`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ slug, frontMatter, body }),
     });
+    hideLoading();
     if (!resp.ok) {
       const err = await resp.json();
-      return showToast(err.error || "Lỗi tạo tin tức", "error");
+      return showToast(err.error || "Lỗi tạo bài báo", "error");
     }
-    showToast("Tin tức đã được tạo!", "success");
+    showToast("Bài báo đã được tạo thành công!", "success");
     loadNews();
   } catch (err) {
+    hideLoading();
     showToast(`Lỗi: ${err.message}`, "error");
   }
 }
@@ -2225,105 +3536,815 @@ async function editNews(slug) {
   const data = await fetch(`${API}/news/${slug}`).then((r) => r.json());
   hideLoading();
 
-  const fm = data.frontMatter;
-  
-  // Format date to YYYY-MM-DD for date input
-  const formattedDate = fm.date ? String(fm.date).split(" ")[0] : "";
+  const fm = data.frontMatter || {};
+  const bodyVi = data.body || "";
+  const bodyEn = fm.content_en || "";
+
+  let jBg = fm.journal_bg_color || "";
+  let jColor = fm.journal_color || "";
+  let jBorder = fm.journal_border_color || "";
+
+  if (!jBg || !jColor || !jBorder) {
+    const jName = (fm.journal || "").toLowerCase();
+    if (jName.includes("quản lý nhà nước") || jName.includes("quan ly nha nuoc")) {
+      jBg = jBg || "#fef3c7";
+      jColor = jColor || "#92400e";
+      jBorder = jBorder || "#fcd34d";
+    } else if (jName.includes("thanh niên") || jName.includes("thanh nien")) {
+      jBg = jBg || "#e0f2fe";
+      jColor = jColor || "#0369a1";
+      jBorder = jBorder || "#7dd3fc";
+    } else {
+      jBg = jBg || "#fef3c7";
+      jColor = jColor || "#92400e";
+      jBorder = jBorder || "#fcd34d";
+    }
+  }
+
+  const initialBadges = (fm.metric_badges && Array.isArray(fm.metric_badges) && fm.metric_badges.length > 0)
+    ? fm.metric_badges
+    : (
+      slug.includes('quan-ly-nha-nuoc')
+        ? [
+            { label: 'IF', value: 'Chưa có data' },
+            { label: 'Q', value: 'Chưa có data' },
+            { label: 'FWCI', value: 'Chưa có data' },
+            { label: 'ISSN', value: '0868-2828' },
+            { label: 'HĐCDGS', value: '0.75 - 1.0' },
+          ]
+        : slug.includes('cong-nghiep-van-hoa')
+        ? [
+            { label: 'IF', value: 'Chưa có data' },
+            { label: 'Q', value: 'Chưa có data' },
+            { label: 'FWCI', value: 'Chưa có data' },
+            { label: 'ISSN', value: '2354-1296' },
+            { label: 'HĐCDGS', value: '0.5' },
+          ]
+        : [
+            { label: 'IF', value: 'Chưa có data' },
+            { label: 'Q1', value: 'Chưa có data' },
+            { label: 'FWCI', value: 'Chưa có data' },
+          ]
+    );
+  const renderedBadgesHtml = renderMetricBadgeRowsHtml(initialBadges);
 
   renderContent(`
     <div class="section-intro">
-      <p>Chỉnh sửa tin tức: <strong>${escHtml(fm.title || slug)}</strong></p>
+      <p>Chỉnh sửa bài báo: <strong>${escHtml(fm.title || slug)}</strong></p>
     </div>
 
     <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-edit"></i> Chỉnh sửa bài báo</h2>
+      </div>
       <div class="card-body">
         <div class="form-grid">
-          <div class="form-group full-width" style="display: flex; gap: 15px;">
-              <div style="flex: 1;">
-                <label>Title (Tiếng Việt)</label>
-                <input type="text" id="news-title" value="${escHtml(fm.title || '')}" />
+          <div class="form-group full-width">
+            <label>Slug (tên định danh file)</label>
+            <input type="text" class="form-control" id="news-slug" value="${escHtml(slug)}" readonly style="background:#f1f5f9;" />
+          </div>
+
+          <div class="form-group full-width" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+              <label>Tiêu đề (Tiếng Việt) <span class="text-danger">*</span></label>
+              <textarea class="form-control" id="news-title" rows="2">${escHtml(fm.title || "")}</textarea>
+            </div>
+            <div>
+              <label>Tiêu đề (Tiếng Anh)</label>
+              <textarea class="form-control" id="news-title_en" rows="2">${escHtml(fm.title_en || "")}</textarea>
+            </div>
+          </div>
+
+          <div class="form-group full-width" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+              <label>Ngày xuất bản (Date)</label>
+              <input type="text" class="form-control" id="news-date" value="${escHtml(String(fm.date || ""))}" placeholder="YYYY-MM-DD HH:mm:ss+0700" />
+            </div>
+            <div>
+              <label>Chế độ hiển thị</label>
+              <select class="form-control" id="news-inline">
+                <option value="false" ${!fm.inline ? "selected" : ""}>Bài báo / Công bố (Có tiêu đề, tóm tắt, nút xem PDF)</option>
+                <option value="true" ${fm.inline ? "selected" : ""}>Thông báo ngắn (Inline)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group full-width" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+              <label>Tạp chí / Nơi xuất bản (Tiếng Việt)</label>
+              <input type="text" class="form-control" id="news-journal" value="${escHtml(fm.journal || "")}" placeholder="Ví dụ: Tạp chí Quản lý nhà nước" oninput="updateNewsBadgePreview()" />
+            </div>
+            <div>
+              <label>Tạp chí / Nơi xuất bản (Tiếng Anh)</label>
+              <input type="text" class="form-control" id="news-journal_en" value="${escHtml(fm.journal_en || "")}" placeholder="Ví dụ: State Management Review" />
+            </div>
+          </div>
+
+          <div class="form-group full-width" style="background: rgba(255, 255, 255, 0.03); padding: 14px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+              <span style="font-weight: 600;"><i class="fas fa-palette text-warning"></i> Màu sắc huy hiệu Tạp chí (Journal Badge Style)</span>
+              <span id="news-badge-preview" style="font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 12px; display: inline-flex; align-items: center; gap: 5px; background: ${jBg}; color: ${jColor}; border: 1px solid ${jBorder};">
+                <i class="fa-solid fa-bookmark" style="font-size: 11px;"></i> <span id="news-badge-preview-text">${escHtml(fm.journal || "Tên tạp chí xem trước")}</span>
+              </span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 10px;">
+              <div>
+                <label style="font-size: 12px;">Màu nền (Background)</label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <input type="color" id="news-journal-bg-color" value="${jBg}" style="width: 45px; height: 35px; padding: 0; cursor: pointer; border-radius: 4px;" oninput="document.getElementById('news-journal-bg-color-text').value=this.value; updateNewsBadgePreview();" />
+                  <input type="text" class="form-control" id="news-journal-bg-color-text" value="${jBg}" oninput="document.getElementById('news-journal-bg-color').value=this.value; updateNewsBadgePreview();" />
+                </div>
               </div>
-              <div style="flex: 1;">
-                <label>Title (Tiếng Anh)</label>
-                <input type="text" id="news-title_en" value="${escHtml(fm.title_en || '')}" />
+              <div>
+                <label style="font-size: 12px;">Màu chữ (Text Color)</label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <input type="color" id="news-journal-color" value="${jColor}" style="width: 45px; height: 35px; padding: 0; cursor: pointer; border-radius: 4px;" oninput="document.getElementById('news-journal-color-text').value=this.value; updateNewsBadgePreview();" />
+                  <input type="text" class="form-control" id="news-journal-color-text" value="${jColor}" oninput="document.getElementById('news-journal-color').value=this.value; updateNewsBadgePreview();" />
+                </div>
+              </div>
+              <div>
+                <label style="font-size: 12px;">Màu viền (Border Color)</label>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                  <input type="color" id="news-journal-border-color" value="${jBorder}" style="width: 45px; height: 35px; padding: 0; cursor: pointer; border-radius: 4px;" oninput="document.getElementById('news-journal-border-color-text').value=this.value; updateNewsBadgePreview();" />
+                  <input type="text" class="form-control" id="news-journal-border-color-text" value="${jBorder}" oninput="document.getElementById('news-journal-border-color').value=this.value; updateNewsBadgePreview();" />
+                </div>
               </div>
             </div>
-          <div class="form-group">
-            <label>Date</label>
-            <input type="date" id="news-date" value="${escHtml(formattedDate)}" />
+            <!-- Quick preset palettes -->
+            <div style="margin-top: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span style="font-size: 12px; color: var(--text-muted);">Mẫu sẵn:</span>
+              <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;" onclick="applyNewsBadgePreset('#fef3c7', '#92400e', '#fcd34d')">✨ Vàng đồng (QL Nhà nước)</button>
+              <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc;" onclick="applyNewsBadgePreset('#e0f2fe', '#0369a1', '#7dd3fc')">☁️ Xanh thanh thiên (Thanh niên)</button>
+              <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;" onclick="applyNewsBadgePreset('#fee2e2', '#991b1b', '#fca5a5')">🔴 Đỏ truyền thống</button>
+              <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: #dcfce7; color: #166534; border: 1px solid #86efac;" onclick="applyNewsBadgePreset('#dcfce7', '#166534', '#86efac')">🟢 Xanh ngọc</button>
+              <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: #f3e8ff; color: #6b21a8; border: 1px solid #d8b4fe;" onclick="applyNewsBadgePreset('#f3e8ff', '#6b21a8', '#d8b4fe')">🟣 Tím thạch anh</button>
+            </div>
           </div>
-          <div class="form-group">
-            <label>Inline?</label>
-            <select id="news-inline">
-              <option value="true" ${fm.inline ? "selected" : ""}>Yes</option>
-              <option value="false" ${!fm.inline ? "selected" : ""}>No</option>
-            </select>
+
+          <div class="form-group full-width" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+            <div>
+              <label>Tác giả (Author)</label>
+              <input type="text" class="form-control" id="news-author" value="${escHtml(fm.author || "")}" placeholder="Trương Nguyễn Thái Bình" />
+            </div>
+            <div>
+              <label>Đơn vị (Institution)</label>
+              <input type="text" class="form-control" id="news-institution" value="${escHtml(fm.institution || "")}" placeholder="Trường Đại học FPT" />
+            </div>
+            <div>
+              <label>Email liên hệ</label>
+              <input type="text" class="form-control" id="news-email" value="${escHtml(fm.email || "")}" placeholder="binhtntse182370@fpt.edu.vn" />
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label><i class="fas fa-globe text-primary"></i> Link bài báo online (External URL)</label>
+            <div style="display: flex; gap: 10px;">
+              <input type="url" class="form-control" id="news-external-url" value="${escHtml(fm.external_url || fm.link || "")}" placeholder="https://www.quanlynhanuoc.vn/..." style="flex:1;" />
+              ${(fm.external_url || fm.link) ? `
+                <a href="${escHtml(fm.external_url || fm.link)}" target="_blank" class="btn btn-outline" style="white-space:nowrap;">
+                  <i class="fas fa-external-link-alt"></i> Mở thử link
+                </a>
+              ` : ''}
+            </div>
+            <small class="text-muted">Khi người dùng nhấp vào tiêu đề bài báo trên trang chủ, hệ thống sẽ mở link này sang tab mới.</small>
+          </div>
+
+          <!-- PDF Upload & Select -->
+          <div class="form-group full-width" style="background: rgba(255, 255, 255, 0.04); padding: 14px; border-radius: 8px; border: 1px dashed rgba(255, 255, 255, 0.15);">
+            <label><i class="fas fa-file-pdf text-danger"></i> Tệp toàn văn PDF (PDF File)</label>
+            <div style="display: flex; gap: 10px; margin-top: 4px;">
+              <input type="text" class="form-control" id="news-pdf" value="${escHtml(fm.pdf || fm.pdf_url || "")}" placeholder="/assets/pdf/ten-file.pdf" style="flex: 1;" />
+              <button type="button" class="btn btn-secondary" onclick="document.getElementById('news-pdf-file-input').click()">
+                <i class="fas fa-upload"></i> Tải PDF lên
+              </button>
+              <button type="button" class="btn btn-outline" onclick="selectExistingPdf('news-pdf')">
+                <i class="fas fa-folder-open"></i> Chọn file có sẵn
+              </button>
+              ${(fm.pdf || fm.pdf_url) ? `
+                <a href="${escHtml(fm.pdf || fm.pdf_url)}" target="_blank" class="btn btn-outline text-danger" style="white-space:nowrap;">
+                  <i class="fas fa-eye"></i> Xem file PDF
+                </a>
+              ` : ''}
+              <input type="file" id="news-pdf-file-input" style="display: none;" accept="application/pdf" onchange="uploadNewsPdf(this, 'news-pdf')" />
+            </div>
+            <small class="text-muted">Khi có file PDF, trên trang chủ sẽ xuất hiện nút "Xem file PDF" để người xem đọc trực tiếp.</small>
+          </div>
+
+          <!-- Sidebox Section (Hình chữ nhật nhỏ Text + Hình chữ nhật to Ảnh minh họa) -->
+          <div class="form-group full-width" style="background: rgba(255, 255, 255, 0.03); padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <span style="font-weight: 600; font-size: 15px;">
+                  <i class="fas fa-layer-group text-primary"></i> Khối thông tin & Ảnh minh họa dưới thời gian (Sidebox)
+                </span>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+                  Khối hiển thị ở cột thời gian trang chủ: gồm 1 hình chữ nhật nhỏ (text) và 1 hình chữ nhật to (ảnh minh họa). Kích thước con tự co dãn 100% theo section mẹ.
+                </div>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; align-items: start;">
+              <!-- Cột bên trái: Các trường nhập liệu -->
+              <div>
+                <!-- 1. Kích thước section mẹ -->
+                <div style="margin-bottom: 12px;">
+                  <label style="font-size: 13px; font-weight: 600;">
+                    <i class="fas fa-arrows-alt-h text-info"></i> Chiều rộng Section mẹ: <span id="news-sidebox-width-val" style="color: var(--primary-color, #2563eb); font-weight: 700;">${fm.sidebox_width || 115}</span> px
+                  </label>
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <input type="range" class="form-range" id="news-sidebox-width-range" min="80" max="160" step="5" value="${fm.sidebox_width || 115}" style="flex: 1;" oninput="document.getElementById('news-sidebox-width').value=this.value; document.getElementById('news-sidebox-width-val').textContent=this.value; updateNewsSideboxPreview();" />
+                    <input type="number" class="form-control" id="news-sidebox-width" value="${fm.sidebox_width || 115}" min="80" max="180" style="width: 75px; text-align: center;" oninput="document.getElementById('news-sidebox-width-range').value=this.value; document.getElementById('news-sidebox-width-val').textContent=this.value; updateNewsSideboxPreview();" />
+                  </div>
+                  <small class="text-muted" style="font-size: 11px;">Điều chỉnh kích thước section mẹ (gợi ý: 100px - 130px). Hai hình chữ nhật con tự động co giãn theo.</small>
+                </div>
+
+                <!-- 2. Hình chữ nhật nhỏ: Text & Màu sắc -->
+                <div style="background: rgba(255, 255, 255, 0.02); padding: 12px; border-radius: 6px; border: 1px dashed rgba(255,255,255,0.1); margin-bottom: 12px;">
+                  <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px;">
+                    <i class="fas fa-tag text-danger"></i> 1. Hình chữ nhật nhỏ (Nhãn Text)
+                  </div>
+                  <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px;">
+                    <div>
+                      <label style="font-size: 12px;">Nội dung Text (nhãn)</label>
+                      <input type="text" class="form-control" id="news-sidebox-text" value="${escHtml(fm.sidebox_text !== undefined ? fm.sidebox_text : (fm.badge_name || (slug.includes('quan-ly-nha-nuoc') ? 'APIN' : 'TẠP CHÍ')))}" placeholder="Ví dụ: APIN hoặc TẠP CHÍ" oninput="updateNewsSideboxPreview()" />
+                    </div>
+                    <div>
+                      <label style="font-size: 12px;">Màu nền nhãn</label>
+                      <div style="display: flex; gap: 4px; align-items: center;">
+                        <input type="color" id="news-sidebox-bg-color" value="${fm.sidebox_bg_color || fm.badge_color || (slug.includes('quan-ly-nha-nuoc') ? '#800000' : '#1e3a8a')}" style="width: 38px; height: 35px; padding: 0; cursor: pointer; border-radius: 4px;" oninput="document.getElementById('news-sidebox-bg-color-text').value=this.value; updateNewsSideboxPreview();" />
+                        <input type="text" class="form-control" id="news-sidebox-bg-color-text" value="${fm.sidebox_bg_color || fm.badge_color || (slug.includes('quan-ly-nha-nuoc') ? '#800000' : '#1e3a8a')}" style="font-size: 12px;" oninput="document.getElementById('news-sidebox-bg-color').value=this.value; updateNewsSideboxPreview();" />
+                      </div>
+                    </div>
+                    <div>
+                      <label style="font-size: 12px;">Màu chữ nhãn</label>
+                      <div style="display: flex; gap: 4px; align-items: center;">
+                        <input type="color" id="news-sidebox-text-color" value="${fm.sidebox_text_color || '#ffffff'}" style="width: 38px; height: 35px; padding: 0; cursor: pointer; border-radius: 4px;" oninput="document.getElementById('news-sidebox-text-color-text').value=this.value; updateNewsSideboxPreview();" />
+                        <input type="text" class="form-control" id="news-sidebox-text-color-text" value="${fm.sidebox_text_color || '#ffffff'}" style="font-size: 12px;" oninput="document.getElementById('news-sidebox-text-color').value=this.value; updateNewsSideboxPreview();" />
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Nút mẫu nhanh màu nhãn -->
+                  <div style="margin-top: 8px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                    <span style="font-size: 11px; color: var(--text-muted);">Mẫu màu nhãn:</span>
+                    <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 1px 7px; border-radius: 10px; background: #800000; color: #fff; border: 1px solid #991b1b;" onclick="applySideboxBadgePreset('#800000', '#ffffff')">🔴 Đỏ APIN</button>
+                    <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 1px 7px; border-radius: 10px; background: #1e3a8a; color: #fff; border: 1px solid #1d4ed8;" onclick="applySideboxBadgePreset('#1e3a8a', '#ffffff')">🔵 Xanh Navy</button>
+                    <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 1px 7px; border-radius: 10px; background: #92400e; color: #fff; border: 1px solid #b45309;" onclick="applySideboxBadgePreset('#92400e', '#ffffff')">🟡 Vàng hổ phách</button>
+                    <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 1px 7px; border-radius: 10px; background: #166534; color: #fff; border: 1px solid #15803d;" onclick="applySideboxBadgePreset('#166534', '#ffffff')">🟢 Xanh lá</button>
+                  </div>
+                </div>
+
+                <!-- 3. Hình chữ nhật to: Ảnh minh họa -->
+                <div style="background: rgba(255, 255, 255, 0.02); padding: 12px; border-radius: 6px; border: 1px dashed rgba(255,255,255,0.1);">
+                  <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px;">
+                    <i class="fas fa-image text-success"></i> 2. Hình chữ nhật to (Ảnh minh họa / Bìa / Sơ đồ)
+                  </div>
+                  <div style="display: flex; gap: 8px; align-items: center;">
+                    <input type="text" class="form-control" id="news-sidebox-image" value="${escHtml(fm.sidebox_image || fm.preview || (slug.includes('quan-ly-nha-nuoc') ? 'TCQLNC.jpg' : (slug.includes('cong-nghiep-van-hoa') ? 'TCTN.jpg' : '')))}" placeholder="TCQLNC.jpg hoặc /assets/img/ten-anh.jpg" style="flex: 1;" oninput="updateNewsSideboxPreview()" />
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('news-sidebox-image-file').click()" style="white-space:nowrap;">
+                      <i class="fas fa-upload"></i> Tải ảnh lên
+                    </button>
+                    <button type="button" class="btn btn-outline" onclick="selectExistingImage('news-sidebox-image')" style="white-space:nowrap;">
+                      <i class="fas fa-folder-open"></i> Chọn ảnh
+                    </button>
+                    <input type="file" id="news-sidebox-image-file" style="display: none;" accept="image/*" onchange="uploadNewsImage(this, 'news-sidebox-image')" />
+                  </div>
+                  <small class="text-muted" style="font-size: 11px; display: block; margin-top: 4px;">Có thể chọn ảnh bìa tạp chí, sơ đồ kỹ thuật, hình minh họa. Ảnh sẽ tự co giãn vừa vặn khung chữ nhật to.</small>
+                </div>
+              </div>
+
+              <!-- Cột bên phải: Khung Xem Trước Trực Quan (Live Preview) -->
+              <div style="background: rgba(0,0,0,0.2); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); text-align: center;">
+                <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 10px;">
+                  <i class="fas fa-eye"></i> XEM TRƯỚC SECTION MẸ
+                </div>
+                <div style="display: flex; justify-content: center; align-items: center; min-height: 180px; background: rgba(255,255,255,0.02); border-radius: 6px; padding: 12px;">
+                  <!-- Live Preview Box -->
+                  <div id="sidebox-live-parent" style="width: ${fm.sidebox_width || 115}px; display: flex; flex-direction: column; gap: 8px; transition: width 0.2s ease;">
+                    <!-- Hình chữ nhật nhỏ preview -->
+                    <div id="sidebox-live-small" style="width: 100%; background-color: ${fm.sidebox_bg_color || fm.badge_color || (slug.includes('quan-ly-nha-nuoc') ? '#800000' : '#1e3a8a')}; color: ${fm.sidebox_text_color || '#ffffff'}; padding: 5px 8px; border-radius: 6px; text-align: center; font-weight: 700; font-size: 0.82rem; line-height: 1.2; box-shadow: 0 2px 4px rgba(0,0,0,0.15); word-break: break-word;">
+                      ${escHtml(fm.sidebox_text !== undefined ? fm.sidebox_text : (fm.badge_name || (slug.includes('quan-ly-nha-nuoc') ? 'APIN' : 'TẠP CHÍ')))}
+                    </div>
+                    <!-- Hình chữ nhật to preview -->
+                    <div id="sidebox-live-big" style="width: 100%; border-radius: 6px; overflow: hidden; border: 1px solid #cbd5e1; background-color: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.1); padding: 4px; display: flex; align-items: center; justify-content: center; min-height: 90px;">
+                      <img id="sidebox-live-img" src="${(() => {
+                        const img = fm.sidebox_image || fm.preview || (slug.includes('quan-ly-nha-nuoc') ? 'TCQLNC.jpg' : (slug.includes('cong-nghiep-van-hoa') ? 'TCTN.jpg' : ''));
+                        if (img.startsWith('http') || img.startsWith('/')) return img;
+                        return `/assets/img/${img}`;
+                      })()}" alt="Preview" style="width: 100%; height: auto; max-height: 130px; object-fit: contain; border-radius: 4px; display: block;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                      <span style="display: none; font-size: 11px; color: #94a3b8; padding: 10px;">Chưa có ảnh</span>
+                    </div>
+                  </div>
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">
+                  Hiển thị chính xác như trên trang chủ
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Metric Badges Section (IF, Q1, FWCI, ISSN...) -->
+          <div class="form-group full-width" style="background: rgba(255, 255, 255, 0.03); padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <span style="font-weight: 600; font-size: 15px;">
+                  <i class="fas fa-certificate text-warning"></i> Chỉ số bài báo & Huy hiệu khoa học (Metric Badges: IF, Q1, FWCI, ISSN...)
+                </span>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+                  Hiển thị ngay trên mục "Xem file PDF" và "Đọc bài báo gốc". Nếu có số liệu thì điền vào, chưa có thì ghi <em>Chưa có data</em> hoặc <em>Chưa cập nhật</em>. Admin có thể tự do tạo thêm badge như <strong>ISSN</strong>, <strong>HĐCDGS</strong>, <strong>Scopus</strong>...
+                </div>
+              </div>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+                <span style="font-size: 11px; color: var(--text-muted);">Thêm nhanh:</span>
+                <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="addMetricBadgeRow('IF', 'Chưa có data')">+ IF</button>
+                <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="addMetricBadgeRow('Q1', '(latest)')">+ Q1</button>
+                <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="addMetricBadgeRow('FWCI', 'Chưa có data')">+ FWCI</button>
+                <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="addMetricBadgeRow('ISSN', '')">+ ISSN</button>
+                <button type="button" class="btn btn-sm btn-outline" style="font-size: 11px; padding: 3px 8px;" onclick="addMetricBadgeRow('HĐCDGS', '')">+ HĐCDGS</button>
+                <button type="button" class="btn btn-sm btn-primary" style="font-size: 11px; padding: 3px 10px;" onclick="addMetricBadgeRow('', '')">
+                  <i class="fas fa-plus"></i> Tạo badge mới
+                </button>
+              </div>
+            </div>
+
+            <!-- Danh sách các badge hiện tại -->
+            <div id="metric-badges-container" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+              ${renderedBadgesHtml}
+            </div>
+
+            <!-- Live preview -->
+            <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
+              <div style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+                <i class="fas fa-eye text-info"></i> Xem trước hiển thị trên thẻ bài báo (Phía trên nút PDF & Đọc báo gốc):
+              </div>
+              <div id="metric-badges-preview" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-height: 32px; padding: 4px; border-radius: 4px;">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group full-width" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+              <label>Nội dung tóm tắt / Abstract (Tiếng Việt)</label>
+              <textarea class="form-control" id="news-desc" rows="4" placeholder="Tóm tắt vài dòng tượng trưng hiển thị dưới tiêu đề...">${escHtml(fm.description || "")}</textarea>
+            </div>
+            <div>
+              <label>Nội dung tóm tắt / Abstract (Tiếng Anh)</label>
+              <textarea class="form-control" id="news-desc_en" rows="4" placeholder="Abstract summary in English...">${escHtml(fm.description_en || "")}</textarea>
+            </div>
+          </div>
+
+          <div class="form-group full-width" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
+            <div>
+              <label>Nội dung chi tiết (Markdown / Tiếng Việt)</label>
+              <textarea class="form-control" id="news-body" rows="6" placeholder="Toàn văn bài báo bằng định dạng Markdown...">${escHtml(bodyVi)}</textarea>
+            </div>
+            <div>
+              <label>Nội dung chi tiết (Markdown / Tiếng Anh)</label>
+              <textarea class="form-control" id="news-body_en" rows="6" placeholder="Full article in English Markdown...">${escHtml(bodyEn)}</textarea>
+            </div>
           </div>
         </div>
-        <div class="form-group mt-4 full-width" style="display: flex; gap: 15px;">
-            <div style="flex: 1;">
-              <label>Content (Tiếng Việt)</label>
-              <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="text" class="form-control" readonly value="..." style="flex: 1;" />
-                <button class="btn btn-outline" onclick="openEditorModal('Content (Tiếng Việt)', window._newsContentVi, (val) => window._newsContentVi = val)"><i class="fas fa-edit"></i> Chỉnh sửa</button>
-              </div>
-            </div>
-            <div style="flex: 1;">
-              <label>Content (Tiếng Anh)</label>
-              <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="text" class="form-control" readonly value="..." style="flex: 1;" />
-                <button class="btn btn-outline" onclick="openEditorModal('Content (Tiếng Anh)', window._newsContentEn, (val) => window._newsContentEn = val)"><i class="fas fa-edit"></i> Chỉnh sửa</button>
-              </div>
-            </div>
-          </div>
       </div>
-      <div class="card-footer">
+      <div class="card-footer" style="display: flex; justify-content: space-between;">
         <button class="btn btn-secondary" onclick="loadNews()">
           <i class="fas fa-arrow-left"></i> Quay lại
         </button>
         <button class="btn btn-primary" onclick="saveExistingNews('${slug}')">
-          <i class="fas fa-save"></i> Lưu
+          <i class="fas fa-save"></i> Lưu bài báo
         </button>
       </div>
     </div>
   `);
-  
-  window._teachContentVi = data.body || '';
-    window._teachContentEn = fm.content_en || '';
+  updateMetricBadgesPreview();
 }
 
 async function saveExistingNews(slug) {
   const original = await fetch(`${API}/news/${slug}`).then((r) => r.json());
-  const fm = original.frontMatter;
+  const fm = original.frontMatter || {};
 
-  fm.title = document.getElementById("news-title").value;
-  fm.date = document.getElementById("news-date").value;
+  fm.title = document.getElementById("news-title").value.trim();
+  fm.title_en = document.getElementById("news-title_en").value.trim();
+  fm.date = document.getElementById("news-date").value.trim();
   fm.inline = document.getElementById("news-inline").value === "true";
+  fm.journal = document.getElementById("news-journal").value.trim();
+  fm.journal_en = document.getElementById("news-journal_en").value.trim();
+  fm.journal_bg_color = document.getElementById("news-journal-bg-color-text") ? document.getElementById("news-journal-bg-color-text").value.trim() : "";
+  fm.journal_color = document.getElementById("news-journal-color-text") ? document.getElementById("news-journal-color-text").value.trim() : "";
+  fm.journal_border_color = document.getElementById("news-journal-border-color-text") ? document.getElementById("news-journal-border-color-text").value.trim() : "";
+  fm.sidebox_text = document.getElementById("news-sidebox-text") ? document.getElementById("news-sidebox-text").value.trim() : "";
+  fm.sidebox_bg_color = document.getElementById("news-sidebox-bg-color-text") ? document.getElementById("news-sidebox-bg-color-text").value.trim() : "";
+  fm.sidebox_text_color = document.getElementById("news-sidebox-text-color-text") ? document.getElementById("news-sidebox-text-color-text").value.trim() : "";
+  fm.sidebox_image = document.getElementById("news-sidebox-image") ? document.getElementById("news-sidebox-image").value.trim() : "";
+  fm.sidebox_width = document.getElementById("news-sidebox-width") ? parseInt(document.getElementById("news-sidebox-width").value, 10) || 115 : 115;
+  fm.author = document.getElementById("news-author").value.trim();
+  fm.institution = document.getElementById("news-institution").value.trim();
+  fm.email = document.getElementById("news-email").value.trim();
+  fm.external_url = document.getElementById("news-external-url").value.trim();
+  fm.pdf = document.getElementById("news-pdf").value.trim();
+  fm.metric_badges = getMetricBadgesFromForm();
+  fm.description = document.getElementById("news-desc").value.trim();
+  fm.description_en = document.getElementById("news-desc_en").value.trim();
 
-  const body = currentEditor ? currentEditor.getMarkdown() : "";
+  const body_en = document.getElementById("news-body_en").value.trim();
+  if (body_en) {
+    fm.content_en = body_en;
+  } else {
+    delete fm.content_en;
+  }
 
+  const body = document.getElementById("news-body").value;
+
+  showLoading();
   try {
     await fetch(`${API}/news/${slug}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ frontMatter: fm, body }),
     });
-    showToast("Tin tức đã được lưu!", "success");
+    hideLoading();
+    showToast("Bài báo đã được lưu thành công!", "success");
+    loadNews();
   } catch (err) {
+    hideLoading();
     showToast(`Lỗi: ${err.message}`, "error");
   }
 }
 
 async function deleteNews(slug) {
-  if (!confirm(`Bạn có chắc muốn xóa "${slug}"?`)) return;
+  if (!confirm(`Bạn có chắc muốn xóa bài báo "${slug}"?`)) return;
 
+  showLoading();
   try {
     await fetch(`${API}/news/${slug}`, { method: "DELETE" });
-    showToast("Đã xóa tin tức!", "success");
+    hideLoading();
+    showToast("Đã xóa bài báo thành công!", "success");
     loadNews();
   } catch (err) {
+    hideLoading();
     showToast(`Lỗi: ${err.message}`, "error");
   }
+}
+
+// Journal Badge Style Helpers
+function updateNewsBadgePreview() {
+  const bgInput = document.getElementById("news-journal-bg-color-text");
+  const colorInput = document.getElementById("news-journal-color-text");
+  const borderInput = document.getElementById("news-journal-border-color-text");
+  const journalInput = document.getElementById("news-journal");
+  const badgePreview = document.getElementById("news-badge-preview");
+  const badgeText = document.getElementById("news-badge-preview-text");
+
+  if (!badgePreview) return;
+
+  const bg = bgInput ? bgInput.value : "#fef3c7";
+  const color = colorInput ? colorInput.value : "#92400e";
+  const border = borderInput ? borderInput.value : "#fcd34d";
+  const text = (journalInput && journalInput.value.trim()) ? journalInput.value.trim() : "Tên tạp chí xem trước";
+
+  badgePreview.style.background = bg;
+  badgePreview.style.color = color;
+  badgePreview.style.borderColor = border;
+  if (badgeText) badgeText.textContent = text;
+}
+
+function applyNewsBadgePreset(bg, color, border) {
+  const bgEl = document.getElementById("news-journal-bg-color");
+  const bgTextEl = document.getElementById("news-journal-bg-color-text");
+  const colorEl = document.getElementById("news-journal-color");
+  const colorTextEl = document.getElementById("news-journal-color-text");
+  const borderEl = document.getElementById("news-journal-border-color");
+  const borderTextEl = document.getElementById("news-journal-border-color-text");
+
+  if (bgEl) bgEl.value = bg;
+  if (bgTextEl) bgTextEl.value = bg;
+  if (colorEl) colorEl.value = color;
+  if (colorTextEl) colorTextEl.value = color;
+  if (borderEl) borderEl.value = border;
+  if (borderTextEl) borderTextEl.value = border;
+
+  updateNewsBadgePreview();
+}
+
+// Sidebox (Small Rectangle Text + Big Rectangle Image) Helpers
+function updateNewsSideboxPreview() {
+  const widthInput = document.getElementById("news-sidebox-width");
+  const textInput = document.getElementById("news-sidebox-text");
+  const bgInput = document.getElementById("news-sidebox-bg-color-text");
+  const textColorInput = document.getElementById("news-sidebox-text-color-text");
+  const imgInput = document.getElementById("news-sidebox-image");
+
+  const parentBox = document.getElementById("sidebox-live-parent");
+  const smallRect = document.getElementById("sidebox-live-small");
+  const liveImg = document.getElementById("sidebox-live-img");
+
+  if (!parentBox) return;
+
+  const w = widthInput ? parseInt(widthInput.value, 10) || 115 : 115;
+  parentBox.style.width = `${w}px`;
+
+  if (smallRect) {
+    const text = textInput && textInput.value.trim() ? textInput.value.trim() : "APIN";
+    const bg = bgInput ? bgInput.value : "#800000";
+    const color = textColorInput ? textColorInput.value : "#ffffff";
+    smallRect.textContent = text;
+    smallRect.style.backgroundColor = bg;
+    smallRect.style.color = color;
+  }
+
+  if (liveImg) {
+    let imgSrc = imgInput && imgInput.value.trim() ? imgInput.value.trim() : "";
+    if (imgSrc) {
+      if (!imgSrc.startsWith("http") && !imgSrc.startsWith("/")) {
+        imgSrc = `/assets/img/${imgSrc}`;
+      }
+      liveImg.src = imgSrc;
+      liveImg.style.display = "block";
+      if (liveImg.nextElementSibling) liveImg.nextElementSibling.style.display = "none";
+    } else {
+      liveImg.style.display = "none";
+      if (liveImg.nextElementSibling) liveImg.nextElementSibling.style.display = "block";
+    }
+  }
+}
+
+function applySideboxBadgePreset(bg, color) {
+  const bgEl = document.getElementById("news-sidebox-bg-color");
+  const bgTextEl = document.getElementById("news-sidebox-bg-color-text");
+  const colorEl = document.getElementById("news-sidebox-text-color");
+  const colorTextEl = document.getElementById("news-sidebox-text-color-text");
+
+  if (bgEl) bgEl.value = bg;
+  if (bgTextEl) bgTextEl.value = bg;
+  if (colorEl) colorEl.value = color;
+  if (colorTextEl) colorTextEl.value = color;
+
+  updateNewsSideboxPreview();
+}
+
+async function uploadNewsImage(inputEl, targetInputId = 'news-sidebox-image') {
+  const file = inputEl.files[0];
+  if (!file) return;
+  const formData = new FormData();
+  formData.append('image', file);
+  showLoading();
+  try {
+    const resp = await fetch(`${API}/upload`, {
+      method: 'POST',
+      body: formData
+    });
+    const data = await resp.json();
+    if (data.success) {
+      document.getElementById(targetInputId).value = data.path;
+      showToast('Tải lên hình ảnh thành công!', 'success');
+      updateNewsSideboxPreview();
+    } else {
+      showToast(data.error || 'Lỗi tải ảnh', 'error');
+    }
+  } catch (err) {
+    showToast(`Lỗi tải ảnh: ${err.message}`, 'error');
+  } finally {
+    hideLoading();
+    inputEl.value = '';
+  }
+}
+
+async function selectExistingImage(targetInputId = 'news-sidebox-image') {
+  showLoading();
+  try {
+    const images = await fetch(`${API}/images`).then(r => r.json());
+    hideLoading();
+    if (!images || images.length === 0) {
+      return showToast('Chưa có hình ảnh nào trong assets/img', 'info');
+    }
+    const currentVal = document.getElementById(targetInputId) ? document.getElementById(targetInputId).value : '';
+    const options = images.map(f => {
+      const fullPath = `/assets/img/${f}`;
+      const isSelected = currentVal === fullPath || currentVal === f;
+      return `<option value="${fullPath}" ${isSelected ? 'selected' : ''}>${f}</option>`;
+    }).join('');
+
+    const firstImg = images[0] ? `/assets/img/${images[0]}` : '';
+
+    const modalHtml = `
+      <div class="modal show" id="imageSelectModal" style="display:flex;align-items:center;justify-content:center;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;">
+        <div class="modal-dialog" style="background:#fff;padding:24px;border-radius:12px;max-width:480px;width:90%;box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+          <h3 style="margin-top:0;font-size:17px;display:flex;align-items:center;gap:8px;">
+            <i class="fas fa-image text-primary"></i> Chọn hình ảnh từ hệ thống
+          </h3>
+          <p style="font-size:13px;color:#64748b;margin-bottom:12px;">Các file nằm trong thư mục <code>assets/img/</code>:</p>
+          <select id="selected-image-dropdown" class="form-control" style="margin-bottom:15px;width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;" onchange="
+            const v = this.value;
+            document.getElementById('modal-img-preview').src = v;
+          ">
+            ${options}
+          </select>
+          <div style="text-align: center; margin-bottom: 20px; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
+            <img id="modal-img-preview" src="${firstImg}" style="max-height: 120px; max-width: 100%; object-fit: contain; border-radius: 4px;" onerror="this.style.display='none'" />
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:10px;">
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('imageSelectModal').remove()">Hủy</button>
+            <button type="button" class="btn btn-primary" onclick="
+              const selectedVal = document.getElementById('selected-image-dropdown').value;
+              document.getElementById('${targetInputId}').value = selectedVal;
+              updateNewsSideboxPreview();
+              document.getElementById('imageSelectModal').remove();
+            ">Chọn ảnh này</button>
+          </div>
+        </div>
+      </div>
+    `;
+    const div = document.createElement('div');
+    div.innerHTML = modalHtml;
+    document.body.appendChild(div.firstElementChild);
+  } catch (err) {
+    hideLoading();
+    showToast(`Lỗi: ${err.message}`, 'error');
+  }
+}
+
+// PDF Upload Helpers for News & Certificates
+async function uploadNewsPdf(inputEl, targetInputId = 'news-pdf') {
+  const file = inputEl.files[0];
+  if (!file) return;
+  const formData = new FormData();
+  formData.append('file', file);
+  showLoading();
+  try {
+    const resp = await fetch(`${API}/upload-file`, {
+      method: 'POST',
+      body: formData
+    });
+    const data = await resp.json();
+    if (data.success) {
+      document.getElementById(targetInputId).value = data.path;
+      showToast('Tải lên PDF thành công!', 'success');
+    } else {
+      showToast(data.error || 'Lỗi tải file', 'error');
+    }
+  } catch (err) {
+    showToast(`Lỗi tải file: ${err.message}`, 'error');
+  } finally {
+    hideLoading();
+    inputEl.value = '';
+  }
+}
+
+async function uploadCertificateFile(inputEl) {
+  return uploadNewsPdf(inputEl, 'teach-certificate-url');
+}
+
+async function selectExistingPdf(targetInputId = 'news-pdf') {
+  showLoading();
+  try {
+    const pdfs = await fetch(`${API}/pdfs`).then(r => r.json());
+    hideLoading();
+    if (!pdfs || pdfs.length === 0) {
+      return showToast('Chưa có file PDF nào trong assets/pdf', 'info');
+    }
+    const currentVal = document.getElementById(targetInputId) ? document.getElementById(targetInputId).value : '';
+    const options = pdfs.map(f => {
+      const fullPath = `/assets/pdf/${f}`;
+      return `<option value="${fullPath}" ${currentVal === fullPath ? 'selected' : ''}>${f}</option>`;
+    }).join('');
+
+    const modalHtml = `
+      <div class="modal show" id="pdfSelectModal" style="display:flex;align-items:center;justify-content:center;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;">
+        <div class="modal-dialog" style="background:#fff;padding:24px;border-radius:12px;max-width:480px;width:90%;box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+          <h3 style="margin-top:0;font-size:17px;display:flex;align-items:center;gap:8px;">
+            <i class="fas fa-file-pdf text-danger"></i> Chọn file PDF từ hệ thống
+          </h3>
+          <p style="font-size:13px;color:#64748b;margin-bottom:12px;">Các file nằm trong thư mục <code>assets/pdf/</code>:</p>
+          <select id="selected-pdf-dropdown" class="form-control" style="margin-bottom:20px;width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;">
+            ${options}
+          </select>
+          <div style="display:flex;justify-content:flex-end;gap:10px;">
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('pdfSelectModal').remove()">Hủy</button>
+            <button type="button" class="btn btn-primary" onclick="
+              const selectedVal = document.getElementById('selected-pdf-dropdown').value;
+              document.getElementById('${targetInputId}').value = selectedVal;
+              document.getElementById('pdfSelectModal').remove();
+              showToast('Đã chọn file PDF: ' + selectedVal, 'success');
+            ">Chọn file này</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+  } catch (err) {
+    hideLoading();
+    showToast(`Lỗi: ${err.message}`, 'error');
+  }
+}
+
+// ============================================================================
+// Metric Badges (IF, Q1, FWCI, ISSN...) Helpers
+// ============================================================================
+
+function renderMetricBadgeRowsHtml(badges) {
+  if (!badges || !Array.isArray(badges) || badges.length === 0) return '';
+  return badges.map(b => {
+    let lbl = '';
+    let val = '';
+    if (typeof b === 'string') {
+      const parts = b.split(':');
+      lbl = parts[0] ? parts[0].trim() : '';
+      val = parts.slice(1).join(':').trim();
+    } else if (b && typeof b === 'object') {
+      lbl = b.label || b.name || '';
+      val = b.value !== undefined ? b.value : '';
+    }
+    return `
+      <div class="metric-badge-row" style="display: flex; gap: 10px; align-items: center; background: rgba(255,255,255,0.02); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.06);">
+        <div style="flex: 1; display: flex; gap: 6px; align-items: center;">
+          <span style="font-size: 12px; color: var(--text-muted); width: 60px;">Tên badge:</span>
+          <input type="text" class="form-control metric-badge-label" value="${escHtml(lbl)}" placeholder="VD: IF, Q1, FWCI, ISSN..." oninput="updateMetricBadgesPreview()" style="font-size: 13px;" />
+        </div>
+        <div style="flex: 2; display: flex; gap: 6px; align-items: center;">
+          <span style="font-size: 12px; color: var(--text-muted); width: 55px;">Chỉ số:</span>
+          <input type="text" class="form-control metric-badge-value" value="${escHtml(val)}" placeholder="VD: 11.3 (latest), Chưa có data..." oninput="updateMetricBadgesPreview()" style="font-size: 13px;" />
+        </div>
+        <button type="button" class="btn btn-sm btn-danger" onclick="removeMetricBadgeRow(this)" title="Xóa badge" style="padding: 6px 10px;">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+function addMetricBadgeRow(defaultLabel = '', defaultValue = '') {
+  const container = document.getElementById("metric-badges-container");
+  if (!container) return;
+  const row = document.createElement("div");
+  row.className = "metric-badge-row";
+  row.style.cssText = "display: flex; gap: 10px; align-items: center; background: rgba(255,255,255,0.02); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.06);";
+  row.innerHTML = `
+    <div style="flex: 1; display: flex; gap: 6px; align-items: center;">
+      <span style="font-size: 12px; color: var(--text-muted); width: 60px;">Tên badge:</span>
+      <input type="text" class="form-control metric-badge-label" value="${escHtml(defaultLabel)}" placeholder="VD: IF, Q1, FWCI, ISSN..." oninput="updateMetricBadgesPreview()" style="font-size: 13px;" />
+    </div>
+    <div style="flex: 2; display: flex; gap: 6px; align-items: center;">
+      <span style="font-size: 12px; color: var(--text-muted); width: 55px;">Chỉ số:</span>
+      <input type="text" class="form-control metric-badge-value" value="${escHtml(defaultValue)}" placeholder="VD: 11.3 (latest), Chưa có data..." oninput="updateMetricBadgesPreview()" style="font-size: 13px;" />
+    </div>
+    <button type="button" class="btn btn-sm btn-danger" onclick="removeMetricBadgeRow(this)" title="Xóa badge" style="padding: 6px 10px;">
+      <i class="fas fa-trash"></i>
+    </button>
+  `;
+  container.appendChild(row);
+  updateMetricBadgesPreview();
+}
+
+function removeMetricBadgeRow(btn) {
+  const row = btn.closest(".metric-badge-row");
+  if (row) {
+    row.remove();
+    updateMetricBadgesPreview();
+  }
+}
+
+function getMetricBadgesFromForm() {
+  const container = document.getElementById("metric-badges-container");
+  if (!container) return [];
+  const rows = container.querySelectorAll(".metric-badge-row");
+  const badges = [];
+  rows.forEach(row => {
+    const labelInput = row.querySelector(".metric-badge-label");
+    const valInput = row.querySelector(".metric-badge-value");
+    const label = labelInput ? labelInput.value.trim() : "";
+    const value = valInput ? valInput.value.trim() : "";
+    if (label || value) {
+      badges.push({ label, value });
+    }
+  });
+  return badges;
+}
+
+function updateMetricBadgesPreview() {
+  const preview = document.getElementById("metric-badges-preview");
+  if (!preview) return;
+  const badges = getMetricBadgesFromForm();
+  if (badges.length === 0) {
+    preview.innerHTML = `<span style="font-size: 12px; color: #94a3b8; font-style: italic;">Chưa có huy hiệu nào. Bấm các nút ở trên (+ IF, + Q1, + FWCI, + ISSN...) hoặc "Tạo badge mới" để thêm.</span>`;
+    return;
+  }
+  preview.innerHTML = badges.map(b => {
+    let text = '';
+    const lbl = b.label || '';
+    const val = b.value !== undefined ? b.value : '';
+    if (lbl && val) {
+      if (val.startsWith('(') || lbl.endsWith(':')) {
+        text = `${lbl} ${val}`.trim();
+      } else {
+        text = `${lbl}: ${val}`;
+      }
+    } else {
+      text = lbl || val;
+    }
+    return `
+      <span style="display: inline-flex; align-items: center; padding: 3px 9px; background-color: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.8rem; font-weight: 700; line-height: 1.25; box-shadow: 0 1px 2px rgba(0,0,0,0.03); letter-spacing: 0.2px; white-space: nowrap;">
+        ${escHtml(text)}
+      </span>
+    `;
+  }).join('');
 }
 
 // ============================================================================
@@ -2331,21 +4352,27 @@ async function deleteNews(slug) {
 // ============================================================================
 
 let bibEntries = [];
+let bibPageRes = {};
 
 async function loadBibliography() {
   showLoading();
   try {
-    const data = await fetch(`${API}/bibliography_parsed`).then((r) => r.json());
+    const [data, pageRes] = await Promise.all([
+      fetch(`${API}/bibliography_parsed`).then((r) => r.json()).catch(() => ({})),
+      fetch(`${API}/pages/publications`).then((r) => r.json()).catch(() => ({}))
+    ]);
     if (data.success) {
       bibEntries = data.entries || [];
     } else {
-      showToast("Lỗi tải data: " + data.error, "error");
+      showToast("Lỗi tải data: " + (data.error || "Không rõ"), "error");
       bibEntries = [];
     }
+    bibPageRes = pageRes || {};
   } catch(e) {
     console.error(e);
     showToast("Lỗi kết nối", "error");
     bibEntries = [];
+    bibPageRes = {};
   } finally {
     hideLoading();
   }
@@ -2354,10 +4381,80 @@ async function loadBibliography() {
 }
 
 function renderBibliographyUI() {
+  const pageTitleVi = bibPageRes.title || "Ấn phẩm khoa học";
+  const pageTitleEn = bibPageRes.title_en || "Publications";
+  const pageTitleBold = bibPageRes.page_title_bold !== false;
+  const pageTitleColor = bibPageRes.page_title_color || "#8c0303";
+
+  const yearTitleBold = bibPageRes.year_title_bold !== false;
+  const yearTitleColor = bibPageRes.year_title_color || "#64748b";
+
+  const articleTitleBold = bibPageRes.article_title_bold !== false;
+  const articleTitleColor = bibPageRes.article_title_color || "#1e293b";
+
   let html = `
     <div class="section-intro">
       <p>Quản lý các ấn phẩm (Publications). Bạn có thể tải ảnh đại diện và tùy chỉnh nhãn màu.</p>
     </div>
+
+    <!-- 1. Tùy chỉnh Tiêu đề & Màu sắc Ấn phẩm -->
+    <div class="card mb-4">
+      <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
+        <h2><i class="fas fa-palette" style="color:var(--accent-light);margin-right:8px"></i> Tùy chỉnh Tiêu đề & Màu sắc (Titles & Styling)</h2>
+        <button class="btn btn-primary btn-sm" onclick="savePublicationsTitles()">
+          <i class="fas fa-save mr-1"></i> Lưu cài đặt tiêu đề
+        </button>
+      </div>
+      <div class="card-body">
+        <p class="text-muted" style="font-size: 0.88rem; margin-bottom: 22px;">
+          Tùy chỉnh nội dung chữ, định dạng <strong>in đậm</strong> và <strong>lựa màu sắc</strong> cho từng tiêu đề trên trang Ấn phẩm khoa học. Bạn có thể tự chọn màu bất kỳ hoặc <strong>tích chọn nhanh vào các ô màu đẹp có sẵn</strong> bên dưới (có dấu tích ✔️).
+        </p>
+
+        ${renderTitleStylingBlock({
+          id: 'pub-page-title',
+          num: '1',
+          icon: 'fas fa-heading',
+          label: 'Tiêu đề chính của trang (Page Title)',
+          titleVi: pageTitleVi,
+          titleEn: pageTitleEn,
+          isBold: pageTitleBold,
+          color: pageTitleColor,
+        })}
+
+        ${renderTitleStylingBlock({
+          id: 'pub-year-title',
+          num: '2',
+          icon: 'fas fa-calendar-alt',
+          label: 'Tiêu đề phân cách theo Năm (Year Dividers)',
+          titleVi: '2026',
+          showTextInputs: false,
+          isBold: yearTitleBold,
+          color: yearTitleColor,
+          defaultColor: '#64748b',
+          previewIcon: 'fas fa-calendar-day',
+        })}
+
+        ${renderTitleStylingBlock({
+          id: 'pub-article-title',
+          num: '3',
+          icon: 'fas fa-newspaper',
+          label: 'Tiêu đề từng bài báo / ấn phẩm (Article Titles)',
+          titleVi: 'Hệ thống quản lý dữ liệu lớn phục vụ giám sát năng lượng thông minh',
+          showTextInputs: false,
+          isBold: articleTitleBold,
+          color: articleTitleColor,
+          defaultColor: '#1e293b',
+          previewIcon: 'fas fa-file-alt',
+        })}
+
+        <div style="margin-top: 15px; display: flex; justify-content: flex-end;">
+          <button class="btn btn-primary" onclick="savePublicationsTitles()">
+            <i class="fas fa-save mr-1"></i> Lưu tùy chỉnh tiêu đề Ấn phẩm
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="text-right mb-3" style="display:flex; justify-content:flex-end;">
       <button class="btn btn-primary" onclick="addBibEntry()">
         <i class="fas fa-plus"></i> Thêm Ấn phẩm mới
@@ -2437,9 +4534,34 @@ function renderBibliographyUI() {
                 </select>
               </div>
             </div>
-            <div style="margin-bottom:15px;">
-              <label>URL / Link tham khảo</label>
-              <input type="text" class="form-control" id="bib-url-${index}" value="${escHtml(t.url || t.html || '')}">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom:15px;">
+              <div>
+                <label>Tập / Số (Volume)</label>
+                <input type="text" class="form-control" id="bib-volume-${index}" value="${escHtml(t.volume || '')}" placeholder="VD: 113">
+              </div>
+              <div>
+                <label>Trang (Pages, VD: 71-73)</label>
+                <input type="text" class="form-control" id="bib-pages-${index}" value="${escHtml(t.pages || '')}" placeholder="VD: 71--73">
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom:15px;">
+              <div>
+                <label>URL / Link bài báo gốc</label>
+                <div style="display:flex; gap:8px;">
+                  <input type="text" class="form-control" id="bib-url-${index}" value="${escHtml(t.url || t.html || '')}">
+                  ${(t.url || t.html) ? `<a href="${escHtml(t.url || t.html)}" target="_blank" class="btn btn-outline" title="Mở liên kết"><i class="fas fa-external-link-alt"></i></a>` : ''}
+                </div>
+              </div>
+              <div>
+                <label><i class="fas fa-file-pdf text-danger"></i> Tệp PDF (PDF File)</label>
+                <div style="display:flex; gap:8px;">
+                  <input type="text" class="form-control" id="bib-pdf-${index}" value="${escHtml(t.pdf || '')}" placeholder="/assets/pdf/ten-file.pdf">
+                  <button type="button" class="btn btn-secondary" onclick="document.getElementById('bib-pdf-file-${index}').click()" title="Tải PDF mới"><i class="fas fa-upload"></i></button>
+                  <button type="button" class="btn btn-outline" onclick="selectExistingPdf('bib-pdf-${index}')" title="Chọn từ danh sách"><i class="fas fa-folder-open"></i></button>
+                  ${t.pdf ? `<a href="${escHtml(t.pdf)}" target="_blank" class="btn btn-outline text-danger" title="Xem PDF"><i class="fas fa-file-pdf"></i></a>` : ''}
+                  <input type="file" id="bib-pdf-file-${index}" style="display: none;" accept="application/pdf" onchange="uploadNewsPdf(this, 'bib-pdf-${index}')" />
+                </div>
+              </div>
             </div>
             <div style="margin-bottom:15px; min-width: 0;">
               <label>Abstract (Tiếng Việt)</label>
@@ -2617,6 +4739,13 @@ async function saveBibliography() {
       delete oldTags.publisher_en;
     }
     
+    const volInput = document.getElementById(`bib-volume-${i}`);
+    if (volInput) oldTags.volume = volInput.value.trim();
+    const pagesInput = document.getElementById(`bib-pages-${i}`);
+    if (pagesInput) oldTags.pages = pagesInput.value.trim();
+    const pdfInput = document.getElementById(`bib-pdf-${i}`);
+    if (pdfInput) oldTags.pdf = pdfInput.value.trim();
+
     oldTags.url = document.getElementById(`bib-url-${i}`).value.trim();
     oldTags.preview = document.getElementById(`bib-preview-${i}`).value.trim();
     oldTags.badge_name = document.getElementById(`bib-badge-name-${i}`).value.trim();
@@ -2644,8 +4773,29 @@ async function saveBibliography() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ entries: bibEntries }),
     });
+
+    const pubPageTitle = document.getElementById("pub-page-title");
+    if (pubPageTitle) {
+      await fetch(`${API}/pages/publications`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: pubPageTitle.value.trim(),
+          title_en: document.getElementById("pub-page-title-en")?.value.trim() || "",
+          page_title_bold: document.getElementById("pub-page-title-bold")?.checked ?? true,
+          page_title_color: document.getElementById("pub-page-title-color")?.value || "#8c0303",
+
+          year_title_bold: document.getElementById("pub-year-title-bold")?.checked ?? true,
+          year_title_color: document.getElementById("pub-year-title-color")?.value || "#64748b",
+
+          article_title_bold: document.getElementById("pub-article-title-bold")?.checked ?? true,
+          article_title_color: document.getElementById("pub-article-title-color")?.value || "#1e293b",
+        }),
+      });
+    }
+
     if (res.ok) {
-      showToast("Đã lưu các ấn phẩm!", "success");
+      showToast("Đã lưu các ấn phẩm và tùy chỉnh tiêu đề thành công!", "success");
     } else {
       showToast("Lỗi khi lưu", "error");
     }
@@ -2872,7 +5022,7 @@ async function editNavName(event, key) {
 }
 
 loadNavNames();
-loadSection("site-settings");
+initAdminRouter();
 
 async function uploadProfileImage(input) {
   if (!input.files || input.files.length === 0) return;

@@ -1,4 +1,4 @@
-import { getConfig, getPageContent, getNews } from '../../lib/config';
+import { getConfig, getPageContent, getAllArticles } from '../../lib/config';
 import { remark } from 'remark';
 import html from 'remark-html';
 
@@ -9,47 +9,34 @@ export default async function Home({ params }) {
   const lang = resolvedParams.lang || 'en';
   const config = getConfig(lang);
   const { data: fm, content } = getPageContent('about.md', lang);
-  const newsItems = getNews(lang);
+  const articles = getAllArticles(lang);
   const st = lang === 'vi' ? (config.section_titles || {}) : (config.section_titles_en || {});
 
   // Convert markdown content to HTML
   const processedContent = await remark().use(html, { sanitize: false }).process(content);
   const contentHtml = processedContent.toString();
 
-  // Process news content
-  const processedNews = await Promise.all(newsItems.map(async (item) => {
+  // Process articles content for homepage preview
+  const processedNews = await Promise.all(articles.map(async (item) => {
     let htmlContent = "";
     if (item.content) {
       const p = await remark().use(html, { sanitize: false }).process(item.content);
       htmlContent = p.toString();
     }
     
-    // Format date: "Jun 13, 2026"
-    let dateParts = [];
-    let dateStr = "";
-    if (item.date) {
-      const d = new Date(item.date);
-      if (!isNaN(d.getTime())) {
-        if (lang === 'vi') {
-          const monthsVi = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
-          dateParts = [monthsVi[d.getMonth()], d.getDate().toString() + ",", d.getFullYear().toString()];
-          dateStr = dateParts.join(' ');
-        } else {
-          const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-          dateParts = [months[d.getMonth()], d.getDate().toString() + ",", d.getFullYear().toString()];
-          dateStr = dateParts.join(' ');
-        }
-      } else {
-        dateStr = item.date;
-        dateParts = item.date.split(' ');
-      }
-    }
-    
     return {
       ...item,
       htmlContent,
-      dateStr,
-      dateParts
+      frontMatter: item.frontMatter || {
+        title: item.title,
+        author: item.author,
+        institution: item.institution,
+        journal: item.journal,
+        description: item.abstract,
+        external_url: item.url,
+        pdf: item.pdf,
+        preview: item.preview,
+      }
     };
   }));
 
@@ -67,6 +54,11 @@ export default async function Home({ params }) {
 
         <article>
           <style>{`
+            .news-title-link,
+            .news-title-link:hover {
+              color: var(--global-hover-color, #8c0303) !important;
+              text-decoration: none !important;
+            }
             @media (max-width: 767px) {
               .profile.float-right {
                 float: none !important;
@@ -120,34 +112,340 @@ export default async function Home({ params }) {
 
           {/* News Section */}
           {processedNews.length > 0 && (fm.news || fm.announcements?.enabled !== false) && (
-            <div className="news mt-5">
-              <h2 style={{ marginBottom: '1.5rem', color: config.section_titles_color || 'inherit' }}>{st.about_news || (lang === 'vi' ? 'Tin tức' : 'News')}</h2>
+            <div className="news mt-5 pt-3" id="news-section">
+              <div className="section-header-framed mb-3">
+                <div
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '4px 14px',
+                    borderRadius: '18px',
+                    border: 'none',
+                    backgroundColor: 'rgba(140, 3, 3, 0.08)',
+                    boxShadow: 'none',
+                  }}
+                >
+                  <i
+                    className="fa-solid fa-newspaper"
+                    style={{
+                      fontSize: '0.85rem',
+                      color: config.section_titles_color || '#8c0303',
+                    }}
+                  ></i>
+                  <h2
+                    style={{
+                      margin: 0,
+                      fontSize: '1.02rem',
+                      fontWeight: '600',
+                      letterSpacing: '0.2px',
+                      color: config.section_titles_color || '#8c0303',
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {st.about_news || (lang === 'vi' ? 'Bài báo' : 'News')}
+                  </h2>
+                </div>
+              </div>
+
               <div className="table-responsive">
                 <table className="table table-sm table-borderless">
                   <tbody>
-                    {processedNews.map((item, index) => (
-                      <tr key={index}>
-                        <th scope="row" style={{ width: '15%', fontWeight: '600', paddingRight: '1rem' }}>
-                          {item.dateParts && item.dateParts.length === 3 ? (
-                            <>
-                              {item.dateParts[0]} {item.dateParts[1]}<br/>
-                              {item.dateParts[2]}
-                            </>
-                          ) : (
-                            item.dateStr
-                          )}
-                        </th>
-                        <td>
-                          {item.frontMatter.inline ? (
-                            <div dangerouslySetInnerHTML={{ __html: item.htmlContent }} />
-                          ) : (
-                            <a href={`/news/${item.slug}`} className="news-title">{item.frontMatter.title || item.slug}</a>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
+                    {/* Hiển thị bài báo tiêu biểu trên trang chủ */}
+                    {processedNews.slice(0, 2).map((item, index) => {
+                      const fmItem = item.frontMatter || {};
+                      const hasTitle = Boolean(fmItem.title);
+                      const targetUrl = fmItem.external_url || fmItem.link || (fmItem.inline ? null : `/news/${item.slug}`);
+                      const isExternal = Boolean(fmItem.external_url || fmItem.link);
+                      const pdfUrl = fmItem.pdf || fmItem.pdf_url;
+
+                      return (
+                        <tr
+                          key={index}
+                          style={{
+                            borderBottom: index < Math.min(processedNews.length, 2) - 1 ? '1px solid rgba(0,0,0,0.08)' : 'none',
+                          }}
+                        >
+                          <th
+                            scope="row"
+                            style={{
+                              width: '15%',
+                              minWidth: '105px',
+                              fontWeight: '600',
+                              paddingRight: '1rem',
+                              verticalAlign: 'top',
+                              paddingTop: '4px',
+                              paddingBottom: '1rem',
+                              color: '#64748b',
+                            }}
+                          >
+                            <div className="news-date-text" style={{ fontSize: '0.86rem', lineHeight: '1.3' }}>
+                              {item.dateParts && item.dateParts.length === 3 ? (
+                                <>
+                                  <span style={{ whiteSpace: 'nowrap' }}>
+                                    {item.dateParts[0]} {item.dateParts[1]}
+                                  </span>
+                                  <br />
+                                  <span style={{ opacity: 0.8, fontSize: '0.88em' }}>{item.dateParts[2]}</span>
+                                </>
+                              ) : (
+                                item.dateStr
+                              )}
+                            </div>
+
+                            {/* Section mới: Hình chữ nhật nhỏ (text) và hình chữ nhật to (ảnh minh họa) */}
+                            {((fmItem.sidebox_text || item.sidebox_text) || (fmItem.sidebox_image || item.sidebox_image)) && (
+                              <div
+                                className="news-sidebox-container"
+                                style={{
+                                  marginTop: '8px',
+                                  width: `${parseInt(fmItem.sidebox_width || item.sidebox_width || 95, 10)}px`,
+                                  maxWidth: '100%',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  gap: '6px',
+                                }}
+                              >
+                                {/* Hình chữ nhật nhỏ: Text */}
+                                {(fmItem.sidebox_text || item.sidebox_text) && (
+                                  <div
+                                    className="news-sidebox-small-rect"
+                                    style={{
+                                      width: '100%',
+                                      backgroundColor: fmItem.sidebox_bg_color || item.sidebox_bg_color || '#800000',
+                                      color: fmItem.sidebox_text_color || item.sidebox_text_color || '#ffffff',
+                                      padding: '3px 6px',
+                                      borderRadius: '4px',
+                                      textAlign: 'center',
+                                      fontWeight: '700',
+                                      fontSize: '0.74rem',
+                                      lineHeight: '1.2',
+                                      letterSpacing: '0.3px',
+                                      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                      wordBreak: 'break-word',
+                                    }}
+                                  >
+                                    {fmItem.sidebox_text || item.sidebox_text}
+                                  </div>
+                                )}
+
+                                {/* Hình chữ nhật to: Ảnh minh họa */}
+                                {(fmItem.sidebox_image || item.sidebox_image) && (
+                                  <div
+                                    className="news-sidebox-big-rect"
+                                    style={{
+                                      width: '100%',
+                                      borderRadius: '4px',
+                                      overflow: 'hidden',
+                                      border: '1px solid #cbd5e1',
+                                      backgroundColor: '#ffffff',
+                                      boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      padding: '3px',
+                                    }}
+                                  >
+                                    <img
+                                      src={(() => {
+                                        const img = fmItem.sidebox_image || item.sidebox_image;
+                                        if (img.startsWith('http://') || img.startsWith('https://') || img.startsWith('/')) return img;
+                                        return `/assets/img/${img}`;
+                                      })()}
+                                      alt={fmItem.sidebox_text || item.sidebox_text || 'Illustration'}
+                                      style={{
+                                        width: '100%',
+                                        height: 'auto',
+                                        maxHeight: '105px',
+                                        objectFit: 'contain',
+                                        borderRadius: '3px',
+                                        display: 'block',
+                                      }}
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </th>
+                          <td style={{ verticalAlign: 'top', paddingBottom: '1rem' }}>
+                            {hasTitle ? (
+                              <div className="news-article-card">
+                                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                                  {fmItem.journal && (
+                                    <span
+                                      style={{
+                                        backgroundColor: fmItem.journal_bg_color || item.journal_bg_color || '#fee2e2',
+                                        color: fmItem.journal_color || item.journal_color || '#991b1b',
+                                        border: `1px solid ${fmItem.journal_border_color || item.journal_border_color || '#fca5a5'}`,
+                                        fontSize: '0.72rem',
+                                        fontWeight: '600',
+                                        padding: '2px 8px',
+                                        borderRadius: '10px',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+                                      }}
+                                    >
+                                      <i className="fa-solid fa-bookmark" style={{ fontSize: '0.7rem', opacity: 0.85 }}></i>
+                                      {fmItem.journal}
+                                    </span>
+                                  )}
+                                  {fmItem.author && (
+                                    <span style={{ fontSize: '0.78rem', color: '#64748b', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                      <i className="fa-solid fa-user-pen" style={{ fontSize: '0.74rem' }}></i>
+                                      {fmItem.author}
+                                      {fmItem.institution ? ` (${fmItem.institution})` : ''}
+                                    </span>
+                                  )}
+                                </div>
+
+                                <h3 style={{ fontSize: '1.02rem', fontWeight: '600', lineHeight: '1.4', margin: '2px 0 6px 0' }}>
+                                  {targetUrl ? (
+                                    <a
+                                      href={targetUrl}
+                                      target={isExternal ? '_blank' : undefined}
+                                      rel={isExternal ? 'noopener noreferrer' : undefined}
+                                      className="news-title-link"
+                                      style={{
+                                        color: '#1e293b',
+                                        textDecoration: 'none',
+                                        display: 'inline-flex',
+                                        alignItems: 'baseline',
+                                        gap: '5px',
+                                      }}
+                                    >
+                                      <span>{fmItem.title}</span>
+                                      {isExternal && (
+                                        <i
+                                          className="fa-solid fa-arrow-up-right-from-square"
+                                          style={{ fontSize: '0.72rem', opacity: 0.7 }}
+                                        ></i>
+                                      )}
+                                    </a>
+                                  ) : (
+                                    <span>{fmItem.title}</span>
+                                  )}
+                                </h3>
+
+                                {(fmItem.description || item.htmlContent) && (
+                                  <p
+                                    style={{
+                                      fontSize: '0.86rem',
+                                      lineHeight: '1.55',
+                                      color: '#475569',
+                                      marginBottom: '8px',
+                                      display: '-webkit-box',
+                                      WebkitLineClamp: 2,
+                                      WebkitBoxOrient: 'vertical',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                    }}
+                                  >
+                                    {fmItem.description || item.content?.replace(/^#+\s+/gm, '')?.substring(0, 300) + '...'}
+                                  </p>
+                                )}
+
+                                {/* Metric Badges (IF, Q1, FWCI, ISSN...) */}
+                                {(() => {
+                                  const badges = fmItem.metric_badges || item.metric_badges;
+                                  if (!badges || !Array.isArray(badges) || badges.length === 0) return null;
+                                  return (
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', marginTop: '6px', marginBottom: '6px' }}>
+                                      {badges.map((b, bIdx) => {
+                                        let text = '';
+                                        if (typeof b === 'string') {
+                                          text = b;
+                                        } else if (b && typeof b === 'object') {
+                                          const lbl = b.label || b.name || '';
+                                          const val = b.value !== undefined ? b.value : '';
+                                          if (lbl && val) {
+                                            if (val.startsWith('(') || lbl.endsWith(':')) {
+                                              text = `${lbl} ${val}`.trim();
+                                            } else {
+                                              text = `${lbl}: ${val}`;
+                                            }
+                                          } else {
+                                            text = lbl || val;
+                                          }
+                                        }
+                                        if (!text) return null;
+                                        return (
+                                          <span
+                                            key={bIdx}
+                                            style={{
+                                              display: 'inline-flex',
+                                              alignItems: 'center',
+                                              padding: '2px 7px',
+                                              backgroundColor: '#f1f5f9',
+                                              color: '#0f172a',
+                                              border: '1px solid #cbd5e1',
+                                              borderRadius: '4px',
+                                              fontSize: '0.74rem',
+                                              fontWeight: '600',
+                                              lineHeight: '1.25',
+                                              boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+                                              letterSpacing: '0.2px',
+                                              whiteSpace: 'nowrap',
+                                            }}
+                                          >
+                                            {text}
+                                          </span>
+                                        );
+                                      })}
+                                    </div>
+                                  );
+                                })()}
+
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '10px' }}>
+                                  {pdfUrl && (
+                                    <a
+                                      href={pdfUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="btn-subtle-action"
+                                    >
+                                      <i className="fa-regular fa-file-pdf" style={{ opacity: 0.7 }}></i>
+                                      <span>{lang === 'vi' ? 'Xem file PDF' : 'View PDF'}</span>
+                                    </a>
+                                  )}
+                                  {isExternal && (
+                                    <a
+                                      href={targetUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="btn-subtle-action"
+                                    >
+                                      <i className="fa-solid fa-arrow-up-right-from-square" style={{ fontSize: '0.75rem', opacity: 0.65 }}></i>
+                                      <span>{lang === 'vi' ? 'Đọc bài báo gốc' : 'Read original article'}</span>
+                                    </a>
+                                  )}
+                                </div>
+                              </div>
+                            ) : (
+                              <div dangerouslySetInnerHTML={{ __html: item.htmlContent }} />
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Nút xem toàn bộ danh sách ấn phẩm */}
+              <div className="d-flex justify-content-center mt-3 mb-2">
+                <a
+                  href={`/${lang}/publications`}
+                  className="btn-subtle-action"
+                  style={{
+                    padding: '6px 18px',
+                    fontSize: '0.85rem',
+                  }}
+                >
+                  <span>{lang === 'vi' ? 'Xem toàn bộ ấn phẩm khoa học' : 'View all publications'}</span>
+                  <i className="fa-solid fa-arrow-right" style={{ fontSize: '0.75rem', opacity: 0.7 }}></i>
+                </a>
               </div>
             </div>
           )}

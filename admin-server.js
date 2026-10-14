@@ -27,12 +27,16 @@ app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-// Serve admin UI
-app.use("/admin", express.static(path.join(ROOT, "admin")));
+// Serve admin UI with no-cache headers to prevent stale JS files
+app.use("/admin", (req, res, next) => {
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  next();
+}, express.static(path.join(ROOT, "admin")));
 app.use("/assets", express.static(path.join(ROOT, "assets"))); // Serve assets for admin preview
 
 // Redirect /admin to /admin/index.html
 app.get("/admin", (req, res) => {
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   res.sendFile(path.join(ROOT, "admin", "index.html"));
 });
 
@@ -167,9 +171,13 @@ app.get("/api/config", (req, res) => {
       blog_description: config.blog_description || "",
       icon: config.icon || "",
       header_logo: config.header_logo || "",
-      header_logo_size: config.header_logo_size || "40px",
-      header_logo_height: config.header_logo_height || "auto",
+      header_logo_size: config.header_logo_size || "56px",
+      header_logo_height: config.header_logo_height || "32px",
       header_logo_bg: config.header_logo_bg || "",
+      navbar_scale: config.navbar_scale !== undefined ? config.navbar_scale : 88,
+      navbar_padding_y: config.navbar_padding_y || "3px",
+      navbar_font_size: config.navbar_font_size || "13.5px",
+      navbar_brand_size: config.navbar_brand_size || "15px",
       footer_text_en: config.footer_text_en || "",
       blog_name_en: config.blog_name_en || "",
       blog_description_en: config.blog_description_en || "",
@@ -196,6 +204,7 @@ app.put("/api/config", (req, res) => {
       "blog_name", "blog_name_en", "blog_description", "blog_description_en", "icon",
       "description", "description_en", "footer_text", "footer_text_en",
       "header_logo", "header_logo_size", "header_logo_height", "header_logo_bg",
+      "navbar_scale", "navbar_padding_y", "navbar_font_size", "navbar_brand_size",
       "global_bg_color", "global_bg_image", "global_bg_image_size", "global_bg_hue", "global_bg_opacity", "global_bg_overlay", "global_bg_overlay_opacity", "global_hover_color",
       "body_bg_image", "body_bg_image_size", "body_bg_hue", "body_bg_opacity", "body_bg_overlay", "body_bg_overlay_opacity",
       "navbar_bg_color", "navbar_bg_image", "navbar_bg_image_size", "navbar_bg_hue", "navbar_bg_opacity", "navbar_bg_overlay", "navbar_bg_overlay_opacity",
@@ -269,12 +278,14 @@ app.get("/api/pages/:name", (req, res) => {
     const pagePath = path.join(ROOT, "_pages", `${pageName}.md`);
     if (!fs.existsSync(pagePath)) return res.status(404).json({ error: "Page not found" });
     
-    const { frontMatter } = readMarkdown(pagePath);
+    const { frontMatter, body } = readMarkdown(pagePath);
     res.json({
       title: frontMatter.title || "",
       title_en: frontMatter.title_en || "",
       description: frontMatter.description || "",
-      description_en: frontMatter.description_en || ""
+      description_en: frontMatter.description_en || "",
+      ...frontMatter,
+      body: body
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -288,13 +299,11 @@ app.put("/api/pages/:name", (req, res) => {
     if (!fs.existsSync(pagePath)) return res.status(404).json({ error: "Page not found" });
     
     const { frontMatter, body } = readMarkdown(pagePath);
+    const { body: newBody, ...fields } = req.body;
     
-    if (req.body.title !== undefined) frontMatter.title = req.body.title;
-    if (req.body.title_en !== undefined) frontMatter.title_en = req.body.title_en;
-    if (req.body.description !== undefined) frontMatter.description = req.body.description;
-    if (req.body.description_en !== undefined) frontMatter.description_en = req.body.description_en;
+    Object.assign(frontMatter, fields);
     
-    writeMarkdown(pagePath, frontMatter, body);
+    writeMarkdown(pagePath, frontMatter, newBody !== undefined ? newBody : body);
     res.json({ success: true, message: "Page updated" });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -569,7 +578,7 @@ app.get("/api/bibliography_parsed", (req, res) => {
     // Sanitize for bibtex-parse-js
     content = content.replace(/^---[\s\S]*?---\n/g, '');
     content = content.replace(/@string\{.*?\}/gi, '');
-    content = content.replace(/=\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*([,}])/g, '= "{$1}"$2');
+    content = content.replace(/^\s*([a-zA-Z0-9_-]+)\s*=\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*(,?\s*)$/gm, '  $1 = "{$2}"$3');
     
     const bibtexParse = require(path.join(ROOT, 'portfolio-react', 'node_modules', 'bibtex-parse-js'));
     let parsed = bibtexParse.toJSON(content);
@@ -603,7 +612,7 @@ app.put("/api/bibliography_parsed", (req, res) => {
 });
 
 // ============================================================================
-// API: Image upload
+// API: Image & File upload
 // ============================================================================
 
 app.post("/api/upload", upload.single("image"), (req, res) => {
@@ -621,6 +630,52 @@ app.post("/api/upload", upload.single("image"), (req, res) => {
       filename: req.file.filename,
       path: `/assets/img/${req.file.filename}`,
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Storage for generic files (including PDF)
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const isPdf = /\.pdf$/i.test(file.originalname);
+    const dest = isPdf ? path.join(ROOT, "assets", "pdf") : path.join(ROOT, "assets", "files");
+    if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+    cb(null, dest);
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
+const uploadFile = multer({ storage: fileStorage });
+
+app.post("/api/upload-file", uploadFile.single("file"), (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+    const isPdf = /\.pdf$/i.test(req.file.originalname);
+    const targetSubdir = isPdf ? "pdf" : "files";
+    
+    // Also copy to React App public directory so Next.js can serve it immediately
+    const reactDestDir = path.join(ROOT, "portfolio-react", "public", "assets", targetSubdir);
+    if (!fs.existsSync(reactDestDir)) fs.mkdirSync(reactDestDir, { recursive: true });
+    fs.copyFileSync(req.file.path, path.join(reactDestDir, req.file.filename));
+
+    res.json({
+      success: true,
+      filename: req.file.filename,
+      path: `/assets/${targetSubdir}/${req.file.filename}`,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get("/api/pdfs", (req, res) => {
+  try {
+    const dir = path.join(ROOT, "assets", "pdf");
+    if (!fs.existsSync(dir)) return res.json([]);
+    const files = fs.readdirSync(dir).filter((f) => /\.pdf$/i.test(f));
+    res.json(files);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

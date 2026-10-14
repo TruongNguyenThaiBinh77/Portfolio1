@@ -6,11 +6,14 @@ cv:
   email: truongnguyenthaibinh1050@gmail.com
   location: TP. Hồ Chí Minh, Việt Nam
   location_en: Ho Chi Minh City, Vietnam
+  custom_info:
+    - name: Tổ chức
+      name_en: Organization
+      value: Chi bộ Ấp Gò Cao
+      value_en: Go Cao Hamlet Party Cell
   image: ""
-  summary: |-
-    Là một Kỹ sư Phần mềm trẻ đam mê công nghệ, mình luôn không ngừng học hỏi và thử thách bản thân với những công nghệ mới nhất. Thế mạnh của mình là khả năng tư duy logic tốt, xây dựng kiến trúc hệ thống ổn định và phát triển các giao diện người dùng thân thiện. Mình đặc biệt yêu thích việc tối ưu hóa hiệu suất ứng dụng và nghiên cứu các giải pháp Trí tuệ Nhân tạo để mang lại trải nghiệm tốt nhất cho người dùng.
-  summary_en: |-
-    As a young and passionate Software Engineer, I am constantly learning and challenging myself with the latest technologies. My strengths lie in strong logical thinking, building stable system architectures, and developing user-friendly interfaces. I am particularly passionate about optimizing application performance and researching Artificial Intelligence solutions to deliver the best user experience.
+  summary: Là một Kỹ sư Phần mềm trẻ đam mê công nghệ, mình luôn không ngừng học hỏi và thử thách bản thân với những công nghệ mới nhất. Thế mạnh của mình là khả năng tư duy logic tốt, xây dựng kiến trúc hệ thống ổn định và phát triển các giao diện người dùng thân thiện. Mình đặc biệt yêu thích việc tối ưu hóa hiệu suất ứng dụng và nghiên cứu các giải pháp Trí tuệ Nhân tạo để mang lại trải nghiệm tốt nhất cho người dùng.
+  summary_en: As a young and passionate Software Engineer, I am constantly learning and challenging myself with the latest technologies. My strengths lie in strong logical thinking, building stable system architectures, and developing user-friendly interfaces. I am particularly passionate about optimizing application performance and researching Artificial Intelligence solutions to deliver the best user experience.
   social_networks: null
   address:
     street: null
@@ -61,7 +64,7 @@ cv:
         highlights:
           - Nghiên cứu chế tạo xe Mecanum ứng dụng IoT
           - Đạt điểm A đồ án cuối khóa
-        highlights_en: 
+        highlights_en:
           - Researched and built a Mecanum robot with IoT applications
           - Achieved an A grade for the final project
     Experience:
@@ -71,16 +74,16 @@ cv:
         position_en: Software Engineer Intern
         location: TP. Hồ Chí Minh
         location_en: Ho Chi Minh City
-        start_date: "01-2025"
-        start_date_en: "Jan 2025"
+        start_date: 01-2025
+        start_date_en: Jan 2025
         end_date: PRESENT
         end_date_en: PRESENT
         summary: Tham gia phát triển hệ thống quản lý nội bộ sử dụng ReactJS và Node.js.
         summary_en: Participated in developing an internal management system using ReactJS and Node.js.
-        highlights: 
+        highlights:
           - Xây dựng hơn 20 RESTful APIs cho module Quản lý Nhân sự.
           - Tối ưu hóa tốc độ tải trang frontend lên 30%.
-        highlights_en: 
+        highlights_en:
           - Built over 20 RESTful APIs for the Human Resources Management module.
           - Optimized frontend page load speed by 30%.
       - company: CLB Học thuật (Academic Club)
@@ -89,16 +92,16 @@ cv:
         position_en: Head of Academic Department
         location: Đại học FPT
         location_en: FPT University
-        start_date: "09-2023"
-        start_date_en: "Sep 2023"
-        end_date: "12-2024"
-        end_date_en: "Dec 2024"
+        start_date: 09-2023
+        start_date_en: Sep 2023
+        end_date: 12-2024
+        end_date_en: Dec 2024
         summary: Tổ chức các buổi workshop chia sẻ kiến thức lập trình cho sinh viên.
         summary_en: Organized workshops to share programming knowledge with students.
-        highlights: 
+        highlights:
           - Dẫn dắt đội ngũ 15 thành viên tổ chức chuỗi sự kiện "Code Your Future".
           - Mentor trực tiếp cho hơn 50 sinh viên khóa dưới làm quen với lập trình Web.
-        highlights_en: 
+        highlights_en:
           - Led a 15-member team to organize the "Code Your Future" event series.
           - Directly mentored over 50 junior students to get started with Web programming.
     Honors and Awards:

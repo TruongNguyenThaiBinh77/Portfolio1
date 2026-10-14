@@ -1,6 +1,7 @@
-import { getConfig } from '../../lib/config';
+import { getConfig, getCvData } from '../../lib/config';
 import LiveReload from '../LiveReload';
 import NavbarWrapper from '../../components/NavbarWrapper';
+import Footer from '../../components/Footer';
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
@@ -25,6 +26,7 @@ export default async function RootLayout({ children, params }) {
   const resolvedParams = await params;
   const lang = resolvedParams.lang || 'vi';
   const config = getConfig(lang);
+  const cvData = getCvData(lang);
 
   const bodyStyle = {};
   if (config.global_bg_color && config.global_bg_color !== '#ffffff') {
@@ -61,6 +63,68 @@ export default async function RootLayout({ children, params }) {
           ${config.navbar_text_color ? `.navbar.navbar-light .navbar-nav .nav-item .nav-link { color: ${config.navbar_text_color}; font-weight: normal; }` : ''}
           ${config.navbar_active_text_color ? `.navbar.navbar-light .navbar-nav .nav-item.active > .nav-link, .navbar.navbar-light .navbar-nav .nav-link:hover { color: ${config.navbar_active_text_color}; font-weight: bold; }` : ''}
           ${config.global_hover_color ? `:root { --global-theme-color: ${config.global_hover_color}; --global-hover-color: ${config.global_hover_color}; } html[data-theme=dark] { --global-theme-color: ${config.global_hover_color}; --global-hover-color: ${config.global_hover_color}; } a:hover, table.table a:hover, .post-list li a:hover, .featured-posts a:hover, .post-description a:hover, .post .post-tags a:hover { color: ${config.global_hover_color} !important; }` : ''}
+          
+          /* Header compact and scaling */
+          #navbar {
+            padding-top: ${config.navbar_padding_y || '3px'} !important;
+            padding-bottom: ${config.navbar_padding_y || '3px'} !important;
+            min-height: 42px !important;
+          }
+          #navbar .navbar-brand {
+            font-size: ${config.navbar_brand_size || '15px'} !important;
+          }
+          #navbar .navbar-nav .nav-link {
+            font-size: ${config.navbar_font_size || '13.5px'} !important;
+            padding-top: 3px !important;
+            padding-bottom: 3px !important;
+            padding-left: 9px !important;
+            padding-right: 9px !important;
+          }
+          ${config.navbar_scale && config.navbar_scale !== 100 ? `
+          #navbar .container {
+            transform: scale(${config.navbar_scale / 100});
+            transform-origin: center center;
+          }
+          ` : ''}
+
+          /* Flex gap utilities */
+          .gap-1 { gap: 0.25rem !important; }
+          .gap-2 { gap: 0.5rem !important; }
+          .gap-3 { gap: 1rem !important; }
+          .gap-4 { gap: 1.5rem !important; }
+
+          /* Minimal subtle action buttons */
+          .btn-subtle-action {
+            background-color: #ffffff !important;
+            color: #374151 !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 6px !important;
+            padding: 4px 12px !important;
+            font-size: 0.82rem !important;
+            font-weight: 500 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            text-decoration: none !important;
+            box-shadow: none !important;
+            transition: all 0.15s ease !important;
+          }
+          .btn-subtle-action:hover {
+            background-color: #f3f4f6 !important;
+            border-color: #9ca3af !important;
+            color: #111827 !important;
+            text-decoration: none !important;
+          }
+          html[data-theme=dark] .btn-subtle-action {
+            background-color: #1f2937 !important;
+            color: #e5e7eb !important;
+            border-color: #4b5563 !important;
+          }
+          html[data-theme=dark] .btn-subtle-action:hover {
+            background-color: #374151 !important;
+            border-color: #6b7280 !important;
+            color: #ffffff !important;
+          }
         `}} />
       </head>
       <body className="fixed-top-nav" style={bodyStyle}>
@@ -110,11 +174,7 @@ export default async function RootLayout({ children, params }) {
 
         {children}
 
-        <footer className="fixed-bottom" role="contentinfo">
-          <div className="container mt-0">
-            &copy; Copyright 2026 {config.first_name} {config.last_name}.
-          </div>
-        </footer>
+        <Footer config={config} cv={cvData?.cv || {}} lang={lang} />
       </body>
     </html>
   );

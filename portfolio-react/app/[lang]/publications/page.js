@@ -1,18 +1,21 @@
 export const dynamic = 'force-dynamic';
-import { getPageContent, getPublications } from '../../../lib/config';
+import { getPageContent, getAllArticles, getConfig } from '../../../lib/config';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 
 export default async function Publications({ params }) {
   const resolvedParams = await params;
   const lang = resolvedParams.lang || 'vi';
+  const config = getConfig(lang);
   const { data: fm, content } = getPageContent('publications.md', lang);
-  const publications = getPublications(lang);
+  
+  // Lấy danh sách đầy đủ tất cả bài báo / ấn phẩm từ nguồn dữ liệu dùng chung (Full bài)
+  const allArticles = getAllArticles(lang);
 
   // Group by year
   const pubsByYear = {};
-  publications.forEach(pub => {
-    const year = pub.entryTags?.YEAR || pub.entryTags?.year || 'Unknown';
+  allArticles.forEach(pub => {
+    const year = pub.year || '2026';
     if (!pubsByYear[year]) {
       pubsByYear[year] = [];
     }
@@ -35,47 +38,111 @@ export default async function Publications({ params }) {
     .trim();
 
   // Capitalize title
-  const pageTitle = fm.title ? fm.title.charAt(0).toUpperCase() + fm.title.slice(1) : "Publications";
+  const rawPageTitle = (lang === 'en' ? fm.title_en : fm.title) || (lang === 'vi' ? 'Ấn phẩm khoa học' : 'Publications');
+  const pageTitle = rawPageTitle ? rawPageTitle.charAt(0).toUpperCase() + rawPageTitle.slice(1) : (lang === 'vi' ? 'Ấn phẩm khoa học' : 'Publications');
+  const pageTitleBold = fm.page_title_bold !== false;
+  const pageTitleColor = fm.page_title_color || config.section_titles_color || '#8c0303';
+
+  const yearTitleBold = fm.year_title_bold !== false;
+  const yearTitleColor = fm.year_title_color || '#64748b';
+
+  const articleTitleBold = fm.article_title_bold !== false;
+  const articleTitleColor = fm.article_title_color || '#1e293b';
+
+  const ownerName = [config.first_name, config.middle_name, config.last_name].filter(Boolean).join(' ');
+  const reversedOwnerName = [config.last_name, config.middle_name, config.first_name].filter(Boolean).join(' ');
+  const ownerRegex = new RegExp(`(${ownerName}|${reversedOwnerName}|Trương Nguyễn Thái Bình|Truong Nguyen Thai Binh)`, 'gi');
 
   return (
-    <div className="container mt-5" role="main">
+    <div className="container mt-5" role="main" style={{ maxWidth: '980px', margin: '0 auto' }}>
       <div className="post">
-        <header className="post-header">
-          <h1 className="post-title">{pageTitle}</h1>
-          <p className="post-description">{fm.description}</p>
+        <header className="post-header mb-4">
+          <h1
+            className="post-title"
+            style={{
+              color: pageTitleColor,
+              fontWeight: pageTitleBold ? '700' : '400',
+            }}
+          >
+            <span style={{ color: pageTitleColor || 'inherit' }}>{pageTitle}</span>
+          </h1>
+          <p className="post-description mb-0" style={{ fontSize: '1.05rem', color: '#64748b' }}>
+            {fm.description || (lang === 'vi' ? 'Danh sách đầy đủ các bài báo, nghiên cứu và ấn phẩm khoa học đã được công bố.' : 'Full list of published papers, research and scientific publications.')}
+          </p>
         </header>
+
         <article>
           {cleanContent && <ReactMarkdown>{cleanContent}</ReactMarkdown>}
 
           <style>{`
-            @media (min-width: 768px) {
-              .pub-list-container {
-                padding-right: 120px;
-              }
+            .pub-title-link,
+            .pub-title-link:hover,
+            .pub-card-item a,
+            .pub-card-item a:hover {
+              text-decoration: none !important;
+            }
+            .pub-title-link:hover {
+              color: var(--global-hover-color, #8c0303) !important;
+            }
+            .pub-card-item {
+              transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            .pub-card-item:hover {
+              box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05) !important;
+              transform: translateY(-1px);
             }
           `}</style>
 
-          <div className="publications mt-5">
+          <div className="publications mt-3">
             {sortedYears.length > 0 ? (
-              sortedYears.map(year => (
-                <div key={year} className="mb-5 position-relative">
-                  {/* Mobile header (hidden on desktop) */}
-                  <div className="d-block d-md-none mb-3">
-                    <h2 className="year" style={{ color: 'var(--global-divider-color)', fontSize: '2.5rem', fontWeight: 300, margin: 0, lineHeight: 1.2 }}>{year}</h2>
+              sortedYears.map((year, yearIndex) => (
+                <div key={year} className="mb-5">
+                  {/* Đường line xám với số năm ở cuối đường line */}
+                  <div
+                    className="year-divider d-flex align-items-center w-100"
+                    style={{
+                      marginTop: yearIndex === 0 ? '1.25rem' : '3.5rem',
+                      marginBottom: '1.5rem',
+                      gap: '16px',
+                    }}
+                  >
+                    <div
+                      style={{
+                        flexGrow: 1,
+                        height: '1.5px',
+                        backgroundColor: '#cbd5e1',
+                        borderRadius: '2px',
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: '1.45rem',
+                        fontWeight: yearTitleBold ? '700' : '400',
+                        color: yearTitleColor,
+                        lineHeight: 1,
+                        letterSpacing: '0.5px',
+                        userSelect: 'none',
+                      }}
+                    >
+                      {year}
+                    </span>
                   </div>
 
-                  <div className="flex-grow-1 pub-list-container">
+                  <div className="w-100 pub-list-container">
                     <ol className="bibliography" style={{ listStyleType: 'none', paddingLeft: 0, margin: 0 }}>
                       {pubsByYear[year].map((pub, index) => {
-                        const tags = pub.entryTags;
-                        const title = tags.TITLE || tags.title;
-                        const authorStr = tags.AUTHOR || tags.author || '';
-                        const journal = tags.JOURNAL || tags.journal || tags.BOOKTITLE || tags.booktitle;
-                        const url = tags.URL || tags.url;
-                        const preview = tags.PREVIEW || tags.preview;
-                        const badgeName = tags.BADGE_NAME || tags.badge_name;
-                        const badgeColor = tags.BADGE_COLOR || tags.badge_color || '#1e3a8a';
-                        const badgeTextColor = tags.BADGE_TEXT_COLOR || tags.badge_text_color || '#ffffff';
+                        const title = pub.title;
+                        const authorStr = pub.author || '';
+                        const journal = pub.journal;
+                        const volume = pub.volume;
+                        const pages = pub.pages;
+                        const url = pub.url;
+                        const pdfUrl = pub.pdf;
+                        const preview = pub.preview;
+                        const abstractText = pub.abstract;
+                        const badgeName = pub.badge_name;
+                        const badgeColor = pub.badge_color || '#1e3a8a';
+                        const badgeTextColor = pub.badge_text_color || '#ffffff';
 
                         let finalAuthorContent = authorStr;
                         if (authorStr.includes(' and ')) {
@@ -89,41 +156,105 @@ export default async function Publications({ params }) {
                           finalAuthorContent = authorsList.join(', ').replace(/, ([^,]*)$/, ', and $1');
                         }
                         
-                        // Construct the owner's full name from config
-                        const config = require('../../../lib/config').getConfig(lang);
-                        const ownerName = [config.first_name, config.middle_name, config.last_name].filter(Boolean).join(' ');
-                        const reversedOwnerName = [config.last_name, config.middle_name, config.first_name].filter(Boolean).join(' ');
-                        const ownerRegex = new RegExp(`(${ownerName}|${reversedOwnerName}|Einstein, Albert|Albert Einstein)`, 'gi');
-                        
-                        // Wrap owner's name with theme color (using markdown/HTML if not already manually styled)
+                        // Highlight owner name
                         if (!finalAuthorContent.includes('<span')) {
-                            finalAuthorContent = finalAuthorContent.replace(ownerRegex, '<span style="color: var(--global-theme-color)">$1</span>');
+                          finalAuthorContent = finalAuthorContent.replace(ownerRegex, `<span style="color: ${config.section_titles_color || '#8c0303'}; font-weight: 600;">$1</span>`);
                         }
 
                         return (
-                          <li key={index} className="mb-4 d-flex flex-column flex-md-row" style={{ backgroundColor: 'transparent', gap: '1.5rem', alignItems: 'flex-start' }}>
-                            {/* Left Sidebar for Preview and Badge */}
+                          <li
+                            key={pub.id || index}
+                            className="pub-card-item mb-3 d-flex flex-column flex-md-row w-100"
+                            style={{
+                              backgroundColor: '#ffffff',
+                              gap: '0.85rem',
+                              alignItems: 'flex-start',
+                              padding: '12px 14px',
+                              borderRadius: '8px',
+                              border: '1px solid #e2e8f0',
+                              boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
+                            }}
+                          >
+                            {/* Left Sidebar for Preview Cover & Badge */}
                             {(preview || badgeName) ? (
-                              <div className="pub-sidebar w-100" style={{ maxWidth: '120px', flexShrink: 0, display: 'flex', flexDirection: 'column', borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--global-divider-color)', backgroundColor: 'var(--global-bg-color)', minHeight: '120px' }}>
+                              <div
+                                className="pub-sidebar w-100"
+                                style={{
+                                  maxWidth: '85px',
+                                  flexShrink: 0,
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  borderRadius: '4px',
+                                  overflow: 'hidden',
+                                  border: '1px solid #cbd5e1',
+                                  backgroundColor: '#f8fafc',
+                                  minHeight: '95px',
+                                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                                }}
+                              >
                                 {preview ? (
-                                  <div style={{ width: '100%', flexGrow: 1, backgroundImage: `url(/assets/img/${preview})`, backgroundSize: 'cover', backgroundPosition: 'center', minHeight: '80px' }} />
+                                  <div
+                                    style={{
+                                      width: '100%',
+                                      flexGrow: 1,
+                                      backgroundImage: `url(/assets/img/${preview})`,
+                                      backgroundSize: 'cover',
+                                      backgroundPosition: 'center',
+                                      minHeight: '70px',
+                                    }}
+                                  />
                                 ) : (
-                                  <div style={{ width: '100%', flexGrow: 1, backgroundColor: 'var(--global-bg-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.5 }}>
-                                    <i className="fas fa-image fa-2x"></i>
+                                  <div style={{ width: '100%', flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.5 }}>
+                                    <i className="fas fa-book-open fa-lg"></i>
                                   </div>
                                 )}
-                                <div style={{ backgroundColor: badgeColor, color: badgeTextColor, fontSize: '0.75rem', padding: '6px 4px', textAlign: 'center', fontWeight: 'bold', textTransform: 'uppercase', minHeight: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                  {badgeName || 'PUBLICATION'}
+                                <div
+                                  style={{
+                                    backgroundColor: badgeColor,
+                                    color: badgeTextColor,
+                                    fontSize: '0.65rem',
+                                    padding: '3px 2px',
+                                    textAlign: 'center',
+                                    fontWeight: 'bold',
+                                    textTransform: 'uppercase',
+                                    minHeight: '20px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                  }}
+                                >
+                                  {badgeName || (lang === 'vi' ? 'TẠP CHÍ' : 'JOURNAL')}
                                 </div>
                               </div>
-                            ) : (
-                              <div className="pub-sidebar-empty d-none d-md-block" style={{ width: '120px', flexShrink: 0 }}></div>
-                            )}
+                            ) : null}
 
                             {/* Right Content */}
-                            <div className="pub-content" style={{ flexGrow: 1 }}>
-                              <div className="title" style={{ fontWeight: '600', fontSize: '1rem', color: 'var(--global-text-color)' }}>{title}</div>
-                              <div className="author author-markdown" style={{ color: 'var(--global-text-color-light)', marginTop: '0.2rem', fontSize: '0.95rem' }}>
+                            <div className="pub-content" style={{ flexGrow: 1, minWidth: 0 }}>
+                              <h3 style={{ fontSize: '0.98rem', fontWeight: articleTitleBold ? '700' : '400', lineHeight: '1.38', margin: '0 0 3px 0' }}>
+                                {url ? (
+                                  <a
+                                    href={url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="pub-title-link"
+                                    style={{
+                                      color: articleTitleColor,
+                                      textDecoration: 'none',
+                                      display: 'inline-flex',
+                                      alignItems: 'baseline',
+                                      gap: '5px',
+                                    }}
+                                  >
+                                    <span style={{ color: articleTitleColor || 'inherit' }}>{title}</span>
+                                    <i className="fa-solid fa-arrow-up-right-from-square" style={{ fontSize: '0.7rem', opacity: 0.65 }}></i>
+                                  </a>
+                                ) : (
+                                  <span style={{ color: articleTitleColor || 'inherit' }}>{title}</span>
+                                )}
+                              </h3>
+
+                              <div className="author author-markdown" style={{ color: '#475569', marginTop: '0.1rem', fontSize: '0.82rem' }}>
+                                <i className="fa-solid fa-user-pen me-1" style={{ opacity: 0.7 }}></i>
                                 <ReactMarkdown 
                                   rehypePlugins={[rehypeRaw]}
                                   components={{ p: 'span' }}
@@ -131,31 +262,139 @@ export default async function Publications({ params }) {
                                   {finalAuthorContent}
                                 </ReactMarkdown>
                               </div>
-                              <div className="periodical" style={{ fontStyle: 'italic', color: 'var(--global-text-color-light)', marginTop: '0.2rem', fontSize: '0.95rem' }}>
-                                {journal} {tags.VOLUME || tags.volume ? `vol. ${tags.VOLUME || tags.volume}` : ''}{journal ? ', ' : ''}{year}
+
+                              <div className="periodical d-flex flex-wrap align-items-center gap-2" style={{ marginTop: '0.25rem', fontSize: '0.8rem' }}>
+                                <span
+                                  style={{
+                                    backgroundColor: pub.journal_bg_color || '#fee2e2',
+                                    color: pub.journal_color || '#991b1b',
+                                    border: `1px solid ${pub.journal_border_color || '#fca5a5'}`,
+                                    fontSize: '0.7rem',
+                                    fontWeight: '600',
+                                    padding: '1px 7px',
+                                    borderRadius: '8px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                  }}
+                                >
+                                  <i className="fa-solid fa-bookmark" style={{ fontSize: '0.68rem', opacity: 0.85 }}></i>
+                                  {journal}
+                                </span>
+                                <span style={{ color: '#64748b' }}>
+                                  {volume ? `Số ${volume}` : ''}
+                                  {pages ? `${volume ? ', ' : ''}Tr. ${pages}` : ''}
+                                  {year ? ` (${year})` : ''}
+                                </span>
                               </div>
-                              {url && (
-                                <div className="links mt-2">
-                                  <a href={url} className="btn btn-sm z-depth-0" role="button" target="_blank" rel="noopener noreferrer" style={{ border: '1px solid var(--global-theme-color)', color: 'var(--global-theme-color)', padding: '2px 8px', fontSize: '0.8rem' }}>
-                                    URL
-                                  </a>
-                                </div>
+
+                              {abstractText && (
+                                <p
+                                  style={{
+                                    fontSize: '0.82rem',
+                                    lineHeight: '1.6',
+                                    color: '#475569',
+                                    marginTop: '6px',
+                                    marginBottom: '6px',
+                                    backgroundColor: '#f8fafc',
+                                    padding: '8px 12px',
+                                    borderRadius: '6px',
+                                    borderLeft: `2.5px solid ${config.section_titles_color || '#8c0303'}`,
+                                    textAlign: 'justify',
+                                  }}
+                                >
+                                  <strong style={{ color: config.section_titles_color || '#8c0303' }}>
+                                    {lang === 'vi' ? 'Tóm tắt: ' : 'Abstract: '}
+                                  </strong>
+                                  {abstractText}
+                                </p>
                               )}
+
+                              {/* Metric Badges (IF, Q1, FWCI, ISSN...) */}
+                              {(() => {
+                                const badges = pub.metric_badges;
+                                if (!badges || !Array.isArray(badges) || badges.length === 0) return null;
+                                return (
+                                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', alignItems: 'center', marginTop: '6px', marginBottom: '4px' }}>
+                                    {badges.map((b, bIdx) => {
+                                      let text = '';
+                                      if (typeof b === 'string') {
+                                        text = b;
+                                      } else if (b && typeof b === 'object') {
+                                        const lbl = b.label || b.name || '';
+                                        const val = b.value !== undefined ? b.value : '';
+                                        if (lbl && val) {
+                                          if (val.startsWith('(') || lbl.endsWith(':')) {
+                                            text = `${lbl} ${val}`.trim();
+                                          } else {
+                                            text = `${lbl}: ${val}`;
+                                          }
+                                        } else {
+                                          text = lbl || val;
+                                        }
+                                      }
+                                      if (!text) return null;
+                                      return (
+                                        <span
+                                          key={bIdx}
+                                          style={{
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            padding: '1.5px 6px',
+                                            backgroundColor: '#f1f5f9',
+                                            color: '#0f172a',
+                                            border: '1px solid #cbd5e1',
+                                            borderRadius: '4px',
+                                            fontSize: '0.72rem',
+                                            fontWeight: '600',
+                                            lineHeight: '1.2',
+                                            boxShadow: 'none',
+                                            letterSpacing: '0.2px',
+                                            whiteSpace: 'nowrap',
+                                          }}
+                                        >
+                                          {text}
+                                        </span>
+                                      );
+                                    })}
+                                  </div>
+                                );
+                              })()}
+
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px' }}>
+                                {pdfUrl && (
+                                  <a
+                                    href={pdfUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="btn-subtle-action"
+                                  >
+                                    <i className="fa-regular fa-file-pdf" style={{ opacity: 0.7 }}></i>
+                                    <span>{lang === 'vi' ? 'Xem file PDF' : 'View PDF'}</span>
+                                  </a>
+                                )}
+                                {url && (
+                                  <a
+                                    href={url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="btn-subtle-action"
+                                  >
+                                    <i className="fa-solid fa-arrow-up-right-from-square" style={{ fontSize: '0.75rem', opacity: 0.65 }}></i>
+                                    <span>{lang === 'vi' ? 'Đọc bài báo gốc' : 'Read original article'}</span>
+                                  </a>
+                                )}
+                              </div>
                             </div>
                           </li>
                         );
                       })}
                     </ol>
                   </div>
-
-                  {/* Desktop header (hidden on mobile) */}
-                  <div className="d-none d-md-block" style={{ position: 'absolute', top: 0, right: 0, width: '100px', textAlign: 'right' }}>
-                    <h2 className="year" style={{ color: 'var(--global-divider-color)', fontSize: '2.5rem', fontWeight: 300, margin: 0, lineHeight: 1.2, border: 'none', paddingTop: 0 }}>{year}</h2>
-                  </div>
                 </div>
               ))
             ) : (
-              <p>No publications found.</p>
+              <p>{lang === 'vi' ? 'Chưa có ấn phẩm nào.' : 'No publications found.'}</p>
             )}
           </div>
         </article>
