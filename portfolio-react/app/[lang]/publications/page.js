@@ -85,10 +85,11 @@ export default async function Publications({ params }) {
               color: var(--global-hover-color, #8c0303) !important;
             }
             .pub-card-item {
-              transition: transform 0.2s ease, box-shadow 0.2s ease;
+              transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
             }
             .pub-card-item:hover {
-              box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05) !important;
+              border-color: #cbd5e1 !important;
+              background-color: rgba(255, 255, 255, 0.4) !important;
               transform: translateY(-1px);
             }
           `}</style>
@@ -166,13 +167,13 @@ export default async function Publications({ params }) {
                             key={pub.id || index}
                             className="pub-card-item mb-3 d-flex flex-column flex-md-row w-100"
                             style={{
-                              backgroundColor: '#ffffff',
+                              backgroundColor: 'transparent',
                               gap: '0.85rem',
                               alignItems: 'flex-start',
                               padding: '12px 14px',
                               borderRadius: '8px',
                               border: '1px solid #e2e8f0',
-                              boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
+                              boxShadow: 'none',
                             }}
                           >
                             {/* Left Sidebar for Preview Cover & Badge */}
@@ -296,9 +297,9 @@ export default async function Publications({ params }) {
                                     color: '#475569',
                                     marginTop: '6px',
                                     marginBottom: '6px',
-                                    backgroundColor: '#f8fafc',
-                                    padding: '8px 12px',
-                                    borderRadius: '6px',
+                                    backgroundColor: 'transparent',
+                                    padding: '4px 10px',
+                                    borderRadius: '4px',
                                     borderLeft: `2.5px solid ${config.section_titles_color || '#8c0303'}`,
                                     textAlign: 'justify',
                                   }}
