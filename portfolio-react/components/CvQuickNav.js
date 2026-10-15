@@ -1,13 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function CvQuickNav({ sections = [], lang = 'vi' }) {
   const [activeSection, setActiveSection] = useState(sections[0]?.id || '');
+  const pillBarRef = useRef(null);
+  const buttonRefs = useRef({});
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPosition = window.scrollY + 130;
+      const isMobile = window.innerWidth < 768;
+      const scrollPosition = window.scrollY + (isMobile ? 120 : 130);
       
       for (let i = sections.length - 1; i >= 0; i--) {
         const el = document.getElementById(sections[i].id);
@@ -27,11 +30,26 @@ export default function CvQuickNav({ sections = [], lang = 'vi' }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [sections]);
 
+  // Keep active button visible in mobile horizontal pill bar
+  useEffect(() => {
+    if (activeSection && buttonRefs.current[activeSection]) {
+      const btn = buttonRefs.current[activeSection];
+      if (btn && pillBarRef.current) {
+        btn.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center'
+        });
+      }
+    }
+  }, [activeSection]);
+
   const scrollTo = (e, id) => {
     e.preventDefault();
     const element = document.getElementById(id);
     if (element) {
-      const navOffset = 80;
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+      const navOffset = isMobile ? 110 : 85;
       const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
       const offsetPosition = elementPosition - navOffset;
 
@@ -48,30 +66,56 @@ export default function CvQuickNav({ sections = [], lang = 'vi' }) {
   return (
     <>
       {/* Mobile Horizontal Pill Bar (< 768px) */}
-      <div className="d-block d-md-none mb-3" style={{
-        overflowX: 'auto',
-        whiteSpace: 'nowrap',
-        padding: '6px 0',
-        borderBottom: '1px solid var(--global-divider-color, rgba(0,0,0,0.1))',
-      }}>
-        <div style={{ display: 'inline-flex', gap: '8px' }}>
+      <div 
+        className="d-block d-md-none cv-mobile-nav" 
+        style={{
+          width: '100%',
+          position: 'sticky',
+          top: '43px',
+          zIndex: 30,
+          backgroundColor: 'var(--global-bg-color)',
+          padding: '8px 0',
+          marginBottom: '16px',
+          borderBottom: '1px solid var(--global-divider-color, rgba(0,0,0,0.1))',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
+        }}
+      >
+        <div 
+          ref={pillBarRef}
+          className="cv-pill-scroll"
+          style={{ 
+            display: 'flex', 
+            gap: '8px',
+            overflowX: 'auto',
+            whiteSpace: 'nowrap',
+            paddingBottom: '2px',
+            paddingLeft: '2px',
+            paddingRight: '2px',
+            WebkitOverflowScrolling: 'touch',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          }}
+        >
           {sections.map((section) => {
             const isActive = activeSection === section.id;
             return (
               <button
                 key={section.id}
+                ref={(el) => { if (el) buttonRefs.current[section.id] = el; }}
                 onClick={(e) => scrollTo(e, section.id)}
                 type="button"
                 style={{
                   border: isActive ? '1px solid var(--global-theme-color)' : '1px solid var(--global-divider-color, #cbd5e1)',
                   backgroundColor: isActive ? 'var(--global-theme-color)' : 'var(--global-card-bg-color, transparent)',
                   color: isActive ? '#ffffff' : 'var(--global-text-color)',
-                  padding: '5px 12px',
-                  borderRadius: '16px',
-                  fontSize: '0.82rem',
+                  padding: '6px 14px',
+                  borderRadius: '20px',
+                  fontSize: '0.84rem',
                   fontWeight: isActive ? '600' : '500',
                   cursor: 'pointer',
+                  flexShrink: 0,
                   transition: 'all 0.2s ease',
+                  boxShadow: isActive ? '0 2px 6px color-mix(in srgb, var(--global-theme-color) 35%, transparent)' : 'none',
                 }}
               >
                 {section.label}

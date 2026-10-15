@@ -1136,6 +1136,164 @@ async function saveAbout() {
 }
 
 // ============================================================================
+// CV Icon Helpers (FontAwesome & Image Uploads)
+// ============================================================================
+
+function renderIconPreviewHtml(val, defaultIcon = "fa-solid fa-circle-info", size = 18) {
+  const icon = (val || defaultIcon || "").trim();
+  const sizeNum = size ? parseInt(size, 10) : 18;
+  const sizePx = `${sizeNum}px`;
+  if (!icon) return `<i class="fas fa-question text-muted" style="font-size: 14px; opacity: 0.5;"></i>`;
+  const isImage = /\.(svg|png|jpg|jpeg|gif|webp|ico)(\?.*)?$/i.test(icon) || icon.startsWith("/") || icon.startsWith("http");
+  if (isImage) {
+    const src = icon.startsWith("http") || icon.startsWith("/") ? icon : `/assets/img/${icon}`;
+    return `<img src="${src}" alt="icon" style="width: ${sizePx}; height: ${sizePx}; max-width: 44px; max-height: 44px; object-fit: contain; vertical-align: middle;" />`;
+  }
+  let faClass = icon;
+  if (!faClass.includes("fa-") && !faClass.includes("fab ") && !faClass.includes("fas ") && !faClass.includes("far ")) {
+    faClass = `fa-solid fa-${faClass}`;
+  } else if (!faClass.startsWith("fa-") && !faClass.startsWith("fas ") && !faClass.startsWith("far ") && !faClass.startsWith("fab ") && !faClass.startsWith("fa-solid") && !faClass.startsWith("fa-regular") && !faClass.startsWith("fa-brands")) {
+    faClass = `fa-solid ${faClass}`;
+  }
+  return `<i class="${escHtml(faClass)}" style="font-size: ${sizePx};"></i>`;
+}
+
+function updateCvIconPreview(inputId, val, defaultIcon) {
+  const previewBox = document.getElementById(`${inputId}-preview`);
+  const sizeInput = document.getElementById(`${inputId}-size`);
+  const curSize = sizeInput ? parseInt(sizeInput.value, 10) : 18;
+  if (previewBox) {
+    previewBox.innerHTML = renderIconPreviewHtml(val, defaultIcon, curSize);
+  }
+}
+
+function updateCvIconSize(inputId, sizeVal, defaultIcon) {
+  const sizeSpan = document.getElementById(`${inputId}-size-val`);
+  if (sizeSpan) sizeSpan.textContent = `${sizeVal}px`;
+  const input = document.getElementById(inputId);
+  const iconVal = input ? input.value : "";
+  const previewBox = document.getElementById(`${inputId}-preview`);
+  if (previewBox) {
+    previewBox.innerHTML = renderIconPreviewHtml(iconVal, defaultIcon, sizeVal);
+  }
+}
+
+function setCvIconSizePreset(inputId, sizeVal, defaultIcon) {
+  const sizeInput = document.getElementById(`${inputId}-size`);
+  if (sizeInput) {
+    sizeInput.value = sizeVal;
+    updateCvIconSize(inputId, sizeVal, defaultIcon);
+  }
+}
+
+async function uploadCvIconFile(fileInput, targetInputId, defaultIcon) {
+  if (!fileInput.files || fileInput.files.length === 0) return;
+  const file = fileInput.files[0];
+  const formData = new FormData();
+  formData.append('image', file);
+  
+  showLoading();
+  try {
+    const res = await fetch(`${API}/upload`, { method: 'POST', body: formData }).then(r => r.json());
+    if (res.success) {
+      const input = document.getElementById(targetInputId);
+      if (input) {
+        input.value = res.filename;
+        updateCvIconPreview(targetInputId, res.filename, defaultIcon);
+      }
+      showToast("Tải icon lên thành công!", "success");
+    } else {
+      showToast("Lỗi tải icon: " + (res.error || "Không rõ"), "error");
+    }
+  } catch (err) {
+    showToast("Lỗi kết nối khi tải icon: " + err.message, "error");
+  } finally {
+    hideLoading();
+    fileInput.value = "";
+  }
+}
+
+function resetCvIcon(inputId, defaultIcon) {
+  const input = document.getElementById(inputId);
+  if (input) {
+    input.value = defaultIcon;
+    updateCvIconPreview(inputId, defaultIcon, defaultIcon);
+  }
+}
+
+function setCvIconPreset(inputId, faClass, defaultIcon) {
+  const input = document.getElementById(inputId);
+  if (input) {
+    input.value = faClass;
+    updateCvIconPreview(inputId, faClass, defaultIcon);
+  }
+}
+
+function renderCvIconPicker(inputId, currentValue, defaultIcon, label = "Icon hiển thị", extraClass = "", currentSize = 18, sizeInputClass = "") {
+  const curVal = currentValue !== undefined && currentValue !== null ? currentValue : defaultIcon;
+  const curSize = currentSize ? parseInt(currentSize, 10) : 18;
+  return `
+    <div class="cv-icon-picker-box" style="margin-top: 8px; padding: 10px 12px; background: rgba(0,0,0,0.02); border: 1px dashed var(--border); border-radius: var(--radius-sm);">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+        <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px;">
+          <i class="fas fa-icons" style="color: var(--accent-light);"></i> ${escHtml(label)}
+        </span>
+        <span class="text-muted" style="font-size: 0.74rem;">Nhập class FontAwesome hoặc tải file ảnh (SVG/PNG/ICO)</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <div id="${inputId}-preview" class="cv-icon-preview-box" title="Xem trước icon" style="min-width: 44px; min-height: 44px; width: 44px; height: 44px; border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center; background: var(--bg-primary); flex-shrink: 0; color: var(--accent-light); overflow: hidden;">
+          ${renderIconPreviewHtml(curVal, defaultIcon, curSize)}
+        </div>
+        <input type="text" id="${inputId}" class="form-control cv-icon-input ${extraClass}" value="${escHtml(curVal || '')}" placeholder="VD: fa-solid fa-user hoặc icon.svg" style="flex: 1; font-size: 0.85rem; height: 36px;" oninput="updateCvIconPreview('${inputId}', this.value, '${defaultIcon}')" />
+        <input type="file" id="${inputId}-file" accept="image/*,.ico,.svg" style="display: none;" onchange="uploadCvIconFile(this, '${inputId}', '${defaultIcon}')" />
+        <button type="button" class="btn btn-sm btn-secondary" onclick="document.getElementById('${inputId}-file').click()" title="Tải file icon lên từ máy tính (SVG, PNG, ICO, ...)" style="height: 36px; white-space: nowrap; font-size: 0.8rem; padding: 0 12px; display: inline-flex; align-items: center; gap: 5px;">
+          <i class="fas fa-upload"></i> Tải file icon
+        </button>
+        <button type="button" class="btn btn-sm btn-outline btn-icon" onclick="resetCvIcon('${inputId}', '${defaultIcon}')" title="Khôi phục icon mặc định (${defaultIcon})" style="height: 36px; width: 36px; padding: 0; flex-shrink: 0;">
+          <i class="fas fa-undo"></i>
+        </button>
+      </div>
+
+      <!-- Thanh trượt phóng to thu nhỏ icon -->
+      <div style="margin-top: 10px; padding: 7px 10px; background: var(--bg-tertiary); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+          <label style="font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin: 0; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="fas fa-search-plus" style="color: var(--accent-light);"></i> Phóng to / Thu nhỏ kích thước:
+          </label>
+          <span id="${inputId}-size-val" style="font-weight: 700; font-size: 0.82rem; color: var(--accent-light);">${curSize}px</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 0.72rem; color: var(--text-muted);">10px</span>
+          <input type="range" id="${inputId}-size" class="cv-icon-size-input ${sizeInputClass}" min="10" max="44" step="1" value="${curSize}" oninput="updateCvIconSize('${inputId}', this.value, '${defaultIcon}')" style="flex: 1; cursor: pointer;" />
+          <span style="font-size: 0.72rem; color: var(--text-muted);">44px</span>
+          <div style="display: flex; gap: 4px;">
+            <button type="button" class="btn btn-sm btn-outline" onclick="setCvIconSizePreset('${inputId}', 14, '${defaultIcon}')" style="padding: 1px 6px; font-size: 0.7rem;" title="14px">Nhỏ</button>
+            <button type="button" class="btn btn-sm btn-outline" onclick="setCvIconSizePreset('${inputId}', 18, '${defaultIcon}')" style="padding: 1px 6px; font-size: 0.7rem; font-weight: bold;" title="18px">Chuẩn</button>
+            <button type="button" class="btn btn-sm btn-outline" onclick="setCvIconSizePreset('${inputId}', 24, '${defaultIcon}')" style="padding: 1px 6px; font-size: 0.7rem;" title="24px">Vừa</button>
+            <button type="button" class="btn btn-sm btn-outline" onclick="setCvIconSizePreset('${inputId}', 30, '${defaultIcon}')" style="padding: 1px 6px; font-size: 0.7rem;" title="30px">Lớn</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 8px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+        <span style="font-size: 0.72rem; color: var(--text-muted);">Gợi ý nhanh:</span>
+        <button type="button" class="btn btn-sm" onclick="setCvIconPreset('${inputId}', 'fa-solid fa-user', '${defaultIcon}')" style="padding: 2px 6px; font-size: 0.72rem; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 3px;" title="fa-user"><i class="fa-solid fa-user"></i></button>
+        <button type="button" class="btn btn-sm" onclick="setCvIconPreset('${inputId}', 'fa-solid fa-id-badge', '${defaultIcon}')" style="padding: 2px 6px; font-size: 0.72rem; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 3px;" title="fa-id-badge"><i class="fa-solid fa-id-badge"></i></button>
+        <button type="button" class="btn btn-sm" onclick="setCvIconPreset('${inputId}', 'fa-solid fa-envelope', '${defaultIcon}')" style="padding: 2px 6px; font-size: 0.72rem; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 3px;" title="fa-envelope"><i class="fa-solid fa-envelope"></i></button>
+        <button type="button" class="btn btn-sm" onclick="setCvIconPreset('${inputId}', 'fa-solid fa-location-dot', '${defaultIcon}')" style="padding: 2px 6px; font-size: 0.72rem; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 3px;" title="fa-location-dot"><i class="fa-solid fa-location-dot"></i></button>
+        <button type="button" class="btn btn-sm" onclick="setCvIconPreset('${inputId}', 'fa-solid fa-language', '${defaultIcon}')" style="padding: 2px 6px; font-size: 0.72rem; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 3px;" title="fa-language"><i class="fa-solid fa-language"></i></button>
+        <button type="button" class="btn btn-sm" onclick="setCvIconPreset('${inputId}', 'fa-solid fa-landmark', '${defaultIcon}')" style="padding: 2px 6px; font-size: 0.72rem; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 3px;" title="fa-landmark"><i class="fa-solid fa-landmark"></i></button>
+        <button type="button" class="btn btn-sm" onclick="setCvIconPreset('${inputId}', 'fa-solid fa-briefcase', '${defaultIcon}')" style="padding: 2px 6px; font-size: 0.72rem; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 3px;" title="fa-briefcase"><i class="fa-solid fa-briefcase"></i></button>
+        <button type="button" class="btn btn-sm" onclick="setCvIconPreset('${inputId}', 'fa-solid fa-building', '${defaultIcon}')" style="padding: 2px 6px; font-size: 0.72rem; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 3px;" title="fa-building"><i class="fa-solid fa-building"></i></button>
+        <button type="button" class="btn btn-sm" onclick="setCvIconPreset('${inputId}', 'fa-solid fa-graduation-cap', '${defaultIcon}')" style="padding: 2px 6px; font-size: 0.72rem; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 3px;" title="fa-graduation-cap"><i class="fa-solid fa-graduation-cap"></i></button>
+        <button type="button" class="btn btn-sm" onclick="setCvIconPreset('${inputId}', 'fa-solid fa-phone', '${defaultIcon}')" style="padding: 2px 6px; font-size: 0.72rem; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 3px;" title="fa-phone"><i class="fa-solid fa-phone"></i></button>
+        <button type="button" class="btn btn-sm" onclick="setCvIconPreset('${inputId}', 'fa-solid fa-globe', '${defaultIcon}')" style="padding: 2px 6px; font-size: 0.72rem; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 3px;" title="fa-globe"><i class="fa-solid fa-globe"></i></button>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================================
 // CV
 // ============================================================================
 
@@ -1281,40 +1439,62 @@ async function loadCV() {
       </div>
       <div class="card-body">
         <div class="form-grid">
-          <div class="form-group full-width" style="display: flex; gap: 15px;">
-            <div style="flex: 1;">
-              <label>Họ tên (Tiếng Việt)</label>
-              <input type="text" id="cv-name" value="${escHtml(cv.name || '')}" />
+          <div class="form-group full-width">
+            <div style="display: flex; gap: 15px;">
+              <div style="flex: 1;">
+                <label>Họ tên (Tiếng Việt)</label>
+                <input type="text" id="cv-name" value="${escHtml(cv.name || '')}" />
+              </div>
+              <div style="flex: 1;">
+                <label>Họ tên (Tiếng Anh)</label>
+                <input type="text" id="cv-name_en" value="${escHtml(cv.name_en || '')}" />
+              </div>
             </div>
-            <div style="flex: 1;">
-              <label>Họ tên (Tiếng Anh)</label>
-              <input type="text" id="cv-name_en" value="${escHtml(cv.name_en || '')}" />
-            </div>
+            ${renderCvIconPicker('cv-name_icon', cv.name_icon, 'fa-solid fa-user', 'Icon dòng Họ và tên', '', cv.name_icon_size || 18)}
           </div>
-          <div class="form-group full-width" style="display: flex; gap: 15px;">
-            <div style="flex: 1;">
-              <label>Chức danh (Tiếng Việt)</label>
-              <input type="text" id="cv-label" value="${escHtml(cv.label || '')}" />
+
+          <div class="form-group full-width">
+            <div style="display: flex; gap: 15px;">
+              <div style="flex: 1;">
+                <label>Chức danh (Tiếng Việt)</label>
+                <input type="text" id="cv-label" value="${escHtml(cv.label || '')}" />
+              </div>
+              <div style="flex: 1;">
+                <label>Chức danh (Tiếng Anh)</label>
+                <input type="text" id="cv-label_en" value="${escHtml(cv.label_en || '')}" />
+              </div>
             </div>
-            <div style="flex: 1;">
-              <label>Chức danh (Tiếng Anh)</label>
-              <input type="text" id="cv-label_en" value="${escHtml(cv.label_en || '')}" />
-            </div>
+            ${renderCvIconPicker('cv-label_icon', cv.label_icon, 'fa-solid fa-id-badge', 'Icon dòng Chức danh', '', cv.label_icon_size || 18)}
           </div>
+
           <div class="form-group full-width">
             <label>Email</label>
             <input type="text" id="cv-email" value="${escHtml(cv.email || '')}" />
+            ${renderCvIconPicker('cv-email_icon', cv.email_icon, 'fa-solid fa-envelope', 'Icon dòng Email', '', cv.email_icon_size || 18)}
           </div>
-          <div class="form-group full-width" style="display: flex; gap: 15px;">
-            <div style="flex: 1;">
-              <label>Địa điểm (Tiếng Việt)</label>
-              <input type="text" id="cv-location" value="${escHtml(cv.location || '')}" />
+
+          <div class="form-group full-width">
+            <div style="display: flex; gap: 15px;">
+              <div style="flex: 1;">
+                <label>Địa điểm (Tiếng Việt)</label>
+                <input type="text" id="cv-location" value="${escHtml(cv.location || '')}" />
+              </div>
+              <div style="flex: 1;">
+                <label>Địa điểm (Tiếng Anh)</label>
+                <input type="text" id="cv-location_en" value="${escHtml(cv.location_en || '')}" />
+              </div>
             </div>
-            <div style="flex: 1;">
-              <label>Địa điểm (Tiếng Anh)</label>
-              <input type="text" id="cv-location_en" value="${escHtml(cv.location_en || '')}" />
-            </div>
+            ${renderCvIconPicker('cv-location_icon', cv.location_icon, 'fa-solid fa-location-dot', 'Icon dòng Địa điểm', '', cv.location_icon_size || 18)}
           </div>
+
+          <div class="form-group full-width">
+            <label>Ngôn ngữ (Hiển thị tóm tắt tại Thông tin chung)</label>
+            ${renderCvIconPicker('cv-languages_icon', cv.languages_icon, 'fa-solid fa-language', 'Icon dòng Ngôn ngữ', '', cv.languages_icon_size || 18)}
+            <p class="text-muted" style="font-size: 0.8rem; margin-top: 4px; margin-bottom: 0;">
+              <em>Dòng này hiển thị danh sách các thứ tiếng đã cấu hình ở mục <strong>Ngôn ngữ (Languages)</strong> phía dưới.</em>
+            </p>
+          </div>
+
           <div class="form-group full-width" style="display: flex; gap: 15px;">
             <div style="flex: 1;">
               <label>Mô tả ngắn (Tiếng Việt)</label>
@@ -1348,13 +1528,37 @@ async function loadCV() {
     </div>
 
     <div class="card mt-4">
-      <div class="card-header d-flex justify-content-between align-items-center">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap: 10px;">
         <h2><i class="fas fa-graduation-cap"></i> Học vấn (Education)</h2>
-        <button class="btn btn-sm btn-primary" onclick="addDynamicItem('education-list', renderEducationItem)">
-          <i class="fas fa-plus"></i> Thêm mới
-        </button>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" class="btn btn-sm btn-outline" id="btn-toggle-edu-preview" onclick="toggleEduPreview()" style="font-weight: 500;">
+            <i class="fas fa-eye mr-1"></i> <span id="edu-preview-toggle-text">Ẩn xem trước</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-primary" onclick="addDynamicItem('education-list', renderEducationItem); setTimeout(updateEduSectionPreview, 100);">
+            <i class="fas fa-plus mr-1"></i> Thêm mới
+          </button>
+        </div>
       </div>
       <div class="card-body">
+        <!-- Live Preview Component cho Học vấn -->
+        <div id="edu-live-preview-wrapper" style="margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 10px 14px; background: rgba(130, 119, 23, 0.08); border-left: 4px solid var(--accent, #827717); border-radius: 4px; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <strong style="color: var(--accent, #827717); font-size: 0.92rem;"><i class="fas fa-tv mr-1"></i> XEM TRƯỚC SECTION HỌC VẤN (LIVE PREVIEW)</strong>
+              <span class="badge" style="background: #e2e8f0; color: #475569; font-size: 0.72rem; padding: 2px 8px; border-radius: 4px;">Khớp 100% giao diện CV</span>
+            </div>
+            <!-- Chuyển đổi ngôn ngữ xem trước -->
+            <div style="display: flex; gap: 4px; align-items: center;">
+              <span style="font-size: 0.75rem; color: #64748b; margin-right: 2px;">Ngôn ngữ:</span>
+              <button type="button" class="btn btn-sm btn-primary edu-preview-lang-btn" id="edu-preview-lang-vi" onclick="setEduPreviewLang('vi')" style="padding: 2px 10px; font-size: 0.78rem;">Tiếng Việt</button>
+              <button type="button" class="btn btn-sm btn-outline edu-preview-lang-btn" id="edu-preview-lang-en" onclick="setEduPreviewLang('en')" style="padding: 2px 10px; font-size: 0.78rem;">English</button>
+            </div>
+          </div>
+          <div id="edu-live-preview-content" style="background: var(--bg-primary, #ffffff); border: 1px solid var(--border, #e2e8f0); border-radius: 8px; padding: 20px 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.04);">
+            <!-- Rendered CV Education list preview here -->
+          </div>
+        </div>
+
         <div id="education-list" class="dynamic-list">${eduHtml}</div>
       </div>
     </div>
@@ -1410,14 +1614,24 @@ async function loadCV() {
   
   // Make lists sortable
   initSortable('cv-custom-info-list');
-  initSortable('education-list');
+  initSortable('education-list', updateEduSectionPreview);
   initSortable('experience-list');
   initSortable('honors-list');
   initSortable('languages-list');
   initSortable('skills-list');
+
+  // Education live preview & input sync
+  const eduListEl = document.getElementById('education-list');
+  if (eduListEl) {
+    eduListEl.addEventListener('input', () => {
+      updateEduSectionPreview();
+    });
+  }
+  setTimeout(updateEduSectionPreview, 150);
 }
 
 function renderCustomInfoItem(ci = {}, i = 0) {
+  const uid = 'ci-icon-' + Math.random().toString(36).substring(2, 9);
   return `
     <div class="dynamic-item" style="padding: 12px 16px; margin-bottom: 10px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -1448,6 +1662,7 @@ function renderCustomInfoItem(ci = {}, i = 0) {
           <input type="text" class="custom-info-value_en" value="${escHtml(ci.value_en || '')}" placeholder="Ví dụ: Go Cao Hamlet Party Cell" style="width: 100%;" />
         </div>
       </div>
+      ${renderCvIconPicker(uid, ci.icon || 'fa-solid fa-landmark', 'fa-solid fa-circle-info', 'Icon dòng thông tin này', 'custom-info-icon', ci.icon_size || 18, 'custom-info-icon-size')}
     </div>
   `;
 }
@@ -1457,12 +1672,283 @@ function addCustomInfoItem() {
   list.insertAdjacentHTML("beforeend", renderCustomInfoItem({}));
 }
 
+let currentEduPreviewLang = 'vi';
+
+function setEduPreviewLang(lang) {
+  currentEduPreviewLang = lang;
+  const btnVi = document.getElementById('edu-preview-lang-vi');
+  const btnEn = document.getElementById('edu-preview-lang-en');
+  if (btnVi && btnEn) {
+    if (lang === 'vi') {
+      btnVi.className = 'btn btn-sm btn-primary edu-preview-lang-btn';
+      btnEn.className = 'btn btn-sm btn-outline edu-preview-lang-btn';
+    } else {
+      btnVi.className = 'btn btn-sm btn-outline edu-preview-lang-btn';
+      btnEn.className = 'btn btn-sm btn-primary edu-preview-lang-btn';
+    }
+  }
+  updateEduSectionPreview();
+}
+
+function toggleEduPreview() {
+  const wrapper = document.getElementById('edu-live-preview-wrapper');
+  const toggleText = document.getElementById('edu-preview-toggle-text');
+  if (!wrapper) return;
+  if (wrapper.style.display === 'none') {
+    wrapper.style.display = 'block';
+    if (toggleText) toggleText.innerText = 'Ẩn xem trước';
+    updateEduSectionPreview();
+  } else {
+    wrapper.style.display = 'none';
+    if (toggleText) toggleText.innerText = 'Hiện xem trước';
+  }
+}
+
+function updateEduSectionPreview() {
+  const previewBox = document.getElementById('edu-live-preview-content');
+  if (!previewBox) return;
+  
+  const items = document.querySelectorAll('#education-list .dynamic-item');
+  if (items.length === 0) {
+    previewBox.innerHTML = `
+      <div style="text-align: center; color: #94a3b8; padding: 24px 0; font-style: italic;">
+        <i class="fas fa-graduation-cap" style="font-size: 2rem; margin-bottom: 8px; display: block; opacity: 0.5;"></i>
+        Chưa có mục học vấn nào. Nhấn "+ Thêm mới" để tạo mục học vấn.
+      </div>
+    `;
+    return;
+  }
+  
+  const isEn = currentEduPreviewLang === 'en';
+  
+  const titleVi = document.getElementById('cv-education-title')?.value.trim() || 'Học vấn';
+  const titleEn = document.getElementById('cv-education-title-en')?.value.trim() || 'Education';
+  const title = isEn ? titleEn : titleVi;
+  const titleColor = document.getElementById('cv-education-title-color')?.value || '#827717';
+  const titleBold = document.getElementById('cv-education-title-bold')?.checked !== false;
+
+  let html = `
+    <div style="font-family: inherit;">
+      <h3 style="color: ${titleColor}; font-weight: ${titleBold ? 'bold' : 'normal'}; font-size: 1.35rem; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+        <span>${escHtml(title)}</span>
+        <span style="font-size: 0.72rem; font-weight: normal; color: #64748b; background: #f1f5f9; padding: 2px 8px; border-radius: 12px;">${items.length} mục</span>
+      </h3>
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+  `;
+
+  items.forEach((item, index) => {
+    const instVi = item.querySelector('.edu-institution')?.value.trim() || '';
+    const instEn = item.querySelector('.edu-institution_en')?.value.trim() || '';
+    const inst = isEn ? (instEn || instVi) : (instVi || instEn);
+
+    const locVi = item.querySelector('.edu-location')?.value.trim() || '';
+    const locEn = item.querySelector('.edu-location_en')?.value.trim() || '';
+    const loc = isEn ? (locEn || locVi) : (locVi || locEn);
+
+    const areaVi = item.querySelector('.edu-area')?.value.trim() || '';
+    const areaEn = item.querySelector('.edu-area_en')?.value.trim() || '';
+    const area = isEn ? (areaEn || areaVi) : (areaVi || areaEn);
+
+    const studyVi = item.querySelector('.edu-studyType')?.value.trim() || '';
+    const studyEn = item.querySelector('.edu-studyType_en')?.value.trim() || '';
+    const study = isEn ? (studyEn || studyVi) : (studyVi || studyEn) || (isEn ? 'Bằng cấp / Ngành học' : 'Bằng cấp / Ngành học');
+
+    const startVi = item.querySelector('.edu-start')?.value.trim() || '';
+    const startEn = item.querySelector('.edu-start_en')?.value.trim() || '';
+    const start = isEn ? (startEn || startVi) : (startVi || startEn);
+
+    const endVi = item.querySelector('.edu-end')?.value.trim() || '';
+    const endEn = item.querySelector('.edu-end_en')?.value.trim() || '';
+    const end = isEn ? (endEn || endVi) : (endVi || endEn);
+
+    let dateStr = '';
+    if (start && end) dateStr = `${start} - ${end}`;
+    else if (start || end) dateStr = start || end;
+    else dateStr = '2022 - 2026';
+
+    const logo = item.querySelector('.edu-logo')?.value.trim() || '';
+    const logoSizeRaw = item.querySelector('.edu-logo-size')?.value.trim() || item.querySelector('.edu-logo-number')?.value.trim() || '100';
+    const logoSizePx = /^\d+$/.test(logoSizeRaw) ? `${logoSizeRaw}px` : (logoSizeRaw || '100px');
+
+    const highVi = item.querySelector('.edu-highlights')?.value || '';
+    const highEn = item.querySelector('.edu-highlights_en')?.value || '';
+    const highRaw = isEn ? (highEn || highVi) : (highVi || highEn);
+    const highlights = highRaw.split('\n').map(s => s.trim()).filter(Boolean);
+
+    const orgLine = [inst, loc, area].filter(Boolean).join(', ');
+
+    html += `
+      <div style="display: flex; flex-wrap: wrap; gap: 16px; padding-bottom: 20px; border-bottom: ${index !== items.length - 1 ? '1px solid #f1f5f9' : 'none'}; align-items: flex-start;">
+        <!-- Date Badge -->
+        <div style="flex: 0 0 120px;">
+          <span style="background-color: var(--accent, #827717); color: #fff; font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 4px; display: inline-block; text-align: center; letter-spacing: 0.3px;">
+            ${escHtml(dateStr)}
+          </span>
+        </div>
+
+        <!-- Main Info and Logo -->
+        <div style="flex: 1; min-width: 280px; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+          <!-- Text info -->
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 4px; word-break: break-word;">
+              ${escHtml(study)}
+            </div>
+            
+            <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 0.92rem; color: #334155; margin-bottom: 8px;">
+              <i class="fa-solid fa-building-columns" style="color: #06b6d4; font-size: 0.98rem; margin-top: 3px; flex-shrink: 0;"></i>
+              <span style="font-weight: 500; word-break: break-word;">${escHtml(orgLine || (isEn ? 'Institution name' : 'Tên trường/tổ chức'))}</span>
+            </div>
+
+            ${highlights.length > 0 ? `
+              <ul style="margin: 0; padding-left: 18px; list-style-type: circle; color: #475569; font-size: 0.88rem; line-height: 1.6;">
+                ${highlights.map(h => `<li style="margin-bottom: 3px;">${escHtml(h.replace('(theme)', '').trim())}</li>`).join('')}
+              </ul>
+            ` : ''}
+          </div>
+
+          <!-- Logo -->
+          ${logo ? `
+            <div style="flex-shrink: 0; display: flex; align-items: flex-start; justify-content: center; padding: 4px; background: #fff; border: 1px dashed #e2e8f0; border-radius: 6px;" title="Logo: ${escHtml(logo)} (Kích thước: ${logoSizePx})">
+              <img src="${logo.startsWith('/') || logo.startsWith('http') ? logo : '/assets/img/' + logo}" alt="${escHtml(inst || 'Logo')}" style="width: ${logoSizePx}; max-width: 260px; max-height: 110px; object-fit: contain; display: block;" onerror="this.parentElement.innerHTML='<span style=\\'font-size:0.75rem;color:#ef4444;\\'>Ảnh lỗi</span>'" />
+            </div>
+          ` : `
+            <div style="flex-shrink: 0; padding: 6px 10px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; font-size: 0.72rem; color: #94a3b8; font-style: italic;">
+              Không có logo
+            </div>
+          `}
+        </div>
+      </div>
+    `;
+  });
+
+  html += `
+      </div>
+    </div>
+  `;
+
+  previewBox.innerHTML = html;
+}
+
+function syncEduLogoSize(container, sizeNum) {
+  const slider = container.querySelector('.edu-logo-slider');
+  const number = container.querySelector('.edu-logo-number');
+  const hidden = container.querySelector('.edu-logo-size');
+  
+  const val = Math.max(30, Math.min(300, parseInt(sizeNum, 10) || 100));
+  if (slider) slider.value = Math.min(250, Math.max(40, val));
+  if (number) number.value = val;
+  if (hidden) hidden.value = val;
+  
+  updateEduSectionPreview();
+}
+
+function onEduLogoSliderChange(slider) {
+  const container = slider.closest('.dynamic-item');
+  if (container) syncEduLogoSize(container, slider.value);
+}
+
+function onEduLogoNumberChange(input) {
+  const container = input.closest('.dynamic-item');
+  if (container) syncEduLogoSize(container, input.value);
+}
+
+function setEduLogoPreset(btn, sizePx) {
+  const container = btn.closest('.dynamic-item');
+  if (container) syncEduLogoSize(container, sizePx);
+}
+
+function onEduLogoPathChange(input) {
+  const container = input.closest('.dynamic-item');
+  if (!container) return;
+  const val = input.value.trim();
+  const thumb = container.querySelector('.edu-logo-thumb');
+  const noImg = container.querySelector('.edu-logo-no-img');
+  
+  if (val) {
+    const src = val.startsWith('/') || val.startsWith('http') ? val : '/assets/img/' + val;
+    if (thumb) {
+      thumb.src = src;
+      thumb.style.display = 'block';
+    }
+    if (noImg) noImg.style.display = 'none';
+  } else {
+    if (thumb) {
+      thumb.src = '';
+      thumb.style.display = 'none';
+    }
+    if (noImg) noImg.style.display = 'block';
+  }
+  updateEduSectionPreview();
+}
+
+function clearEduLogo(btn) {
+  const container = btn.closest('.dynamic-item');
+  if (!container) return;
+  const textInput = container.querySelector('.edu-logo');
+  const thumb = container.querySelector('.edu-logo-thumb');
+  const noImg = container.querySelector('.edu-logo-no-img');
+  
+  if (textInput) textInput.value = '';
+  if (thumb) {
+    thumb.src = '';
+    thumb.style.display = 'none';
+  }
+  if (noImg) noImg.style.display = 'block';
+  updateEduSectionPreview();
+}
+
+async function uploadEduLogoFile(fileInput) {
+  if (!fileInput.files || fileInput.files.length === 0) return;
+  const file = fileInput.files[0];
+  const formData = new FormData();
+  formData.append('image', file);
+  
+  showLoading();
+  try {
+    const res = await fetch(`${API}/upload`, {
+      method: 'POST',
+      body: formData
+    }).then(r => r.json());
+    
+    if (res.success) {
+      const container = fileInput.closest('.dynamic-item');
+      if (container) {
+        const textInput = container.querySelector('.edu-logo');
+        const thumb = container.querySelector('.edu-logo-thumb');
+        const noImg = container.querySelector('.edu-logo-no-img');
+        
+        if (textInput) textInput.value = res.filename;
+        if (thumb) {
+          thumb.src = '/assets/img/' + res.filename;
+          thumb.style.display = 'block';
+        }
+        if (noImg) noImg.style.display = 'none';
+        
+        updateEduSectionPreview();
+      }
+      showToast("Tải logo lên thành công!", "success");
+    } else {
+      showToast("Lỗi: " + (res.error || "Không thể tải file"), "error");
+    }
+  } catch (err) {
+    showToast("Lỗi tải logo: " + err.message, "error");
+  } finally {
+    hideLoading();
+    fileInput.value = '';
+  }
+}
+
 function renderEducationItem(edu = {}, i = 0) {
+  const rawSize = edu.logo_size !== undefined && edu.logo_size !== null ? String(edu.logo_size).trim() : "";
+  const currentSizeNum = parseInt(rawSize, 10) || 100;
+  const currentLogo = edu.logo || "";
+  const logoSrc = currentLogo ? (currentLogo.startsWith('/') || currentLogo.startsWith('http') ? currentLogo : '/assets/img/' + currentLogo) : '';
+
   return `
     <div class="dynamic-item" data-index="${i}">
       <div class="dynamic-item-header">
         <span class="dynamic-item-title"><i class="fas fa-arrows-alt handle mr-2" style="cursor: grab; opacity: 0.5;"></i> ${escHtml(edu.institution || "New Education")}</span>
-        <button class="btn btn-sm btn-danger" onclick="this.closest('.dynamic-item').remove()">
+        <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.dynamic-item').remove(); setTimeout(updateEduSectionPreview, 50);">
           <i class="fas fa-trash"></i>
         </button>
       </div>
@@ -1527,16 +2013,70 @@ function renderEducationItem(edu = {}, i = 0) {
             <input type="text" class="edu-end_en" value="${escHtml(String(edu.end_date_en || ""))}" />
           </div>
         </div>
-        <div class="form-group full-width" style="display: flex; gap: 15px;">
-          <div style="flex: 1;">
-            <label>Logo File</label>
-            <input type="text" class="edu-logo" value="${escHtml(edu.logo || "")}" />
+
+        <!-- Tùy chỉnh Logo & Kích thước Logo -->
+        <div class="form-group full-width" style="background: rgba(0,0,0,0.02); border: 1px dashed var(--border); border-radius: var(--radius-sm, 8px); padding: 14px 16px; margin: 4px 0 10px 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="font-size: 0.88rem; font-weight: 600; color: var(--accent-light, #0f766e);">
+              <i class="fas fa-image mr-1"></i> Logo trường / cơ sở giáo dục
+            </span>
+            <span style="font-size: 0.78rem; color: #64748b;">(Tự do điều chỉnh kích thước logo & tải ảnh mới)</span>
           </div>
-          <div style="flex: 1;">
-            <label>Logo Size (e.g. 50px)</label>
-            <input type="text" class="edu-logo-size" value="${escHtml(edu.logo_size || "")}" />
+
+          <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start;">
+            <!-- Khung xem trước logo item -->
+            <div class="edu-logo-preview-box" style="width: 100px; height: 85px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-primary, #ffffff); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; flex-shrink: 0; padding: 4px;" title="Ảnh logo hiện tại">
+              <img class="edu-logo-thumb" src="${logoSrc}" alt="Logo" style="max-width: 100%; max-height: 100%; object-fit: contain; display: ${currentLogo ? 'block' : 'none'};" />
+              <span class="edu-logo-no-img" style="font-size: 0.72rem; color: #94a3b8; text-align: center; display: ${currentLogo ? 'none' : 'block'};">Chưa có logo</span>
+            </div>
+
+            <!-- Tải ảnh & chọn file -->
+            <div style="flex: 1; min-width: 260px;">
+              <label style="font-size: 0.8rem; margin-bottom: 4px; display: block; font-weight: 500;">Tên file hoặc đường dẫn ảnh:</label>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <input type="text" class="edu-logo form-control" value="${escHtml(currentLogo)}" placeholder="VD: logo-dai-hoc-fpt.png" style="font-size: 0.85rem; height: 36px;" oninput="onEduLogoPathChange(this)" />
+                <input type="file" class="edu-logo-file-input" accept="image/*,.svg,.png,.webp,.jpg,.jpeg" style="display: none;" onchange="uploadEduLogoFile(this)" />
+                <button type="button" class="btn btn-sm btn-outline" onclick="this.parentElement.querySelector('.edu-logo-file-input').click()" title="Tải ảnh logo từ máy tính" style="white-space: nowrap; font-size: 0.82rem; height: 36px; display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0;">
+                  <i class="fas fa-upload"></i> Tải ảnh
+                </button>
+                <button type="button" class="btn btn-sm btn-danger btn-icon" onclick="clearEduLogo(this)" title="Xóa logo này" style="height: 36px; width: 36px; padding: 0; flex-shrink: 0;">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+
+              <!-- Thanh trượt & Kích thước -->
+              <div style="margin-top: 10px; background: var(--bg-primary, #ffffff); padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <label style="font-size: 0.82rem; font-weight: 600; margin: 0; color: #334155;">
+                    <i class="fas fa-arrows-alt-h text-primary"></i> Chiều rộng logo (Width):
+                  </label>
+                  <div style="display: flex; align-items: center; gap: 5px;">
+                    <input type="number" class="edu-logo-number form-control" min="30" max="260" step="5" value="${currentSizeNum}" oninput="onEduLogoNumberChange(this)" style="width: 70px; height: 28px; padding: 2px 6px; font-size: 0.85rem; font-weight: 700; text-align: center;" />
+                    <span style="font-size: 0.82rem; color: #64748b;">px</span>
+                    <input type="hidden" class="edu-logo-size" value="${currentSizeNum}" />
+                  </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                  <span style="font-size: 0.72rem; color: #94a3b8;">40px</span>
+                  <input type="range" class="edu-logo-slider" min="40" max="250" step="5" value="${currentSizeNum}" oninput="onEduLogoSliderChange(this)" style="flex: 1; cursor: pointer;" />
+                  <span style="font-size: 0.72rem; color: #94a3b8;">250px</span>
+                </div>
+
+                <!-- Nút chọn nhanh kích thước -->
+                <div style="display: flex; flex-wrap: wrap; gap: 5px; align-items: center;">
+                  <span style="font-size: 0.72rem; color: #64748b; margin-right: 2px;">Cỡ nhanh:</span>
+                  <button type="button" class="btn btn-sm btn-outline" onclick="setEduLogoPreset(this, 70)" style="padding: 1px 7px; font-size: 0.72rem;">70px (Nhỏ)</button>
+                  <button type="button" class="btn btn-sm btn-outline" onclick="setEduLogoPreset(this, 100)" style="padding: 1px 7px; font-size: 0.72rem;">100px (Chuẩn)</button>
+                  <button type="button" class="btn btn-sm btn-outline" onclick="setEduLogoPreset(this, 130)" style="padding: 1px 7px; font-size: 0.72rem; font-weight: bold;">130px (Rõ nét)</button>
+                  <button type="button" class="btn btn-sm btn-outline" onclick="setEduLogoPreset(this, 170)" style="padding: 1px 7px; font-size: 0.72rem;">170px (Lớn)</button>
+                  <button type="button" class="btn btn-sm btn-outline" onclick="setEduLogoPreset(this, 210)" style="padding: 1px 7px; font-size: 0.72rem;">210px (Cực đại)</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+
         <div class="form-group full-width">
           <label>URL</label>
           <input type="text" class="edu-url" value="${escHtml(edu.url || "")}" />
@@ -1799,12 +2339,35 @@ async function saveCV() {
   cv.summary = document.getElementById("cv-summary").value;
   cv.summary_en = document.getElementById("cv-summary_en").value;
 
+  if (document.getElementById("cv-name_icon")) {
+    cv.name_icon = document.getElementById("cv-name_icon").value.trim();
+    cv.name_icon_size = parseInt(document.getElementById("cv-name_icon-size")?.value, 10) || 18;
+  }
+  if (document.getElementById("cv-label_icon")) {
+    cv.label_icon = document.getElementById("cv-label_icon").value.trim();
+    cv.label_icon_size = parseInt(document.getElementById("cv-label_icon-size")?.value, 10) || 18;
+  }
+  if (document.getElementById("cv-email_icon")) {
+    cv.email_icon = document.getElementById("cv-email_icon").value.trim();
+    cv.email_icon_size = parseInt(document.getElementById("cv-email_icon-size")?.value, 10) || 18;
+  }
+  if (document.getElementById("cv-location_icon")) {
+    cv.location_icon = document.getElementById("cv-location_icon").value.trim();
+    cv.location_icon_size = parseInt(document.getElementById("cv-location_icon-size")?.value, 10) || 18;
+  }
+  if (document.getElementById("cv-languages_icon")) {
+    cv.languages_icon = document.getElementById("cv-languages_icon").value.trim();
+    cv.languages_icon_size = parseInt(document.getElementById("cv-languages_icon-size")?.value, 10) || 18;
+  }
+
   // Collect custom info items (Tổ chức, Đơn vị, ...)
   cv.custom_info = collectDynamicItems("#cv-custom-info-list .dynamic-item", (el) => ({
     name: el.querySelector(".custom-info-name") ? el.querySelector(".custom-info-name").value.trim() : "",
     name_en: el.querySelector(".custom-info-name_en") ? el.querySelector(".custom-info-name_en").value.trim() : "",
     value: el.querySelector(".custom-info-value") ? el.querySelector(".custom-info-value").value.trim() : "",
     value_en: el.querySelector(".custom-info-value_en") ? el.querySelector(".custom-info-value_en").value.trim() : "",
+    icon: el.querySelector(".custom-info-icon") ? el.querySelector(".custom-info-icon").value.trim() : "",
+    icon_size: el.querySelector(".custom-info-icon-size") ? parseInt(el.querySelector(".custom-info-icon-size").value, 10) || 18 : 18,
   })).filter((item) => item.name && item.value);
 
   // Collect education
@@ -2806,22 +3369,37 @@ async function loadTeachings() {
   const cardTitleBold = pageRes.card_title_bold !== false;
   const cardTitleColor = pageRes.card_title_color || "#1e293b";
 
-  const listHtml = teachings.map((t) => `
-    <div class="dynamic-item">
-      <div class="dynamic-item-header">
-        <span class="dynamic-item-title">${escHtml(t.frontMatter.title || t.slug)}</span>
-        <div class="dynamic-item-actions">
-          <button class="btn btn-sm btn-secondary" onclick="editTeaching('${t.slug}')">
-            <i class="fas fa-edit"></i> Sửa
+  const listHtml = teachings.map((t) => {
+    const fm = t.frontMatter || {};
+    const isCert = Boolean(fm.is_certificate);
+    const typeBadge = isCert
+      ? '<span class="badge" style="background:#e0e7ff; color:#3730a3; font-size:0.75rem; padding: 2px 8px; border-radius: 4px; margin-left: 8px;"><i class="fas fa-certificate mr-1"></i> Chứng chỉ</span>'
+      : '<span class="badge" style="background:#fef3c7; color:#92400e; font-size:0.75rem; padding: 2px 8px; border-radius: 4px; margin-left: 8px;"><i class="fas fa-award mr-1"></i> Thành tích</span>';
+
+    return `
+    <div class="dynamic-item" style="padding: 14px 16px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm, 8px);">
+      <div class="dynamic-item-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+        <div style="flex: 1; padding-right: 12px;">
+          <span class="dynamic-item-title" style="font-size: 0.98rem; font-weight: 600; color: #1e293b;">${escHtml(fm.title || t.slug)}</span>
+          ${typeBadge}
+        </div>
+        <div class="dynamic-item-actions" style="display: flex; gap: 6px; flex-shrink: 0;">
+          <button type="button" class="btn btn-sm btn-outline-primary" onclick="editTeaching('${t.slug}')" title="Chỉnh sửa">
+            <i class="fas fa-edit mr-1"></i> Sửa
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteTeaching('${t.slug}', '${escHtml(fm.title || t.slug).replace(/'/g, "\\'")}')" title="Xóa thành tích này">
+            <i class="fas fa-trash"></i>
           </button>
         </div>
       </div>
-      <div class="text-muted text-sm">
-        ${escHtml(t.frontMatter.year || "")} ${escHtml(t.frontMatter.term || "")} &middot;
-        ${escHtml(t.frontMatter.instructor || "")}
+      <div class="text-muted text-sm" style="font-size: 0.82rem; color: #64748b; display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+        ${fm.year ? `<span><i class="far fa-calendar-alt mr-1"></i> ${escHtml(String(fm.year))}</span>` : ''}
+        ${fm.organization ? `<span><i class="fas fa-building mr-1"></i> ${escHtml(fm.organization)}</span>` : ''}
+        <span style="font-family: monospace; font-size: 0.75rem; color: #94a3b8;"><i class="fas fa-file-code mr-1"></i> ${t.slug}.md</span>
       </div>
     </div>
-  `).join("");
+  `;
+  }).join("");
 
   renderContent(`
     <div class="section-intro">
@@ -2901,8 +3479,11 @@ async function loadTeachings() {
     </div>
 
     <div class="card">
-      <div class="card-header">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap: 10px;">
         <h2><i class="fas fa-award"></i> Danh sách thành tích</h2>
+        <button type="button" class="btn btn-sm btn-primary" onclick="createTeaching()">
+          <i class="fas fa-plus mr-1"></i> Thêm thành tích
+        </button>
       </div>
       <div class="card-body">
         <div class="dynamic-list">
@@ -2913,16 +3494,270 @@ async function loadTeachings() {
   `);
 }
 
+function autoGenerateTeachSlug(title) {
+  const slugInput = document.getElementById('teach-slug');
+  if (!slugInput || slugInput.dataset.manual === 'true') return;
+  const slug = title
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60);
+  slugInput.value = slug;
+}
+
+function createTeaching() {
+  const currentYear = new Date().getFullYear();
+
+  renderContent(`
+    <div class="section-intro">
+      <p><a href="#teachings" onclick="loadTeachings(); return false;" style="text-decoration: none; color: var(--accent-light);"><i class="fas fa-arrow-left mr-1"></i> Quay lại danh sách thành tích</a></p>
+      <h2><i class="fas fa-plus-circle text-primary mr-1"></i> Thêm thành tích mới</h2>
+      <p class="text-muted">Nhập thông tin giải thưởng, học bổng hoặc chứng chỉ mới để hiển thị trên website.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-info-circle"></i> Thông tin cơ bản</h2>
+      </div>
+      <div class="card-body">
+        <div class="form-grid">
+          <!-- Slug -->
+          <div class="form-group full-width">
+            <label>Slug (Định danh file, viết liền không dấu) <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="teach-slug" placeholder="VD: quan-quan-hackathon-2024" oninput="this.dataset.manual = 'true'; this.value = this.value.toLowerCase().replace(/[^a-z0-9_-]/g, '-')" />
+            <small class="text-muted">Tên file lưu trữ: <code>_teachings/[slug].md</code> (Hệ thống sẽ tự động tạo từ Tiêu đề nếu để trống)</small>
+          </div>
+
+          <!-- Title Vi & En -->
+          <div class="form-group full-width">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+              <div>
+                <label>Tiêu đề (Tiếng Việt) <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="teach-title" placeholder="VD: Quán quân Cuộc thi Lập trình..." oninput="autoGenerateTeachSlug(this.value)" />
+              </div>
+              <div>
+                <label>Tiêu đề (Tiếng Anh)</label>
+                <input type="text" class="form-control" id="teach-title_en" placeholder="VD: Champion of Student Programming Contest..." />
+              </div>
+            </div>
+          </div>
+
+          <!-- Organization Vi & En -->
+          <div class="form-group full-width">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+              <div>
+                <label>Đơn vị trao giải / Tổ chức (Tiếng Việt)</label>
+                <input type="text" class="form-control" id="teach-org" placeholder="VD: Trường Đại học FPT..." />
+              </div>
+              <div>
+                <label>Đơn vị trao giải / Tổ chức (Tiếng Anh)</label>
+                <input type="text" class="form-control" id="teach-org_en" placeholder="VD: FPT University..." />
+              </div>
+            </div>
+          </div>
+
+          <!-- Description Vi & En -->
+          <div class="form-group full-width">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+              <div>
+                <label>Mô tả ngắn gọn (Tiếng Việt)</label>
+                <textarea class="form-control" id="teach-desc" rows="3" placeholder="Mô tả tóm tắt giải thưởng hoặc khóa học..."></textarea>
+              </div>
+              <div>
+                <label>Mô tả ngắn gọn (Tiếng Anh)</label>
+                <textarea class="form-control" id="teach-desc_en" rows="3" placeholder="Brief description of the achievement..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Phân loại & Năm -->
+          <div class="form-group full-width" style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: start;">
+            <div>
+              <label>Phân loại mục hiển thị <span class="text-danger">*</span></label>
+              <div style="display: flex; gap: 20px; align-items: center; margin-top: 8px;">
+                <label style="display:flex; align-items:center; gap: 6px; cursor: pointer; font-weight: 500;">
+                  <input type="radio" name="teach-is-certificate" value="false" checked>
+                  <i class="fas fa-award text-warning"></i> Thành tích / Giải thưởng
+                </label>
+                <label style="display:flex; align-items:center; gap: 6px; cursor: pointer; font-weight: 500;">
+                  <input type="radio" name="teach-is-certificate" value="true">
+                  <i class="fas fa-certificate text-info"></i> Chứng chỉ / Bằng cấp
+                </label>
+              </div>
+            </div>
+            <div>
+              <label>Năm đạt được (Year)</label>
+              <input type="text" class="form-control" id="teach-year" value="${currentYear}" placeholder="VD: 2024" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Certificate Upload -->
+    <div class="card mt-3">
+      <div class="card-header">
+        <h2><i class="fas fa-certificate"></i> Tệp chứng nhận (Certificate)</h2>
+      </div>
+      <div class="card-body">
+        <div style="margin-bottom: 15px;">
+          <label>URL / Tệp chứng nhận (Ảnh hoặc PDF)</label>
+          <div style="display:flex; gap: 10px;">
+            <input type="text" class="form-control" id="teach-certificate-url" placeholder="/assets/img/chung-nhan.jpg hoặc link Google Drive">
+            <button type="button" class="btn btn-secondary" style="white-space: nowrap;" onclick="document.getElementById('teach-file-upload').click()">
+              <i class="fas fa-upload mr-1"></i> Tải file lên
+            </button>
+            <input type="file" id="teach-file-upload" style="display:none;" accept="image/*,application/pdf" onchange="uploadCertificateFile(this)">
+          </div>
+        </div>
+        <div style="margin-bottom: 15px;">
+          <label class="custom-checkbox" style="display:flex; align-items:center; gap: 10px; cursor: pointer;">
+            <input type="checkbox" id="teach-show-certificate" checked>
+            <span class="checkmark"></span>
+            Hiển thị nút "Xem chứng nhận" trên trang web
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chi tiết Tiếng Anh & Tiếng Việt -->
+    <div class="card mt-3">
+      <div class="card-header">
+        <h2><i class="fas fa-edit"></i> Nội dung chi tiết</h2>
+      </div>
+      <div class="card-body">
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label>Nội dung chi tiết (Tiếng Anh - Markdown):</label>
+          <textarea class="form-control" id="teach-content-en" rows="3" placeholder="Detailed content in English..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Nội dung chi tiết (Tiếng Việt - Markdown):</label>
+          <div id="editor-container"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-footer d-flex justify-content-between align-items-center">
+        <button type="button" class="btn btn-secondary" onclick="loadTeachings()">
+          <i class="fas fa-arrow-left mr-1"></i> Quay lại
+        </button>
+        <button type="button" class="btn btn-primary" onclick="saveNewTeaching()">
+          <i class="fas fa-save mr-1"></i> Lưu thành tích mới
+        </button>
+      </div>
+    </div>
+  `);
+
+  initEditor('editor-container', '', '350px');
+}
+
+async function saveNewTeaching() {
+  const title = document.getElementById("teach-title")?.value.trim();
+  if (!title) {
+    showToast("Vui lòng nhập Tiêu đề thành tích!", "warning");
+    document.getElementById("teach-title")?.focus();
+    return;
+  }
+
+  let slug = document.getElementById("teach-slug")?.value.trim();
+  if (!slug) {
+    slug = title
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 60) || `achievement-${Date.now()}`;
+  }
+
+  const fm = {
+    layout: "post",
+    title: title,
+    title_en: document.getElementById("teach-title_en")?.value.trim() || "",
+    organization: document.getElementById("teach-org")?.value.trim() || "",
+    organization_en: document.getElementById("teach-org_en")?.value.trim() || "",
+    description: document.getElementById("teach-desc")?.value.trim() || "",
+    description_en: document.getElementById("teach-desc_en")?.value.trim() || "",
+    year: document.getElementById("teach-year")?.value.trim() || new Date().getFullYear(),
+    is_certificate: document.querySelector('input[name="teach-is-certificate"]:checked')?.value === "true",
+    certificate: document.getElementById("teach-certificate-url")?.value.trim() || "",
+    show_certificate: document.getElementById("teach-show-certificate")?.checked ?? true,
+    content_en: document.getElementById("teach-content-en")?.value.trim() || ""
+  };
+
+  const body = (editors['editor-container'] ? editors['editor-container'].getMarkdown() : (currentEditor ? currentEditor.getMarkdown() : "")) || "";
+
+  showLoading();
+  try {
+    let res = await fetch(`${API}/teachings`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug, frontMatter: fm, body }),
+    });
+
+    if (res.status === 404 || !res.ok) {
+      res = await fetch(`${API}/teachings/${slug}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ frontMatter: fm, body }),
+      });
+    }
+
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.success !== false) {
+      showToast("Đã thêm thành tích mới thành công!", "success");
+      await loadTeachings();
+    } else {
+      showToast("Lỗi: " + (data.error || "Không thể lưu thành tích"), "error");
+    }
+  } catch (err) {
+    showToast(`Lỗi: ${err.message}`, "error");
+  } finally {
+    hideLoading();
+  }
+}
+
+async function deleteTeaching(slug, title = "") {
+  if (!confirm(`Bạn có chắc chắn muốn xóa thành tích "${title || slug}"?\nThao tác này sẽ xóa vĩnh viễn file _teachings/${slug}.md.`)) {
+    return;
+  }
+
+  showLoading();
+  try {
+    const res = await fetch(`${API}/teachings/${slug}`, {
+      method: "DELETE",
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.success) {
+      showToast("Đã xóa thành tích thành công!", "success");
+      await loadTeachings();
+    } else {
+      showToast("Lỗi: " + (data.error || "Không thể xóa"), "error");
+    }
+  } catch (err) {
+    showToast(`Lỗi: ${err.message}`, "error");
+  } finally {
+    hideLoading();
+  }
+}
+
 async function editTeaching(slug) {
   showLoading();
   const data = await fetch(`${API}/teachings/${slug}`).then((r) => r.json());
   hideLoading();
 
-  const fm = data.frontMatter;
+  const fm = data.frontMatter || {};
 
   renderContent(`
     <div class="section-intro">
-      <p>Chỉnh sửa thành tích: <strong>${escHtml(fm.title || slug)}</strong></p>
+      <p><a href="#teachings" onclick="loadTeachings(); return false;" style="text-decoration: none; color: var(--accent-light);"><i class="fas fa-arrow-left mr-1"></i> Quay lại danh sách thành tích</a></p>
+      <h2><i class="fas fa-edit text-primary mr-1"></i> Chỉnh sửa thành tích</h2>
+      <p class="text-muted">File: <code>_teachings/${slug}.md</code></p>
     </div>
 
     <div class="card">
@@ -2934,7 +3769,7 @@ async function editTeaching(slug) {
           <div class="form-group full-width">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom:15px;">
               <div>
-                <label>Title (Tiếng Việt)</label>
+                <label>Title (Tiếng Việt) <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="teach-title" value="${escHtml(fm.title || "")}" />
               </div>
               <div>
@@ -2972,11 +3807,11 @@ async function editTeaching(slug) {
             <div style="display: flex; gap: 20px; align-items: center; margin-top: 5px;">
               <label style="display:flex; align-items:center; gap: 5px; cursor: pointer;">
                 <input type="radio" name="teach-is-certificate" value="false" ${!fm.is_certificate ? 'checked' : ''}>
-                Thành tích / Giải thưởng
+                <i class="fas fa-award text-warning mr-1"></i> Thành tích / Giải thưởng
               </label>
               <label style="display:flex; align-items:center; gap: 5px; cursor: pointer;">
                 <input type="radio" name="teach-is-certificate" value="true" ${fm.is_certificate ? 'checked' : ''}>
-                Chứng chỉ / Bằng cấp
+                <i class="fas fa-certificate text-info mr-1"></i> Chứng chỉ / Bằng cấp
               </label>
             </div>
           </div>
@@ -2997,13 +3832,15 @@ async function editTeaching(slug) {
         <div style="margin-bottom: 15px;">
           <label>URL File Chứng nhận (PDF/Image)</label>
           <div style="display:flex; gap: 10px;">
-            <input type="text" class="form-control" id="teach-certificate-url" value="${escHtml(fm.certificate || "")}" placeholder="/assets/pdf/cert.pdf hoặc link Google Drive">
-            <button class="btn btn-secondary" style="white-space: nowrap;" onclick="document.getElementById('teach-file-upload').click()">Tải file lên</button>
+            <input type="text" class="form-control" id="teach-certificate-url" value="${escHtml(fm.certificate || "")}" placeholder="/assets/img/cert.jpg hoặc link Google Drive">
+            <button class="btn btn-secondary" style="white-space: nowrap;" onclick="document.getElementById('teach-file-upload').click()">
+              <i class="fas fa-upload mr-1"></i> Tải file lên
+            </button>
             <input type="file" id="teach-file-upload" style="display:none;" accept="image/*,application/pdf" onchange="uploadCertificateFile(this)">
           </div>
         </div>
         <div style="margin-bottom: 15px;">
-          <label class="custom-checkbox" style="display:flex; align-items:center; gap: 10px;">
+          <label class="custom-checkbox" style="display:flex; align-items:center; gap: 10px; cursor: pointer;">
             <input type="checkbox" id="teach-show-certificate" ${fm.show_certificate ? 'checked' : ''}>
             <span class="checkmark"></span>
             Hiển thị nút "Xem chứng nhận" trên trang web
@@ -3011,34 +3848,47 @@ async function editTeaching(slug) {
         </div>
       </div>
     </div>
+
+    <!-- Chi tiết Tiếng Anh & Tiếng Việt -->
     <div class="card mt-3">
       <div class="card-header">
-        <h2><i class="fas fa-edit"></i> Nội dung (Markdown)</h2>
+        <h2><i class="fas fa-edit"></i> Nội dung chi tiết</h2>
       </div>
       <div class="card-body">
-        <div id="editor-container"></div>
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label>Nội dung chi tiết (Tiếng Anh - Markdown):</label>
+          <textarea class="form-control" id="teach-content-en" rows="3" placeholder="Detailed content in English...">${escHtml(fm.content_en || "")}</textarea>
+        </div>
+        <div class="form-group">
+          <label>Nội dung chi tiết (Tiếng Việt - Markdown):</label>
+          <div id="editor-container"></div>
+        </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-footer">
+    <div class="card mt-3">
+      <div class="card-footer d-flex justify-content-between align-items-center">
         <button class="btn btn-secondary" onclick="loadTeachings()">
-          <i class="fas fa-arrow-left"></i> Quay lại
+          <i class="fas fa-arrow-left mr-1"></i> Quay lại
         </button>
-        <button class="btn btn-primary" onclick="saveTeaching('${slug}')">
-          <i class="fas fa-save"></i> Lưu
-        </button>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn btn-danger" onclick="deleteTeaching('${slug}', '${escHtml(fm.title || slug).replace(/'/g, "\\'")}')">
+            <i class="fas fa-trash mr-1"></i> Xóa
+          </button>
+          <button class="btn btn-primary" onclick="saveTeaching('${slug}')">
+            <i class="fas fa-save mr-1"></i> Lưu thay đổi
+          </button>
+        </div>
       </div>
     </div>
   `);
-  
-  window._newsContentVi = data.body || '';
-    window._newsContentEn = fm.content_en || '';
+
+  initEditor('editor-container', data.body || '', '350px');
 }
 
 async function saveTeaching(slug) {
   const original = await fetch(`${API}/teachings/${slug}`).then((r) => r.json());
-  const fm = original.frontMatter;
+  const fm = original.frontMatter || {};
 
   fm.title = document.getElementById("teach-title").value;
   fm.title_en = document.getElementById("teach-title_en").value;
@@ -3051,8 +3901,9 @@ async function saveTeaching(slug) {
   
   fm.certificate = document.getElementById("teach-certificate-url").value;
   fm.show_certificate = document.getElementById("teach-show-certificate").checked;
+  fm.content_en = document.getElementById("teach-content-en") ? document.getElementById("teach-content-en").value : (fm.content_en || "");
 
-  const body = currentEditor ? currentEditor.getMarkdown() : "";
+  const body = (editors['editor-container'] ? editors['editor-container'].getMarkdown() : (currentEditor ? currentEditor.getMarkdown() : "")) || "";
 
   try {
     await fetch(`${API}/teachings/${slug}`, {
@@ -3060,7 +3911,7 @@ async function saveTeaching(slug) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ frontMatter: fm, body }),
     });
-    showToast("Khóa học đã được lưu!", "success");
+    showToast("Thành tích đã được lưu!", "success");
   } catch (err) {
     showToast(`Lỗi: ${err.message}`, "error");
   }
@@ -4918,13 +5769,16 @@ function addDynamicItem(listId, renderFn) {
   initSortable(listId);
 }
 
-function initSortable(listId) {
+function initSortable(listId, onEndCb) {
   const el = document.getElementById(listId);
   if (!el) return;
   if (typeof Sortable !== 'undefined') {
     Sortable.create(el, {
       handle: '.handle',
-      animation: 150
+      animation: 150,
+      onEnd: () => {
+        if (typeof onEndCb === 'function') onEndCb();
+      }
     });
   }
 }
@@ -5065,37 +5919,7 @@ async function uploadProfileImage(input) {
 }
 
 async function uploadEducationLogo(input) {
-  if (!input.files || input.files.length === 0) return;
-  const file = input.files[0];
-  const formData = new FormData();
-  formData.append('image', file);
-  
-  showLoading();
-  try {
-    const res = await fetch(`${API}/upload`, {
-      method: 'POST',
-      body: formData
-    }).then(r => r.json());
-    
-    if (res.success) {
-      const parent = input.parentElement;
-      const textInput = parent.querySelector('.edu-logo');
-      const preview = parent.querySelector('.edu-logo-preview');
-      
-      if (textInput) textInput.value = res.filename;
-      if (preview) {
-        preview.src = '/assets/img/' + res.filename;
-        preview.style.display = 'block';
-      }
-      showToast("Tải logo lên thành công!", "success");
-    } else {
-      showToast("Lỗi: " + res.error, "error");
-    }
-  } catch (err) {
-    showToast("Lỗi tải logo lên", "error");
-  } finally {
-    hideLoading();
-  }
+  return uploadEduLogoFile(input);
 }
 
 // ============================================================================

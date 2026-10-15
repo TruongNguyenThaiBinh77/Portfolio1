@@ -28,142 +28,192 @@ export default async function Achievements({ params }) {
   const cardTitleBold = fm.card_title_bold !== false;
   const cardTitleColor = fm.card_title_color || '';
 
-  const renderGrid = (items, title, iconClass, emptyMessage, titleBold, titleColor) => (
-    <div className="mb-5">
+  const renderGrid = (items, title, iconClass, emptyMessage, titleBold, titleColor, isCertificateSection = false, customStyle = {}) => (
+    <div style={{ marginBottom: isCertificateSection ? '0' : '50px', ...customStyle }}>
       <h2
-        className="mb-4 d-flex align-items-center"
+        className="d-flex align-items-center"
         style={{
-          fontSize: '1.8rem',
+          fontSize: '1.65rem',
           color: titleColor || 'var(--global-text-color)',
-          fontWeight: titleBold ? 'bold' : 'normal',
+          fontWeight: titleBold ? 'bold' : '600',
+          marginBottom: '22px',
         }}
       >
-        <i className={`fas ${iconClass}`} style={{ color: titleColor || 'var(--global-theme-color)', marginRight: '14px', flexShrink: 0 }}></i> <span style={{ color: titleColor || 'inherit' }}>{title}</span>
+        <i className={`fas ${iconClass}`} style={{ color: titleColor || 'var(--global-theme-color)', marginRight: '12px', flexShrink: 0, fontSize: '1.35rem' }}></i>
+        <span style={{ color: titleColor || 'inherit' }}>{title}</span>
       </h2>
-      <div className="teaching-grid">
+      <div className={isCertificateSection ? "achievements-grid-4" : "achievements-grid-auto"}>
         {items.length > 0 ? (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-            gap: '30px'
-          }}>
-            {items.map((course, index) => (
-              <div key={index} className="teaching-card" style={{
-                backgroundColor: 'var(--global-bg-color)',
-                border: '1px solid var(--global-divider-color)',
-                borderRadius: '16px',
-                padding: '30px',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
-                transition: 'all 0.3s ease',
-                position: 'relative',
-                overflow: 'hidden',
+          items.map((course, index) => {
+            const isCert = course.frontMatter.is_certificate;
+            const titleText = lang === 'vi' ? course.frontMatter.title : (course.frontMatter.title_en || course.frontMatter.title);
+            const descText = lang === 'vi' ? course.frontMatter.description : (course.frontMatter.description_en || course.frontMatter.description);
+            const orgName = lang === 'vi' ? course.frontMatter.organization : (course.frontMatter.organization_en || course.frontMatter.organization);
+            const previewImg = course.frontMatter.image || (course.frontMatter.certificate && course.frontMatter.certificate.match(/\.(jpg|jpeg|png|webp)$/i) ? course.frontMatter.certificate : null);
+
+            return (
+              <div key={index} className="coursera-card" style={{
+                backgroundColor: 'var(--global-bg-color, #ffffff)',
+                border: '1px solid var(--global-divider-color, #e2e8f0)',
+                borderRadius: '12px',
+                padding: '14px 14px 16px 14px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                transition: 'all 0.25s ease',
                 display: 'flex',
                 flexDirection: 'column',
-                height: '100%'
+                height: '100%',
+                position: 'relative',
+                overflow: 'hidden'
               }}>
-                {/* Top Accent Gradient */}
+                {/* Top subtle highlight line */}
                 <div style={{
-                  position: 'absolute', top: 0, left: 0, right: 0, height: '6px',
-                  background: 'linear-gradient(90deg, var(--global-theme-color), #b162cf)'
+                  position: 'absolute', top: 0, left: 0, right: 0, height: '3px',
+                  backgroundColor: 'var(--global-theme-color, #0056b3)',
+                  opacity: 0.8
                 }}></div>
-                
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <span className="badge" style={{ backgroundColor: 'rgba(255, 193, 7, 0.15)', color: '#d9a406', fontSize: '0.85rem', padding: '6px 12px', borderRadius: '20px', fontWeight: 'bold' }}>
-                    {course.frontMatter.year}
-                  </span>
-                  <i className={`fas ${iconClass}`} style={{ color: 'var(--global-theme-color)', opacity: 0.5, fontSize: '1.5rem' }}></i>
-                </div>
 
-                {(() => {
-                  const previewImg = course.frontMatter.image || (course.frontMatter.certificate && course.frontMatter.certificate.match(/\.(jpg|jpeg|png|webp)$/i) ? course.frontMatter.certificate : null);
-                  if (!previewImg) return null;
-                  return (
-                    <div style={{
-                      width: '100%',
-                      height: '170px',
-                      borderRadius: '8px',
-                      overflow: 'hidden',
-                      marginBottom: '15px',
-                      border: '1px solid var(--global-divider-color)',
-                      backgroundColor: '#ffffff',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      boxShadow: 'inset 0 0 10px rgba(0,0,0,0.02)'
-                    }}>
-                      <img
-                        src={previewImg}
-                        alt={course.frontMatter.title}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          objectPosition: 'top center',
-                          transition: 'transform 0.3s ease'
-                        }}
-                        className="cert-img-preview"
-                      />
-                    </div>
-                  );
-                })()}
-
-                <h3
-                  className="mb-2"
-                  style={{
-                    fontSize: '1.3rem',
-                    lineHeight: '1.4',
-                    fontWeight: cardTitleBold ? 'bold' : 'normal',
-                    color: cardTitleColor || 'inherit',
-                  }}
-                >
-                  <span style={{ color: cardTitleColor || 'inherit' }}>
-                    {lang === 'vi' ? course.frontMatter.title : (course.frontMatter.title_en || course.frontMatter.title)}
-                  </span>
-                </h3>
-                <p className="text-muted flex-grow-1" style={{ fontSize: '0.92rem', lineHeight: '1.6' }}>
-                  {lang === 'vi' ? course.frontMatter.description : (course.frontMatter.description_en || course.frontMatter.description)}
-                </p>
-
-                <div className="mt-4 pt-3 d-flex flex-column gap-2" style={{ borderTop: '1px dashed var(--global-divider-color)', fontSize: '0.9rem' }}>
-                  {(lang === 'vi' ? course.frontMatter.organization : (course.frontMatter.organization_en || course.frontMatter.organization)) && (
-                    <div className="d-flex align-items-center mb-1">
-                      <i className="fas fa-building me-2" style={{ width: '18px', color: 'var(--global-theme-color)' }}></i>
-                      <span className="fw-semibold">{lang === 'vi' ? course.frontMatter.organization : (course.frontMatter.organization_en || course.frontMatter.organization)}</span>
-                    </div>
-                  )}
-
-                  <div className="mt-2 d-flex flex-wrap align-items-center" style={{ gap: '10px' }}>
-                    {course.frontMatter.show_certificate && course.frontMatter.certificate && (
-                      <a
-                        href={course.frontMatter.certificate}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn-subtle-action"
-                      >
-                        <i className={course.frontMatter.certificate.endsWith('.pdf') ? "fa-regular fa-file-pdf" : "fa-solid fa-award"} style={{ opacity: 0.7 }}></i>
-                        <span>{course.frontMatter.certificate.endsWith('.pdf') ? (lang === 'vi' ? 'Xem file PDF' : 'View PDF') : (lang === 'vi' ? 'Xem chứng nhận' : 'View Certificate')}</span>
-                      </a>
-                    )}
-
-                    {course.frontMatter.verify_url && (
-                      <a
-                        href={course.frontMatter.verify_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn-subtle-action"
-                      >
-                        <i className="fa-solid fa-arrow-up-right-from-square" style={{ fontSize: '0.75rem', opacity: 0.65 }}></i>
-                        <span>{lang === 'vi' ? 'Xác minh trực tuyến' : 'Verify Online'}</span>
-                      </a>
+                {/* Thumbnail Frame like Coursera */}
+                {previewImg ? (
+                  <div style={{
+                    width: '100%',
+                    height: '155px',
+                    borderRadius: '8px',
+                    overflow: 'hidden',
+                    marginBottom: '12px',
+                    border: '1px solid var(--global-divider-color, #e5e7eb)',
+                    backgroundColor: '#f8fafc',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'relative'
+                  }}>
+                    <img
+                      src={previewImg}
+                      alt={titleText}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: isCert ? 'contain' : 'cover',
+                        objectPosition: 'center',
+                        backgroundColor: isCert ? '#ffffff' : 'transparent',
+                        transition: 'transform 0.3s ease'
+                      }}
+                      className="coursera-card-img"
+                    />
+                    {course.frontMatter.year && (
+                      <span style={{
+                        position: 'absolute',
+                        top: '8px',
+                        right: '8px',
+                        backgroundColor: 'rgba(15, 23, 42, 0.75)',
+                        color: '#ffffff',
+                        fontSize: '0.72rem',
+                        fontWeight: '600',
+                        padding: '2px 7px',
+                        borderRadius: '6px',
+                        backdropFilter: 'blur(4px)',
+                        letterSpacing: '0.3px'
+                      }}>
+                        {course.frontMatter.year}
+                      </span>
                     )}
                   </div>
+                ) : (
+                  <div style={{
+                    width: '100%',
+                    height: '130px',
+                    borderRadius: '8px',
+                    marginBottom: '12px',
+                    border: '1px dashed var(--global-divider-color, #e5e7eb)',
+                    backgroundColor: '#f8fafc',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <i className={`fas ${iconClass}`} style={{ fontSize: '2.5rem', color: 'var(--global-theme-color)', opacity: 0.3 }}></i>
+                  </div>
+                )}
+
+                {/* Title */}
+                <h3
+                  style={{
+                    fontSize: '0.96rem',
+                    lineHeight: '1.38',
+                    fontWeight: cardTitleBold ? '700' : '600',
+                    color: cardTitleColor || 'var(--global-text-color, #1e293b)',
+                    marginTop: '2px',
+                    marginBottom: '8px',
+                    minHeight: '2.76em',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                  }}
+                  title={titleText}
+                >
+                  <span style={{ color: cardTitleColor || 'inherit' }}>{titleText}</span>
+                </h3>
+
+                {/* Coursera-style Action Links */}
+                <div className="d-flex align-items-center flex-wrap gap-3 mb-2" style={{ fontSize: '0.84rem' }}>
+                  {course.frontMatter.show_certificate && course.frontMatter.certificate && (
+                    <a
+                      href={course.frontMatter.certificate}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="coursera-action-link"
+                    >
+                      <i className={course.frontMatter.certificate.endsWith('.pdf') ? "fa-regular fa-file-pdf" : "fa-solid fa-award"} style={{ fontSize: '0.78rem' }}></i>
+                      <span>{course.frontMatter.certificate.endsWith('.pdf') ? (lang === 'vi' ? 'Xem file PDF' : 'View PDF') : (lang === 'vi' ? 'Xem chứng nhận' : 'View certificate')}</span>
+                    </a>
+                  )}
+
+                  {course.frontMatter.verify_url && (
+                    <a
+                      href={course.frontMatter.verify_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="coursera-action-link"
+                    >
+                      <i className="fa-solid fa-arrow-up-right-from-square" style={{ fontSize: '0.72rem' }}></i>
+                      <span>{lang === 'vi' ? 'Xác minh' : 'Verify'}</span>
+                    </a>
+                  )}
                 </div>
-                
+
+                {/* Organization */}
+                {orgName && (
+                  <div className="text-muted text-truncate mb-1" style={{ fontSize: '0.83rem', color: '#475569' }} title={orgName}>
+                    <span>{orgName}</span>
+                  </div>
+                )}
+
+                {/* Completed Year */}
+                <div className="text-muted mb-2" style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                  <span>{lang === 'vi' ? `Hoàn thành năm ${course.frontMatter.year}` : `Completed ${course.frontMatter.year}`}</span>
+                </div>
+
+                {/* Short Description */}
+                {descText && (
+                  <p className="text-muted mt-auto pt-2 mb-0" style={{
+                    fontSize: '0.79rem',
+                    lineHeight: '1.45',
+                    color: '#64748b',
+                    borderTop: '1px dashed var(--global-divider-color, #e5e7eb)',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }} title={descText}>
+                    {descText}
+                  </p>
+                )}
               </div>
-            ))}
-          </div>
+            );
+          })
         ) : (
-          <div className="text-center p-5" style={{ border: '2px dashed var(--global-divider-color)', borderRadius: '12px' }}>
+          <div className="text-center p-5 w-100" style={{ border: '2px dashed var(--global-divider-color)', borderRadius: '12px', gridColumn: '1 / -1' }}>
             <i className={`fas ${iconClass} mb-3`} style={{ fontSize: '3rem', color: 'var(--global-text-color)', opacity: 0.2 }}></i>
             <h4 className="text-muted">{emptyMessage}</h4>
           </div>
@@ -173,48 +223,119 @@ export default async function Achievements({ params }) {
   );
 
   return (
-    <div className="container mt-5 mb-5" role="main" style={{ minHeight: '80vh' }}>
-      <div className="post">
-        <header className="post-header text-center mb-5">
+    <div role="main" style={{ minHeight: '80vh', width: '100%', overflowX: 'hidden' }}>
+      {/* Page Header */}
+      <div className="container mt-5 mb-4 text-center">
+        <header className="post-header mb-4">
           <h1
             className="post-title"
             style={{
-              fontSize: '3rem',
+              fontSize: '2.8rem',
               fontWeight: pageTitleBold ? 'bold' : 'normal',
               color: pageTitleColor || '#8c0303',
             }}
           >
             <span style={{ color: pageTitleColor || 'inherit' }}>{pageTitle}</span>
           </h1>
-          <p className="post-description text-muted fs-5 mt-3">{fm.description}</p>
-          <div style={{ width: '60px', height: '4px', backgroundColor: pageTitleColor || '#8c0303', margin: '20px auto', borderRadius: '2px' }}></div>
+          <p className="post-description text-muted fs-5 mt-2">{fm.description}</p>
+          <div style={{ width: '60px', height: '4px', backgroundColor: pageTitleColor || '#8c0303', margin: '18px auto', borderRadius: '2px' }}></div>
         </header>
         
-        <article>
-          <div className="content mb-5 text-center" style={{ fontSize: '1.1rem', lineHeight: '1.8' }}>
+        {content && (
+          <div className="content mb-4" style={{ fontSize: '1.05rem', lineHeight: '1.7', maxWidth: '850px', margin: '0 auto 20px auto' }}>
             <ReactMarkdown>{content.replace(/{%.*?%}/g, '')}</ReactMarkdown>
           </div>
+        )}
+      </div>
 
-          {renderGrid(honors, honorsTitle, 'fa-award', lang === 'vi' ? 'Chưa có dữ liệu thành tích' : 'No honors available', honorsTitleBold, honorsTitleColor)}
-          
-          {renderGrid(certificates, certificatesTitle, 'fa-certificate', lang === 'vi' ? 'Chưa có dữ liệu chứng chỉ' : 'No certificates available', certificatesTitleBold, certificatesTitleColor)}
-        </article>
+      {/* Unified Achievements Container: Coursera-style standard width for both sections */}
+      <div className="achievements-main-container" style={{
+        width: '100%',
+        maxWidth: '1280px',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        paddingLeft: '24px',
+        paddingRight: '24px',
+        marginBottom: '70px',
+        boxSizing: 'border-box'
+      }}>
+        {/* Honors Section */}
+        <section style={{ marginBottom: '60px' }}>
+          {renderGrid(honors, honorsTitle, 'fa-award', lang === 'vi' ? 'Chưa có dữ liệu thành tích' : 'No honors available', honorsTitleBold, honorsTitleColor, false)}
+        </section>
+
+        {/* Certificates Section */}
+        <section style={{
+          borderTop: '1px solid var(--global-divider-color, rgba(0,0,0,0.08))',
+          paddingTop: '45px'
+        }}>
+          {renderGrid(certificates, certificatesTitle, 'fa-certificate', lang === 'vi' ? 'Chưa có dữ liệu chứng chỉ' : 'No certificates available', certificatesTitleBold, certificatesTitleColor, true)}
+        </section>
       </div>
 
       <style dangerouslySetInnerHTML={{__html: `
-        .teaching-card:hover {
-          transform: translateY(-10px);
-          box-shadow: 0 15px 40px rgba(0,0,0,0.1) !important;
-          border-color: var(--global-theme-color) !important;
+        .achievements-grid-4 {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 20px;
         }
-        .teaching-card:hover .cert-img-preview {
-          transform: scale(1.05);
+        .achievements-grid-auto {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 20px;
         }
-        .btn-subtle-action:hover {
-          background-color: var(--global-divider-color, #f3f4f6) !important;
-          border-color: #9ca3af !important;
-          color: var(--global-text-color, #111827) !important;
-          text-decoration: none !important;
+        @media (max-width: 1200px) {
+          .achievements-grid-4, .achievements-grid-auto {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+          }
+        }
+        @media (max-width: 860px) {
+          .achievements-grid-4, .achievements-grid-auto {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+          }
+          .achievements-main-container {
+            padding-left: 18px !important;
+            padding-right: 18px !important;
+          }
+        }
+        @media (max-width: 560px) {
+          .achievements-grid-4, .achievements-grid-auto {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
+          .achievements-main-container {
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+          }
+        }
+        .coursera-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 10px 25px rgba(0,0,0,0.08) !important;
+          border-color: #cbd5e1 !important;
+        }
+        .coursera-card:hover .coursera-card-img {
+          transform: scale(1.03);
+        }
+        .coursera-action-link {
+          color: var(--global-theme-color, #0056b3) !important;
+          font-weight: 500;
+          text-decoration: none;
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          transition: color 0.15s ease, text-decoration 0.15s ease;
+        }
+        .coursera-action-link:hover {
+          color: #003366 !important;
+          text-decoration: underline !important;
+        }
+        html[data-theme="dark"] .coursera-action-link {
+          color: #60a5fa !important;
+        }
+        html[data-theme="dark"] .coursera-action-link:hover {
+          color: #93c5fd !important;
         }
       `}} />
     </div>

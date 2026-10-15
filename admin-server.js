@@ -466,6 +466,33 @@ app.put("/api/teachings/:slug", (req, res) => {
   }
 });
 
+app.post("/api/teachings", (req, res) => {
+  try {
+    const { slug, frontMatter, body } = req.body;
+    const finalSlug = slug || `achievement-${Date.now()}`;
+    const filePath = path.join(ROOT, "_teachings", `${finalSlug}.md`);
+    if (fs.existsSync(filePath)) {
+      return res.status(409).json({ error: "File already exists" });
+    }
+    writeMarkdown(filePath, frontMatter, body);
+    res.json({ success: true, slug: finalSlug });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete("/api/teachings/:slug", (req, res) => {
+  try {
+    const filePath = path.join(ROOT, "_teachings", `${req.params.slug}.md`);
+    if (!fs.existsSync(filePath)) return res.status(404).json({ error: "Not found" });
+    fs.unlinkSync(filePath);
+    notifyLiveReload();
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ============================================================================
 // API: News (_news/*.md)
 // ============================================================================

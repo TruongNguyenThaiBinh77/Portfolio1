@@ -1,16 +1,23 @@
 cv:
   name: Trương Nguyễn Thái Bình
   name_en: Truong Nguyen Thai Binh
+  name_icon: fa-solid fa-user
   label: Kỹ sư Phần mềm
   label_en: Software Engineer
+  label_icon: fa-solid fa-id-badge
   email: truongnguyenthaibinh1050@gmail.com
+  email_icon: fa-solid fa-envelope
   location: TP. Hồ Chí Minh, Việt Nam
   location_en: Ho Chi Minh City, Vietnam
+  location_icon: fa-solid fa-location-dot
+  languages_icon: fa-solid fa-language
   custom_info:
     - name: Tổ chức
       name_en: Organization
       value: Chi bộ Ấp Gò Cao
       value_en: Go Cao Hamlet Party Cell
+      icon: "Icon bÃºa liá»\x81m 256px.png"
+      icon_size: 24
   image: ""
   summary: Là một Kỹ sư Phần mềm trẻ đam mê công nghệ, mình luôn không ngừng học hỏi và thử thách bản thân với những công nghệ mới nhất. Thế mạnh của mình là khả năng tư duy logic tốt, xây dựng kiến trúc hệ thống ổn định và phát triển các giao diện người dùng thân thiện. Mình đặc biệt yêu thích việc tối ưu hóa hiệu suất ứng dụng và nghiên cứu các giải pháp Trí tuệ Nhân tạo để mang lại trải nghiệm tốt nhất cho người dùng.
   summary_en: As a young and passionate Software Engineer, I am constantly learning and challenging myself with the latest technologies. My strengths lie in strong logical thinking, building stable system architectures, and developing user-friendly interfaces. I am particularly passionate about optimizing application performance and researching Artificial Intelligence solutions to deliver the best user experience.
@@ -36,7 +43,7 @@ cv:
         end_date: "2026"
         end_date_en: "2026"
         logo: logo-dai-hoc-fpt-tach-nen_043150877.png
-        logo_size: "200"
+        logo_size: "130"
         url: ""
         highlights:
           - Chuyên ngành Kỹ thuật phần mềm (K18)
@@ -59,7 +66,7 @@ cv:
         end_date: 12-2023
         end_date_en: Dec 2023
         logo: 01_logobachkhoasang.png
-        logo_size: "150"
+        logo_size: "110"
         url: ""
         highlights:
           - Nghiên cứu chế tạo xe Mecanum ứng dụng IoT
@@ -169,3 +176,8 @@ cv:
           - Python
           - MongoDB
           - PostgreSQL
+  name_icon_size: 18
+  label_icon_size: 18
+  email_icon_size: 18
+  location_icon_size: 18
+  languages_icon_size: 18

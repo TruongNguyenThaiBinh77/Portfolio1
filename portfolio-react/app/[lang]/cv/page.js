@@ -4,8 +4,61 @@ import PrintButton from '../../../components/PrintButton';
 import CvQuickNav from '../../../components/CvQuickNav';
 
 const getLogoSize = (size) => {
-  if (!size) return '60px';
-  return /^\d+$/.test(size.toString().trim()) ? `${size}px` : size;
+  if (!size) return '100px';
+  const s = size.toString().trim();
+  return /^\d+$/.test(s) ? `${s}px` : s;
+};
+
+const renderInfoIcon = (iconStr, defaultFa = 'fa-solid fa-circle-info', size) => {
+  let finalDefault = defaultFa;
+  let finalSize = size;
+  if (typeof defaultFa === 'number' || (!isNaN(defaultFa) && typeof defaultFa === 'string' && !defaultFa.includes('fa-') && !defaultFa.includes('.'))) {
+    finalSize = defaultFa;
+    finalDefault = 'fa-solid fa-circle-info';
+  }
+  const icon = (iconStr || finalDefault || '').trim();
+  if (!icon) return null;
+
+  const sizeNum = finalSize ? parseInt(finalSize, 10) : 18;
+  const sizePx = `${sizeNum}px`;
+
+  const isImage = /\.(png|jpe?g|svg|webp|gif|ico)$/i.test(icon) || icon.startsWith('/') || icon.startsWith('http');
+  if (isImage) {
+    const src = icon.startsWith('/') || icon.startsWith('http') ? icon : `/assets/img/${icon}`;
+    return (
+      <img
+        src={src}
+        alt=""
+        style={{
+          width: sizePx,
+          height: sizePx,
+          maxWidth: '48px',
+          maxHeight: '48px',
+          objectFit: 'contain',
+          display: 'block',
+        }}
+      />
+    );
+  }
+
+  let faClass = icon;
+  if (!faClass.startsWith('fa-solid ') && !faClass.startsWith('fas ') && !faClass.startsWith('far ') && !faClass.startsWith('fab ') && !faClass.startsWith('fa-brands ')) {
+    if (faClass.startsWith('fa-')) {
+      faClass = 'fa-solid ' + faClass;
+    } else {
+      faClass = 'fa-solid fa-' + faClass;
+    }
+  }
+
+  return (
+    <i
+      className={faClass}
+      style={{
+        color: 'var(--global-theme-color)',
+        fontSize: finalSize ? `${sizeNum}px` : '0.95rem',
+      }}
+    />
+  );
 };
 
 export default async function CV({ params }) {
@@ -17,16 +70,41 @@ export default async function CV({ params }) {
   const st = lang === 'vi' ? (config.section_titles || {}) : (config.section_titles_en || {});
 
   const generalInfo = [];
-  if (cvData.name) generalInfo.push({ name: lang === 'vi' ? 'Họ và tên' : 'Full Name', value: cvData.name });
-  if (cvData.label) generalInfo.push({ name: lang === 'vi' ? 'Vị trí hiện tại' : 'Current position', value: cvData.label });
-  if (cvData.email) generalInfo.push({ name: 'Email', value: cvData.email });
-  if (cvData.location) generalInfo.push({ name: lang === 'vi' ? 'Địa điểm' : 'Location', value: cvData.location });
+  if (cvData.name) generalInfo.push({ 
+    name: lang === 'vi' ? 'Họ và tên' : 'Full Name', 
+    value: cvData.name,
+    icon: cvData.name_icon || 'fa-solid fa-user',
+    icon_size: cvData.name_icon_size
+  });
+  if (cvData.label) generalInfo.push({ 
+    name: lang === 'vi' ? 'Vị trí hiện tại' : 'Current position', 
+    value: cvData.label,
+    icon: cvData.label_icon || 'fa-solid fa-id-badge',
+    icon_size: cvData.label_icon_size
+  });
+  if (cvData.email) generalInfo.push({ 
+    name: 'Email', 
+    value: cvData.email,
+    icon: cvData.email_icon || 'fa-solid fa-envelope',
+    icon_size: cvData.email_icon_size
+  });
+  if (cvData.location) generalInfo.push({ 
+    name: lang === 'vi' ? 'Địa điểm' : 'Location', 
+    value: cvData.location,
+    icon: cvData.location_icon || 'fa-solid fa-location-dot',
+    icon_size: cvData.location_icon_size
+  });
   
   // Add languages from the Languages section if they exist
   const languages = cvData.sections?.Languages || [];
   if (languages.length > 0) {
     const langNames = languages.map(l => l.name).filter(Boolean).join(', ');
-    if (langNames) generalInfo.push({ name: lang === 'vi' ? 'Ngôn ngữ' : 'Languages', value: langNames });
+    if (langNames) generalInfo.push({ 
+      name: lang === 'vi' ? 'Ngôn ngữ' : 'Languages', 
+      value: langNames,
+      icon: cvData.languages_icon || 'fa-solid fa-language',
+      icon_size: cvData.languages_icon_size
+    });
   }
 
   // Add custom info fields (e.g. Tổ chức / Organization, Đơn vị, v.v.)
@@ -36,7 +114,12 @@ export default async function CV({ params }) {
       const fieldName = lang === 'en' ? (item.name_en || item.name) : (item.name || item.name_en);
       const fieldValue = lang === 'en' ? (item.value_en || item.value) : (item.value || item.value_en);
       if (fieldName && fieldValue) {
-        generalInfo.push({ name: fieldName, value: fieldValue });
+        generalInfo.push({ 
+          name: fieldName, 
+          value: fieldValue,
+          icon: item.icon || 'fa-solid fa-circle-info',
+          icon_size: item.icon_size
+        });
       }
     });
   }
@@ -80,11 +163,53 @@ export default async function CV({ params }) {
   ];
 
   return (
-    <div className="container mt-5" role="main" style={{ maxWidth: '1140px' }}>
+    <div className="container mt-4 mt-md-5" role="main" style={{ maxWidth: '1140px' }}>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .cv-main-layout {
+          width: 100%;
+        }
+        .cv-pill-scroll::-webkit-scrollbar {
+          display: none;
+        }
+        .cv-general-table {
+          width: 100%;
+          table-layout: fixed;
+        }
+        .cv-general-label {
+          width: 26%;
+          min-width: 145px;
+        }
+        .cv-general-val {
+          width: 74%;
+          word-break: break-word;
+        }
+        @media (max-width: 767.98px) {
+          .cv-page-title {
+            font-size: 1.85rem !important;
+          }
+          .cv-general-label {
+            width: 42% !important;
+            min-width: 125px !important;
+            font-size: 0.88rem !important;
+            padding-right: 6px !important;
+          }
+          .cv-general-val {
+            width: 58% !important;
+            font-size: 0.88rem !important;
+          }
+          .cv-edu-logo img {
+            max-width: 52px !important;
+            max-height: 42px !important;
+          }
+          .cv-card-item {
+            padding: 0.85rem !important;
+          }
+        }
+      `}} />
       <div className="post">
-        <header className="post-header mb-4">
+        <header className="post-header mb-3 mb-md-4">
           <h1
-            className="post-title"
+            className="post-title cv-page-title"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -101,37 +226,62 @@ export default async function CV({ params }) {
           {fm.description && <p className="desc" style={{ color: 'var(--global-text-color-light)', fontSize: '0.95rem' }}>{fm.description}</p>}
         </header>
 
-        <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start' }}>
-          {/* Quick Navigation / Thao tác nhanh bên trái */}
+        <div className="d-flex flex-column flex-md-row cv-main-layout" style={{ gap: '28px', alignItems: 'flex-start' }}>
+          {/* Quick Navigation / Thao tác nhanh bên trái (trên mobile hiển thị pill bar dính đầu trang) */}
           <CvQuickNav sections={navSections} lang={lang} />
 
           {/* Nội dung CV bên phải */}
-          <article style={{ flex: 1, minWidth: 0 }}>
+          <article className="cv-content-area" style={{ flex: 1, minWidth: 0, width: '100%' }}>
             <div className="cv">
               {/* General Information */}
-              <div className="card mt-3 p-3" id="general-info" style={{ scrollMarginTop: '85px' }}>
+              <div className="card mt-2 mt-md-3 p-3 cv-card-item" id="general-info" style={{ scrollMarginTop: '105px' }}>
                 <h3
                   className="card-title"
                   style={{
                     color: generalTitleColor || config.section_titles_color || 'inherit',
                     fontWeight: generalTitleBold ? '700' : '400',
+                    fontSize: '1.45rem',
+                    marginBottom: '1rem',
                   }}
                 >
                   {generalTitle}
                 </h3>
                 <div className="card-body p-0">
-                  <table className="table table-sm table-borderless mb-0">
+                  <table className="table table-sm table-borderless mb-0 cv-general-table">
                     <tbody>
-                      {generalInfo.map((info, idx) => (
-                        <tr key={idx}>
-                          <td className="p-1 pr-2 font-weight-bold" style={{ width: '22%', verticalAlign: 'top', color: 'var(--global-text-color)' }}>
-                            {info.name}
-                          </td>
-                          <td className="p-1 pl-2 font-weight-light" style={{ width: '78%', color: 'var(--global-text-color)' }}>
-                            {info.value}
-                          </td>
-                        </tr>
-                      ))}
+                      {(() => {
+                        const maxIconWidthNum = Math.max(
+                          24,
+                          ...generalInfo.map(i => (i.icon_size ? parseInt(i.icon_size, 10) : 18) || 18)
+                        );
+                        const uniformIconWidth = `${maxIconWidthNum}px`;
+                        const uniformIconHeight = `${Math.max(24, maxIconWidthNum)}px`;
+
+                        return generalInfo.map((info, idx) => (
+                          <tr key={idx}>
+                            <td className="p-1 pr-2 font-weight-bold cv-general-label" style={{ verticalAlign: 'top', color: 'var(--global-text-color)' }}>
+                              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                                <span style={{ 
+                                  display: 'inline-flex', 
+                                  alignItems: 'center', 
+                                  justifyContent: 'center', 
+                                  width: uniformIconWidth, 
+                                  minWidth: uniformIconWidth,
+                                  height: uniformIconHeight, 
+                                  flexShrink: 0,
+                                  marginTop: '1px'
+                                }}>
+                                  {renderInfoIcon(info.icon, info.icon_size)}
+                                </span>
+                                <span style={{ flex: 1, alignSelf: 'center' }}>{info.name}</span>
+                              </div>
+                            </td>
+                            <td className="p-1 pl-2 font-weight-light cv-general-val" style={{ color: 'var(--global-text-color)', verticalAlign: 'middle' }}>
+                              {info.value}
+                            </td>
+                          </tr>
+                        ));
+                      })()}
                     </tbody>
                   </table>
                 </div>
@@ -139,12 +289,14 @@ export default async function CV({ params }) {
 
               {/* Education */}
               {education.length > 0 && (
-                <div className="card mt-4 p-3" id="education" style={{ scrollMarginTop: '85px' }}>
+                <div className="card mt-4 p-3 cv-card-item" id="education" style={{ scrollMarginTop: '105px' }}>
                   <h3
                     className="card-title"
                     style={{
                       color: educationTitleColor || config.section_titles_color || 'inherit',
                       fontWeight: educationTitleBold ? '700' : '400',
+                      fontSize: '1.45rem',
+                      marginBottom: '1rem',
                     }}
                   >
                     {educationTitle}
@@ -154,46 +306,47 @@ export default async function CV({ params }) {
                       {education.map((edu, idx) => (
                         <li className="list-group-item p-3" key={idx} style={{ borderBottom: idx !== education.length - 1 ? '1px solid #e9ecef' : 'none', borderTop: 'none', borderLeft: 'none', borderRight: 'none' }}>
                           <div className="row">
-                            <div className="col-12 col-md-3 col-lg-2 text-center text-md-left mb-2 mb-md-0">
+                            <div className="col-12 col-md-3 col-lg-2 text-left mb-2 mb-md-0">
                               <span className="badge font-weight-bold text-uppercase align-middle" style={{ 
                                 backgroundColor: 'var(--global-theme-color)', 
                                 color: 'white', 
                                 minWidth: '75px', 
                                 padding: '6px 10px',
                                 borderRadius: '4px',
-                                fontSize: '0.8rem'
+                                fontSize: '0.8rem',
+                                display: 'inline-block'
                               }}>
                                 {edu.start_date} - {edu.end_date}
                               </span>
                             </div>
-                            <div className="col-12 col-md-9 col-lg-10 mt-2 mt-md-0" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                              <div style={{ flex: 1 }}>
-                                <h6 className="title font-weight-bold ml-1 ml-md-4" style={{ fontSize: '1.05rem', marginBottom: '6px', color: 'var(--global-text-color)' }}>
+                            <div className="col-12 col-md-9 col-lg-10 mt-1 mt-md-0" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <h6 className="title font-weight-bold ml-0 ml-md-4" style={{ fontSize: '1.05rem', marginBottom: '6px', color: 'var(--global-text-color)', wordBreak: 'break-word' }}>
                                   {edu.studyType}
                                 </h6>
-                                {/* Tên trường đại học với Icon fa-building-columns màu cyan/teal như hình mẫu */}
-                                <div className="ml-1 ml-md-4" style={{ 
+                                {/* Tên trường đại học với Icon fa-building-columns màu cyan/teal */}
+                                <div className="ml-0 ml-md-4" style={{ 
                                   display: 'flex', 
-                                  alignItems: 'center', 
+                                  alignItems: 'flex-start', 
                                   gap: '8px', 
                                   fontSize: '0.95rem', 
                                   marginBottom: '8px',
-                                  color: 'var(--global-text-color)' 
+                                  color: 'var(--global-text-color)',
                                 }}>
-                                  <i className="fa-solid fa-building-columns" style={{ color: '#06b6d4', fontSize: '1.02rem', flexShrink: 0 }}></i>
-                                  <span style={{ fontWeight: '500' }}>
+                                  <i className="fa-solid fa-building-columns" style={{ color: '#06b6d4', fontSize: '1.02rem', flexShrink: 0, marginTop: '3px' }}></i>
+                                  <span style={{ fontWeight: '500', flex: 1, minWidth: 0, wordBreak: 'break-word' }}>
                                     {[edu.institution, edu.location, edu.area].filter(Boolean).join(', ')}
                                   </span>
                                 </div>
                                 {edu.highlights && edu.highlights.length > 0 && (
-                                  <ul className="items ml-1 ml-md-4" style={{ listStyleType: 'none', paddingLeft: '0', marginBottom: '0' }}>
+                                  <ul className="items ml-0 ml-md-4" style={{ listStyleType: 'none', paddingLeft: '0', marginBottom: '0' }}>
                                     {edu.highlights.map((point, pIdx) => {
                                       const isTheme = point.includes('(theme)');
                                       const cleanPoint = point.replace('(theme)', '').trim();
                                       return (
-                                        <li key={pIdx} style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '3px' }}>
+                                        <li key={pIdx} style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '4px' }}>
                                           <span style={{ marginRight: '0.5rem', color: '#6c757d', fontSize: '0.9rem', lineHeight: '1.5' }}>&#x25E6;</span>
-                                          <span className="item" style={{ fontSize: '0.93rem', fontWeight: '300', lineHeight: '1.5', color: isTheme ? 'var(--global-theme-color)' : 'inherit' }}>
+                                          <span className="item" style={{ fontSize: '0.93rem', fontWeight: '300', lineHeight: '1.5', color: isTheme ? 'var(--global-theme-color)' : 'inherit', wordBreak: 'break-word' }}>
                                             {cleanPoint}
                                           </span>
                                         </li>
@@ -203,8 +356,18 @@ export default async function CV({ params }) {
                                 )}
                               </div>
                               {edu.logo && (
-                                <div style={{ marginLeft: '15px', flexShrink: 0 }}>
-                                  <img src={`/assets/img/${edu.logo}`} alt="Logo" style={{ width: getLogoSize(edu.logo_size), objectFit: 'contain' }} />
+                                <div className="cv-edu-logo" style={{ marginLeft: '16px', flexShrink: 0, display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
+                                  <img 
+                                    src={`/assets/img/${edu.logo}`} 
+                                    alt={edu.institution || "Logo"} 
+                                    style={{ 
+                                      width: getLogoSize(edu.logo_size), 
+                                      maxWidth: '260px',
+                                      maxHeight: '110px',
+                                      objectFit: 'contain',
+                                      display: 'block' 
+                                    }} 
+                                  />
                                 </div>
                               )}
                             </div>
@@ -218,12 +381,14 @@ export default async function CV({ params }) {
 
               {/* Experience */}
               {experience.length > 0 && (
-                <div className="card mt-4 p-3" id="experience" style={{ scrollMarginTop: '85px' }}>
+                <div className="card mt-4 p-3 cv-card-item" id="experience" style={{ scrollMarginTop: '105px' }}>
                   <h3
                     className="card-title"
                     style={{
                       color: experienceTitleColor || config.section_titles_color || 'inherit',
                       fontWeight: experienceTitleBold ? '700' : '400',
+                      fontSize: '1.45rem',
+                      marginBottom: '1rem',
                     }}
                   >
                     {experienceTitle}
@@ -233,38 +398,41 @@ export default async function CV({ params }) {
                       {experience.map((exp, idx) => (
                         <li className="list-group-item p-3" key={idx} style={{ borderBottom: idx !== experience.length - 1 ? '1px solid #e9ecef' : 'none', borderTop: 'none', borderLeft: 'none', borderRight: 'none' }}>
                           <div className="row">
-                            <div className="col-12 col-md-3 col-lg-2 text-center text-md-left mb-2 mb-md-0">
+                            <div className="col-12 col-md-3 col-lg-2 text-left mb-2 mb-md-0">
                               <span className="badge font-weight-bold text-uppercase align-middle" style={{ 
                                 backgroundColor: 'var(--global-theme-color)', 
                                 color: 'white', 
                                 minWidth: '75px', 
                                 padding: '6px 10px',
                                 borderRadius: '4px',
-                                fontSize: '0.8rem'
+                                fontSize: '0.8rem',
+                                display: 'inline-block'
                               }}>
                                 {exp.start_date} - {exp.end_date}
                               </span>
                             </div>
-                            <div className="col-12 col-md-9 col-lg-10 mt-2 mt-md-0">
-                              <h6 className="title font-weight-bold ml-1 ml-md-4" style={{ fontSize: '1.05rem', marginBottom: '6px', color: 'var(--global-text-color)' }}>
+                            <div className="col-12 col-md-9 col-lg-10 mt-1 mt-md-0">
+                              <h6 className="title font-weight-bold ml-0 ml-md-4" style={{ fontSize: '1.05rem', marginBottom: '6px', color: 'var(--global-text-color)', wordBreak: 'break-word' }}>
                                 {exp.position}
                               </h6>
-                              <div className="ml-1 ml-md-4" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem', marginBottom: '6px', color: 'var(--global-text-color)' }}>
-                                <i className="fa-solid fa-briefcase" style={{ color: '#3b82f6', fontSize: '0.95rem', flexShrink: 0 }}></i>
-                                <span style={{ fontWeight: '500' }}>{exp.company}</span>
-                                {exp.location && <span style={{ color: '#64748b', fontSize: '0.88rem' }}>({exp.location})</span>}
+                              <div className="ml-0 ml-md-4" style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.95rem', marginBottom: '6px', color: 'var(--global-text-color)' }}>
+                                <i className="fa-solid fa-briefcase" style={{ color: '#3b82f6', fontSize: '0.95rem', flexShrink: 0, marginTop: '3px' }}></i>
+                                <div style={{ flex: 1, minWidth: 0, wordBreak: 'break-word' }}>
+                                  <span style={{ fontWeight: '500' }}>{exp.company}</span>
+                                  {exp.location && <span style={{ color: '#64748b', fontSize: '0.88rem', marginLeft: '6px' }}>({exp.location})</span>}
+                                </div>
                               </div>
                               {exp.summary && (
-                                <p className="ml-1 ml-md-4" style={{ fontSize: '0.92rem', color: '#64748b', marginBottom: '6px' }}>
+                                <p className="ml-0 ml-md-4" style={{ fontSize: '0.92rem', color: '#64748b', marginBottom: '6px', wordBreak: 'break-word' }}>
                                   {exp.summary}
                                 </p>
                               )}
                               {exp.highlights && exp.highlights.length > 0 && (
-                                <ul className="items ml-1 ml-md-4" style={{ listStyleType: 'none', paddingLeft: '0', marginBottom: '0' }}>
+                                <ul className="items ml-0 ml-md-4" style={{ listStyleType: 'none', paddingLeft: '0', marginBottom: '0' }}>
                                   {exp.highlights.map((point, pIdx) => (
-                                    <li key={pIdx} style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '3px' }}>
+                                    <li key={pIdx} style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '4px' }}>
                                       <span style={{ marginRight: '0.5rem', color: '#6c757d', fontSize: '0.9rem', lineHeight: '1.5' }}>&#x25E6;</span>
-                                      <span style={{ fontSize: '0.92rem', fontWeight: '300', lineHeight: '1.5', color: 'var(--global-text-color)' }}>{point}</span>
+                                      <span style={{ fontSize: '0.92rem', fontWeight: '300', lineHeight: '1.5', color: 'var(--global-text-color)', wordBreak: 'break-word' }}>{point}</span>
                                     </li>
                                   ))}
                                 </ul>
@@ -280,12 +448,14 @@ export default async function CV({ params }) {
 
               {/* Honors and Awards */}
               {honors.length > 0 && (
-                <div className="card mt-4 p-3" id="honors-awards" style={{ scrollMarginTop: '85px' }}>
+                <div className="card mt-4 p-3 cv-card-item" id="honors-awards" style={{ scrollMarginTop: '105px' }}>
                   <h3
                     className="card-title"
                     style={{
                       color: honorsTitleColor || config.section_titles_color || 'inherit',
                       fontWeight: honorsTitleBold ? '700' : '400',
+                      fontSize: '1.45rem',
+                      marginBottom: '1rem',
                     }}
                   >
                     {honorsTitle}
@@ -295,28 +465,31 @@ export default async function CV({ params }) {
                       {honors.map((honor, idx) => (
                         <li className="list-group-item p-3" key={idx} style={{ borderBottom: idx !== honors.length - 1 ? '1px solid #e9ecef' : 'none', borderTop: 'none', borderLeft: 'none', borderRight: 'none' }}>
                           <div className="row">
-                            <div className="col-12 col-md-3 col-lg-2 text-center text-md-left mb-2 mb-md-0">
+                            <div className="col-12 col-md-3 col-lg-2 text-left mb-2 mb-md-0">
                               <span className="badge font-weight-bold text-uppercase align-middle" style={{ 
                                 backgroundColor: 'var(--global-theme-color)', 
                                 color: 'white', 
                                 minWidth: '75px', 
                                 padding: '6px 10px',
                                 borderRadius: '4px',
-                                fontSize: '0.8rem'
+                                fontSize: '0.8rem',
+                                display: 'inline-block'
                               }}>
                                 {honor.date}
                               </span>
                             </div>
-                            <div className="col-12 col-md-9 col-lg-10 mt-2 mt-md-0">
-                              <ul className="items ml-1 ml-md-4" style={{ listStyleType: 'none', paddingLeft: '0', marginBottom: '0' }}>
-                                <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                  <i className="fa-solid fa-award" style={{ color: '#eab308', fontSize: '1rem', flexShrink: 0 }}></i>
-                                  <span className="item" style={{ fontSize: '0.95rem', fontWeight: '500', color: 'var(--global-text-color)' }}>
-                                    {honor.title}
-                                  </span>
-                                  {honor.issuer && (
-                                    <span style={{ color: '#64748b', fontSize: '0.88rem' }}>– {honor.issuer}</span>
-                                  )}
+                            <div className="col-12 col-md-9 col-lg-10 mt-1 mt-md-0">
+                              <ul className="items ml-0 ml-md-4" style={{ listStyleType: 'none', paddingLeft: '0', marginBottom: '0' }}>
+                                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                                  <i className="fa-solid fa-award" style={{ color: '#eab308', fontSize: '1rem', flexShrink: 0, marginTop: '2px' }}></i>
+                                  <div style={{ flex: 1, minWidth: 0 }}>
+                                    <span className="item" style={{ fontSize: '0.95rem', fontWeight: '500', color: 'var(--global-text-color)', wordBreak: 'break-word' }}>
+                                      {honor.title}
+                                    </span>
+                                    {honor.issuer && (
+                                      <span style={{ color: '#64748b', fontSize: '0.88rem', marginLeft: '6px' }}>– {honor.issuer}</span>
+                                    )}
+                                  </div>
                                 </li>
                               </ul>
                             </div>
@@ -330,12 +503,14 @@ export default async function CV({ params }) {
 
               {/* Skills Section */}
               {skills.length > 0 && (
-                <div className="card mt-4 p-3" id="skills" style={{ scrollMarginTop: '85px' }}>
+                <div className="card mt-4 p-3 cv-card-item" id="skills" style={{ scrollMarginTop: '105px' }}>
                   <h3
                     className="card-title"
                     style={{
                       color: skillsTitleColor || config.section_titles_color || 'inherit',
                       fontWeight: skillsTitleBold ? '700' : '400',
+                      fontSize: '1.45rem',
+                      marginBottom: '1rem',
                     }}
                   >
                     {skillsTitle}
@@ -351,10 +526,10 @@ export default async function CV({ params }) {
                             backgroundColor: 'var(--global-card-bg-color, transparent)',
                             height: '100%'
                           }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600', fontSize: '0.95rem', color: 'var(--global-text-color)' }}>
-                                {skill.icon && <i className={`fa-solid ${skill.icon}`} style={{ color: 'var(--global-theme-color)' }}></i>}
-                                <span>{skill.name}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', gap: '8px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600', fontSize: '0.95rem', color: 'var(--global-text-color)', minWidth: 0 }}>
+                                {skill.icon && <i className={`fa-solid ${skill.icon}`} style={{ color: 'var(--global-theme-color)', flexShrink: 0 }}></i>}
+                                <span style={{ wordBreak: 'break-word' }}>{skill.name}</span>
                               </div>
                               {skill.level && (
                                 <span style={{
@@ -363,7 +538,8 @@ export default async function CV({ params }) {
                                   borderRadius: '12px',
                                   backgroundColor: 'color-mix(in srgb, var(--global-theme-color) 12%, transparent)',
                                   color: 'var(--global-theme-color)',
-                                  fontWeight: '600'
+                                  fontWeight: '600',
+                                  flexShrink: 0
                                 }}>
                                   {skill.level}
                                 </span>
@@ -374,11 +550,12 @@ export default async function CV({ params }) {
                                 {skill.keywords.map((kw, kIdx) => (
                                   <span key={kIdx} style={{
                                     fontSize: '0.8rem',
-                                    padding: '2px 8px',
+                                    padding: '3px 8px',
                                     borderRadius: '4px',
                                     backgroundColor: 'var(--global-code-bg-color, rgba(0,0,0,0.05))',
                                     color: 'var(--global-text-color)',
                                     border: '1px solid var(--global-divider-color, #e2e8f0)',
+                                    lineHeight: '1.4'
                                   }}>
                                     {kw}
                                   </span>

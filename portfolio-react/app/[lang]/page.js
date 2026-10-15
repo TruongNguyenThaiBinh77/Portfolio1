@@ -270,8 +270,9 @@ export default async function Home({ params }) {
                           <td style={{ verticalAlign: 'top', paddingBottom: '1rem' }}>
                             {hasTitle ? (
                               <div className="news-article-card">
-                                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                                  {fmItem.journal && (
+                                {/* Badge loại tạp chí ở vị trí ban đầu phía trên tiêu đề */}
+                                {fmItem.journal && (
+                                  <div style={{ marginBottom: '6px' }}>
                                     <span
                                       style={{
                                         backgroundColor: fmItem.journal_bg_color || item.journal_bg_color || '#fee2e2',
@@ -280,27 +281,21 @@ export default async function Home({ params }) {
                                         fontSize: '0.72rem',
                                         fontWeight: '600',
                                         padding: '2px 8px',
-                                        borderRadius: '10px',
+                                        borderRadius: '8px',
                                         display: 'inline-flex',
                                         alignItems: 'center',
                                         gap: '4px',
                                         boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
                                       }}
                                     >
-                                      <i className="fa-solid fa-bookmark" style={{ fontSize: '0.7rem', opacity: 0.85 }}></i>
-                                      {fmItem.journal}
+                                      <i className="fa-solid fa-bookmark" style={{ fontSize: '0.68rem', opacity: 0.85 }}></i>
+                                      {lang === 'vi' ? fmItem.journal : (fmItem.journal_en || fmItem.journal)}
                                     </span>
-                                  )}
-                                  {fmItem.author && (
-                                    <span style={{ fontSize: '0.78rem', color: '#64748b', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                                      <i className="fa-solid fa-user-pen" style={{ fontSize: '0.74rem' }}></i>
-                                      {fmItem.author}
-                                      {fmItem.institution ? ` (${fmItem.institution})` : ''}
-                                    </span>
-                                  )}
-                                </div>
+                                  </div>
+                                )}
 
-                                <h3 style={{ fontSize: '1.02rem', fontWeight: '600', lineHeight: '1.4', margin: '2px 0 6px 0' }}>
+                                {/* Tiêu đề bài báo */}
+                                <h3 style={{ fontSize: '1.02rem', fontWeight: '600', lineHeight: '1.4', margin: '0 0 6px 0' }}>
                                   {targetUrl ? (
                                     <a
                                       href={targetUrl}
@@ -327,6 +322,21 @@ export default async function Home({ params }) {
                                     <span>{fmItem.title}</span>
                                   )}
                                 </h3>
+
+                                {/* Tác giả bên dưới tiêu đề */}
+                                {fmItem.author && (
+                                  <div style={{ fontSize: '0.82rem', color: '#475569', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '5px', marginTop: '2px', marginBottom: '8px' }}>
+                                    <i className="fa-solid fa-user-pen" style={{ fontSize: '0.74rem', color: '#64748b' }}></i>
+                                    <span style={{ fontWeight: '600', color: '#334155' }}>
+                                      {lang === 'vi' ? fmItem.author : (fmItem.author_en || fmItem.author)}
+                                    </span>
+                                    {(lang === 'vi' ? fmItem.institution : (fmItem.institution_en || fmItem.institution)) && (
+                                      <span style={{ color: '#64748b' }}>
+                                        ({lang === 'vi' ? fmItem.institution : (fmItem.institution_en || fmItem.institution)})
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
 
                                 {(fmItem.description || item.htmlContent) && (
                                   <p
