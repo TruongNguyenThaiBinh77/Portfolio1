@@ -64,6 +64,9 @@ export default async function RootLayout({ children, params }) {
           ${config.navbar_active_text_color ? `.navbar.navbar-light .navbar-nav .nav-item.active > .nav-link, .navbar.navbar-light .navbar-nav .nav-link:hover { color: ${config.navbar_active_text_color}; font-weight: bold; }` : ''}
           ${config.global_hover_color ? `:root { --global-theme-color: ${config.global_hover_color}; --global-hover-color: ${config.global_hover_color}; } html[data-theme=dark] { --global-theme-color: ${config.global_hover_color}; --global-hover-color: ${config.global_hover_color}; } a:hover, table.table a:hover, .post-list li a:hover, .featured-posts a:hover, .post-description a:hover, .post .post-tags a:hover { color: ${config.global_hover_color} !important; }` : ''}
           
+          /* Remove legacy bottom padding so footer sits flush with page bottom */
+          body, body.fixed-top-nav { padding-bottom: 0 !important; }
+
           /* Header compact and scaling */
           #navbar {
             padding-top: ${config.navbar_padding_y || '3px'} !important;

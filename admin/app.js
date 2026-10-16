@@ -1468,8 +1468,8 @@ async function loadCV() {
           </div>
 
           <div class="form-group full-width">
-            <label>Email</label>
-            <input type="text" id="cv-email" value="${escHtml(cv.email || '')}" />
+            <label>Email <span style="font-weight: normal; color: var(--text-secondary); font-size: 0.8rem;">(mỗi email một dòng)</span></label>
+            <textarea id="cv-email" rows="2">${escHtml(cv.email || '')}</textarea>
             ${renderCvIconPicker('cv-email_icon', cv.email_icon, 'fa-solid fa-envelope', 'Icon dòng Email', '', cv.email_icon_size || 18)}
           </div>
 
@@ -2632,7 +2632,7 @@ async function saveCV() {
   cv.name_en = document.getElementById("cv-name_en").value;
   cv.label = document.getElementById("cv-label").value;
   cv.label_en = document.getElementById("cv-label_en").value;
-  cv.email = document.getElementById("cv-email").value;
+  cv.email = document.getElementById("cv-email").value.split("\n").map((s) => s.trim()).filter(Boolean).join("\n");
   cv.location = document.getElementById("cv-location").value;
   cv.location_en = document.getElementById("cv-location_en").value;
   cv.summary = document.getElementById("cv-summary").value;

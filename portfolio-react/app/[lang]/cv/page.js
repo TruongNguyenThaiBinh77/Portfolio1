@@ -276,7 +276,7 @@ export default async function CV({ params }) {
                                 <span style={{ flex: 1, alignSelf: 'center' }}>{info.name}</span>
                               </div>
                             </td>
-                            <td className="p-1 pl-2 font-weight-light cv-general-val" style={{ color: 'var(--global-text-color)', verticalAlign: 'middle' }}>
+                            <td className="p-1 pl-2 font-weight-light cv-general-val" style={{ color: 'var(--global-text-color)', verticalAlign: 'middle', whiteSpace: 'pre-line' }}>
                               {info.value}
                             </td>
                           </tr>

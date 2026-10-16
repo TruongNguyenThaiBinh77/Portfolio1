@@ -5,7 +5,7 @@ cv:
   label: Kỹ sư Phần mềm
   label_en: Software Engineer
   label_icon: fa-solid fa-id-badge
-  email: truongnguyenthaibinh1050@gmail.com
+  email: "truongnguyenthaibinh1050@gmail.com\nbinhtntse182370@fpt.edu.vn"
   email_icon: fa-solid fa-envelope
   location: TP. Hồ Chí Minh, Việt Nam
   location_en: Ho Chi Minh City, Vietnam
@@ -74,8 +74,8 @@ cv:
           - Achieved an Honorable grade for the final project
       - institution: Đại học Tunku Abdul Rahman
         institution_en: Tunku Abdul Rahman University
-        location: Malaysia
-        location_en: Malaysia
+        location: bang Penang, Malaysia
+        location_en: Penang, Malaysia
         area: ""
         area_en: ""
         studyType: Học tiếng Anh chuyên sâu
