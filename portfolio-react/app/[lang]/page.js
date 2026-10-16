@@ -62,6 +62,48 @@ export default async function Home({ params }) {
             .about-content-body p {
               margin-bottom: 1rem;
             }
+            .social {
+              text-align: center;
+              margin: 32px 0 20px;
+            }
+            .social .contact-icons {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              flex-wrap: wrap;
+              gap: 24px;
+              font-size: 1.75rem !important;
+              margin-bottom: 12px;
+            }
+            .social .contact-icons a {
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              text-decoration: none !important;
+              transition: transform 0.2s ease, filter 0.2s ease;
+            }
+            .social .contact-icons a img {
+              width: 1.15em !important;
+              height: 1.15em !important;
+              object-fit: contain;
+              margin-bottom: 0 !important;
+              display: inline-block;
+            }
+            .social .contact-icons a:hover {
+              transform: translateY(-3px) scale(1.12);
+              filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.16));
+            }
+            .social .contact-icons a i {
+              color: inherit !important;
+            }
+            .social .contact-icons a i::before {
+              color: inherit !important;
+            }
+            .social .contact-note {
+              font-size: 0.88rem;
+              color: var(--global-text-color-light, #64748b);
+              margin-top: 6px;
+            }
             @media (max-width: 767px) {
               .profile.float-right {
                 float: none !important;
@@ -290,7 +332,24 @@ export default async function Home({ params }) {
                                         boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
                                       }}
                                     >
-                                      <i className="fa-solid fa-bookmark" style={{ fontSize: '0.68rem', opacity: 0.85 }}></i>
+                                      <span
+                                        style={{
+                                          display: 'inline-block',
+                                          width: '13px',
+                                          height: '13px',
+                                          backgroundColor: 'currentColor',
+                                          maskImage: 'url(/assets/img/journal-icon.png)',
+                                          WebkitMaskImage: 'url(/assets/img/journal-icon.png)',
+                                          maskSize: 'contain',
+                                          WebkitMaskSize: 'contain',
+                                          maskRepeat: 'no-repeat',
+                                          WebkitMaskRepeat: 'no-repeat',
+                                          maskPosition: 'center',
+                                          WebkitMaskPosition: 'center',
+                                          verticalAlign: '-1px',
+                                          flexShrink: 0,
+                                        }}
+                                      />
                                       {lang === 'vi' ? fmItem.journal : (fmItem.journal_en || fmItem.journal)}
                                     </span>
                                   </div>
@@ -477,17 +536,87 @@ export default async function Home({ params }) {
                   };
                   return (
                     <>
-                      {config.email && <a href={String(config.email).startsWith('mailto:') ? String(config.email) : `mailto:${config.email}`} title="email"><i className="fas fa-envelope"></i></a>}
-                      {config.orcid_id && <a href={getSocialUrl(config.orcid_id, 'https://orcid.org/')} title="ORCID"><i className="ai ai-orcid"></i></a>}
-                      {config.scholar_userid && <a href={getSocialUrl(config.scholar_userid, 'https://scholar.google.com/citations?user=')} title="Google Scholar"><i className="ai ai-google-scholar"></i></a>}
-                      {config.scopus_id && <a href={getSocialUrl(config.scopus_id, 'https://www.scopus.com/authid/detail.uri?authorId=')} title="Scopus"><i className="ai ai-scopus"></i></a>}
-                      {config.github_username && <a href={getSocialUrl(config.github_username, 'https://github.com/')} title="GitHub"><i className="fab fa-github"></i></a>}
-                      {config.linkedin_username && <a href={getSocialUrl(config.linkedin_username, 'https://www.linkedin.com/in/')} title="LinkedIn"><i className="fab fa-linkedin"></i></a>}
-                      {config.research_gate_profile && <a href={getSocialUrl(config.research_gate_profile, 'https://www.researchgate.net/profile/')} title="ResearchGate"><i className="ai ai-researchgate"></i></a>}
-                      {config.semantic_scholar_id && <a href={getSocialUrl(config.semantic_scholar_id, 'https://www.semanticscholar.org/author/')} title="Semantic Scholar"><i className="ai ai-semantic-scholar"></i></a>}
-                      {config.kaggle_id && <a href={getSocialUrl(config.kaggle_id, 'https://kaggle.com/')} title="Kaggle"><i className="fab fa-kaggle"></i></a>}
-                      {config.discord_id && <a href={getSocialUrl(config.discord_id, 'https://discord.com/users/')} title="Discord"><i className="fab fa-discord"></i></a>}
-                      {config.rss_icon && <a href="/feed.xml" title="RSS"><i className="fas fa-rss"></i></a>}
+                      {config.email && (
+                        <a
+                          href={String(config.email).startsWith('mailto:') ? String(config.email) : `mailto:${config.email}`}
+                          title="Gmail / Email"
+                        >
+                          <img
+                            src="/assets/img/gmail-icon.png"
+                            alt="Gmail"
+                            style={{
+                              width: '1.15em',
+                              height: '1.15em',
+                              objectFit: 'contain',
+                              display: 'inline-block',
+                              verticalAlign: 'middle',
+                            }}
+                          />
+                        </a>
+                      )}
+                      {config.orcid_id && (
+                        <a href={getSocialUrl(config.orcid_id, 'https://orcid.org/')} title="ORCID" style={{ color: '#A6CE39' }}>
+                          <i className="ai ai-orcid"></i>
+                        </a>
+                      )}
+                      {(config.scholar_userid || config.google_scholar_id || true) && (
+                        <a
+                          href={getSocialUrl(config.scholar_userid || config.google_scholar_id || 'your_id', 'https://scholar.google.com/citations?user=')}
+                          title="Google Scholar"
+                        >
+                          <img
+                            src="/assets/img/scholar-icon.png"
+                            alt="Google Scholar"
+                            style={{
+                              width: '1.15em',
+                              height: '1.15em',
+                              objectFit: 'contain',
+                              display: 'inline-block',
+                              verticalAlign: 'middle',
+                            }}
+                          />
+                        </a>
+                      )}
+                      {config.scopus_id && (
+                        <a href={getSocialUrl(config.scopus_id, 'https://www.scopus.com/authid/detail.uri?authorId=')} title="Scopus" style={{ color: '#FF6C00' }}>
+                          <i className="ai ai-scopus"></i>
+                        </a>
+                      )}
+                      {config.github_username && (
+                        <a href={getSocialUrl(config.github_username, 'https://github.com/')} title="GitHub" style={{ color: '#24292E' }}>
+                          <i className="fab fa-github"></i>
+                        </a>
+                      )}
+                      {config.linkedin_username && (
+                        <a href={getSocialUrl(config.linkedin_username, 'https://www.linkedin.com/in/')} title="LinkedIn" style={{ color: '#0A66C2' }}>
+                          <i className="fab fa-linkedin"></i>
+                        </a>
+                      )}
+                      {config.research_gate_profile && (
+                        <a href={getSocialUrl(config.research_gate_profile, 'https://www.researchgate.net/profile/')} title="ResearchGate" style={{ color: '#00CCBB' }}>
+                          <i className="ai ai-researchgate"></i>
+                        </a>
+                      )}
+                      {config.semantic_scholar_id && (
+                        <a href={getSocialUrl(config.semantic_scholar_id, 'https://www.semanticscholar.org/author/')} title="Semantic Scholar" style={{ color: '#185ADB' }}>
+                          <i className="ai ai-semantic-scholar"></i>
+                        </a>
+                      )}
+                      {config.kaggle_id && (
+                        <a href={getSocialUrl(config.kaggle_id, 'https://kaggle.com/')} title="Kaggle" style={{ color: '#20BEFF' }}>
+                          <i className="fab fa-kaggle"></i>
+                        </a>
+                      )}
+                      {config.discord_id && (
+                        <a href={getSocialUrl(config.discord_id, 'https://discord.com/users/')} title="Discord" style={{ color: '#5865F2' }}>
+                          <i className="fab fa-discord"></i>
+                        </a>
+                      )}
+                      {config.rss_icon && (
+                        <a href="/feed.xml" title="RSS" style={{ color: '#FFA500' }}>
+                          <i className="fas fa-rss"></i>
+                        </a>
+                      )}
                     </>
                   );
                 })()}

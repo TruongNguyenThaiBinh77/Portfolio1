@@ -61,7 +61,18 @@ export default async function RootLayout({ children, params }) {
         
         <style dangerouslySetInnerHTML={{ __html: `
           ${config.navbar_text_color ? `.navbar.navbar-light .navbar-nav .nav-item .nav-link { color: ${config.navbar_text_color}; font-weight: normal; }` : ''}
-          ${config.navbar_active_text_color ? `.navbar.navbar-light .navbar-nav .nav-item.active > .nav-link, .navbar.navbar-light .navbar-nav .nav-link:hover { color: ${config.navbar_active_text_color}; font-weight: bold; }` : ''}
+          .navbar.navbar-light .navbar-nav .nav-item.active > .nav-link {
+            color: ${config.navbar_active_text_color || '#D92D20'} !important;
+            font-weight: bold !important;
+            text-decoration: underline !important;
+            text-decoration-color: ${config.navbar_active_text_color || '#D92D20'} !important;
+            text-underline-offset: 5px !important;
+            text-decoration-thickness: 2.5px !important;
+          }
+          .navbar.navbar-light .navbar-nav .nav-item:not(.active) .nav-link:hover {
+            color: ${config.navbar_active_text_color || '#D92D20'} !important;
+            text-decoration: none !important;
+          }
           ${config.global_hover_color ? `:root { --global-theme-color: ${config.global_hover_color}; --global-hover-color: ${config.global_hover_color}; } html[data-theme=dark] { --global-theme-color: ${config.global_hover_color}; --global-hover-color: ${config.global_hover_color}; } a:hover, table.table a:hover, .post-list li a:hover, .featured-posts a:hover, .post-description a:hover, .post .post-tags a:hover { color: ${config.global_hover_color} !important; }` : ''}
           
           /* Remove legacy bottom padding so footer sits flush with page bottom */

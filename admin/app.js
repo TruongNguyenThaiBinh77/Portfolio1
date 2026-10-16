@@ -4249,8 +4249,7 @@ async function loadNews() {
       <div class="dynamic-item" style="padding: 16px; margin-bottom: 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
         <div class="dynamic-item-header" style="align-items: flex-start; margin-bottom: 6px;">
           <div style="flex: 1; padding-right: 12px;">
-            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 4px; flex-wrap: wrap;">
-              ${fm.journal ? `<span class="badge" style="background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 4px; font-size: 11px;"><i class="fas fa-bookmark"></i> ${escHtml(fm.journal)}</span>` : ''}
+              ${fm.journal ? `<span class="badge" style="background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 4px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;"><span style="display: inline-block; width: 11px; height: 11px; background-color: currentColor; mask-image: url(/assets/img/journal-icon.png); -webkit-mask-image: url(/assets/img/journal-icon.png); mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;"></span> ${escHtml(fm.journal)}</span>` : ''}
               ${hasExternal ? `<span class="badge" style="background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; font-size: 11px;"><i class="fas fa-external-link-alt"></i> Link online</span>` : ''}
               ${hasPdf ? `<span class="badge" style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 11px;"><i class="fas fa-file-pdf"></i> Có file PDF</span>` : ''}
             </div>
@@ -4376,7 +4375,7 @@ function createNews() {
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
               <span style="font-weight: 600;"><i class="fas fa-palette text-warning"></i> Màu sắc huy hiệu Tạp chí (Journal Badge Style)</span>
               <span id="news-badge-preview" style="font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 12px; display: inline-flex; align-items: center; gap: 5px; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;">
-                <i class="fa-solid fa-bookmark" style="font-size: 11px;"></i> <span id="news-badge-preview-text">Tên tạp chí xem trước</span>
+                <span style="display: inline-block; width: 11px; height: 11px; background-color: currentColor; mask-image: url(/assets/img/journal-icon.png); -webkit-mask-image: url(/assets/img/journal-icon.png); mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;"></span> <span id="news-badge-preview-text">Tên tạp chí xem trước</span>
               </span>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 10px;">
@@ -4808,7 +4807,7 @@ async function editNews(slug) {
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
               <span style="font-weight: 600;"><i class="fas fa-palette text-warning"></i> Màu sắc huy hiệu Tạp chí (Journal Badge Style)</span>
               <span id="news-badge-preview" style="font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 12px; display: inline-flex; align-items: center; gap: 5px; background: ${jBg}; color: ${jColor}; border: 1px solid ${jBorder};">
-                <i class="fa-solid fa-bookmark" style="font-size: 11px;"></i> <span id="news-badge-preview-text">${escHtml(fm.journal || "Tên tạp chí xem trước")}</span>
+                <span style="display: inline-block; width: 11px; height: 11px; background-color: currentColor; mask-image: url(/assets/img/journal-icon.png); -webkit-mask-image: url(/assets/img/journal-icon.png); mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;"></span> <span id="news-badge-preview-text">${escHtml(fm.journal || "Tên tạp chí xem trước")}</span>
               </span>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 10px;">

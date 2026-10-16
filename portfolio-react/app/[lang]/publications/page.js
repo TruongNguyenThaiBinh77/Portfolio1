@@ -279,7 +279,24 @@ export default async function Publications({ params }) {
                                     gap: '4px',
                                   }}
                                 >
-                                  <i className="fa-solid fa-bookmark" style={{ fontSize: '0.68rem', opacity: 0.85 }}></i>
+                                  <span
+                                    style={{
+                                      display: 'inline-block',
+                                      width: '13px',
+                                      height: '13px',
+                                      backgroundColor: 'currentColor',
+                                      maskImage: 'url(/assets/img/journal-icon.png)',
+                                      WebkitMaskImage: 'url(/assets/img/journal-icon.png)',
+                                      maskSize: 'contain',
+                                      WebkitMaskSize: 'contain',
+                                      maskRepeat: 'no-repeat',
+                                      WebkitMaskRepeat: 'no-repeat',
+                                      maskPosition: 'center',
+                                      WebkitMaskPosition: 'center',
+                                      verticalAlign: '-1px',
+                                      flexShrink: 0,
+                                    }}
+                                  />
                                   {journal}
                                 </span>
                                 <span style={{ color: '#64748b' }}>

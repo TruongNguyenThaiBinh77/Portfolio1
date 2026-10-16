@@ -151,8 +151,9 @@ export default function Footer({ config = {}, cv = {}, lang = 'vi' }) {
           border-top: 1px solid var(--global-divider-color, rgba(0, 0, 0, 0.08));
           padding: 14px 0;
           display: flex;
-          justify-content: space-between;
+          justify-content: center;
           align-items: center;
+          text-align: center;
           flex-wrap: wrap;
           gap: 8px;
           color: var(--global-text-color-light, #64748b);
