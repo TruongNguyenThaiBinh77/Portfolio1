@@ -18,16 +18,15 @@ profile:
       logo_bg_color: '#ffffff'
 profile_en:
   align: right
-  image: prof_pic.jpg
+  image: 1788881916439_182076946761013925_4401139420092723248_ede41a0d53191ed44337ac945213c1dd.jpg
   image_circular: false
-  more_info: >
-    <p>FPT University Student <img
-    src="/assets/img/logo-dai-hoc-fpt-tach-nen_043150877.png" style="width:
-    120px; vertical-align: middle; margin-left: 5px;"></p>
-
-    <p>Ho Chi Minh City University of Technology <img
-    src="/assets/img/01_logobachkhoasang.png" style="width: 100px;
-    vertical-align: middle; margin-left: 5px;"></p>
+  more_info: |
+    <p>Member of Go Cao Hamlet Youth Union branch, Hau Nghia Commune, Tay Ninh Province</p>
+  more_info_rows:
+    - text: 'Member of Go Cao Hamlet Youth Union branch, Hau Nghia Commune, Tay Ninh Province'
+      logo: ''
+      logo_width: ''
+      logo_bg_color: '#ffffff'
 selected_papers: false
 social: true
 announcements:

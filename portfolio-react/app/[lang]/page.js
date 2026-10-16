@@ -206,8 +206,7 @@ export default async function Home({ params }) {
                                   gap: '6px',
                                 }}
                               >
-                                {/* Hình chữ nhật nhỏ: Text */}
-                                {(fmItem.sidebox_text || item.sidebox_text) && (
+                                                                 {(fmItem.sidebox_text || item.sidebox_text) && (
                                   <div
                                     className="news-sidebox-small-rect"
                                     style={{
@@ -225,7 +224,7 @@ export default async function Home({ params }) {
                                       wordBreak: 'break-word',
                                     }}
                                   >
-                                    {fmItem.sidebox_text || item.sidebox_text}
+                                    {lang === 'en' ? (fmItem.sidebox_text_en || item.sidebox_text_en || fmItem.badge_name_en || fmItem.sidebox_text || item.sidebox_text) : (fmItem.sidebox_text || item.sidebox_text)}
                                   </div>
                                 )}
 
@@ -368,7 +367,10 @@ export default async function Home({ params }) {
                                           text = b;
                                         } else if (b && typeof b === 'object') {
                                           const lbl = b.label || b.name || '';
-                                          const val = b.value !== undefined ? b.value : '';
+                                          let val = b.value !== undefined ? b.value : '';
+                                          if (lang === 'en' && typeof val === 'string' && val.toLowerCase().includes('chưa có data')) {
+                                            val = 'N/A';
+                                          }
                                           if (lbl && val) {
                                             if (val.startsWith('(') || lbl.endsWith(':')) {
                                               text = `${lbl} ${val}`.trim();

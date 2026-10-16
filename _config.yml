@@ -5,6 +5,9 @@ global_bg_image: ""
 first_name: Trương Nguyễn
 middle_name: Thái
 last_name: Bình
+first_name_en: Truong Nguyen
+middle_name_en: Thai
+last_name_en: Binh
 keywords: jekyll, jekyll-theme, academic-website, portfolio-website
 lang: vi
 icon: co-dang_d040e.jpg

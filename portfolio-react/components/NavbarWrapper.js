@@ -20,7 +20,7 @@ export default function NavbarWrapper({ config, lang }) {
 
   return (
     <div className="container">
-      <NavbarBrand config={config} />
+      <NavbarBrand config={config} lang={lang} />
       
       <button 
         className={`navbar-toggler ${isOpen ? '' : 'collapsed'} navbar-toggler-main`} 

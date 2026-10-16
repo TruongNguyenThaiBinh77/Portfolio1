@@ -2,14 +2,14 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 
-export default function NavbarBrand({ config }) {
+export default function NavbarBrand({ config, lang = 'vi' }) {
   const pathname = usePathname();
   const isHomePage = pathname === '/' || pathname === '/vi' || pathname === '/en';
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
       {config.header_logo && (
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', marginRight: '12px', flexShrink: 0 }}>
+        <Link href={`/${lang}`} style={{ display: 'flex', alignItems: 'center', marginRight: '12px', flexShrink: 0 }}>
           <img src={`/assets/img/${config.header_logo}`} style={{
             width: config.header_logo_size || 'auto',
             height: config.header_logo_height || '32px',
@@ -24,7 +24,7 @@ export default function NavbarBrand({ config }) {
       )}
       
       {!isHomePage && (
-        <Link href="/" className="navbar-brand title font-weight-lighter" style={{ 
+        <Link href={`/${lang}`} className="navbar-brand title font-weight-lighter" style={{ 
           margin: 0,
           textDecoration: 'none', 
           color: config.navbar_text_color || 'inherit',
