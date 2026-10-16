@@ -1564,13 +1564,34 @@ async function loadCV() {
     </div>
 
     <div class="card mt-4">
-      <div class="card-header d-flex justify-content-between align-items-center">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="gap: 10px;">
         <h2><i class="fas fa-briefcase"></i> Kinh nghiệm (Experience)</h2>
-        <button class="btn btn-sm btn-primary" onclick="addDynamicItem('experience-list', renderExperienceItem)">
-          <i class="fas fa-plus"></i> Thêm mới
-        </button>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" class="btn btn-sm btn-outline" onclick="toggleExpPreview()" style="font-weight: 500;">
+            <i class="fas fa-eye mr-1"></i> <span id="exp-preview-toggle-text">Ẩn xem trước</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-primary" onclick="addDynamicItem('experience-list', renderExperienceItem); setTimeout(updateExpSectionPreview, 100);">
+            <i class="fas fa-plus mr-1"></i> Thêm mới
+          </button>
+        </div>
       </div>
       <div class="card-body">
+        <!-- Live Preview Component cho Kinh nghiệm -->
+        <div id="exp-live-preview-wrapper" style="margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 10px 14px; background: rgba(130, 119, 23, 0.08); border-left: 4px solid var(--accent, #827717); border-radius: 4px; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <strong style="color: var(--accent, #827717); font-size: 0.92rem;"><i class="fas fa-tv mr-1"></i> XEM TRƯỚC SECTION KINH NGHIỆM (LIVE PREVIEW)</strong>
+              <span class="badge" style="background: #e2e8f0; color: #475569; font-size: 0.72rem; padding: 2px 8px; border-radius: 4px;">Khớp 100% giao diện CV</span>
+            </div>
+            <div style="display: flex; gap: 4px; align-items: center;">
+              <span style="font-size: 0.75rem; color: #64748b; margin-right: 2px;">Ngôn ngữ:</span>
+              <button type="button" class="btn btn-sm btn-primary exp-preview-lang-btn" id="exp-preview-lang-vi" onclick="setExpPreviewLang('vi')" style="padding: 2px 10px; font-size: 0.78rem;">Tiếng Việt</button>
+              <button type="button" class="btn btn-sm btn-outline exp-preview-lang-btn" id="exp-preview-lang-en" onclick="setExpPreviewLang('en')" style="padding: 2px 10px; font-size: 0.78rem;">English</button>
+            </div>
+          </div>
+          <div id="exp-live-preview-content" style="background: var(--bg-primary, #ffffff); border: 1px solid var(--border, #e2e8f0); border-radius: 8px; padding: 20px 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.04);"></div>
+        </div>
+
         <div id="experience-list" class="dynamic-list">${expHtml}</div>
       </div>
     </div>
@@ -1615,7 +1636,7 @@ async function loadCV() {
   // Make lists sortable
   initSortable('cv-custom-info-list');
   initSortable('education-list', updateEduSectionPreview);
-  initSortable('experience-list');
+  initSortable('experience-list', updateExpSectionPreview);
   initSortable('honors-list');
   initSortable('languages-list');
   initSortable('skills-list');
@@ -1628,6 +1649,15 @@ async function loadCV() {
     });
   }
   setTimeout(updateEduSectionPreview, 150);
+
+  // Experience live preview & input sync
+  const expListEl = document.getElementById('experience-list');
+  if (expListEl) {
+    expListEl.addEventListener('input', () => {
+      updateExpSectionPreview();
+    });
+  }
+  setTimeout(updateExpSectionPreview, 150);
 }
 
 function renderCustomInfoItem(ci = {}, i = 0) {
@@ -2096,12 +2126,228 @@ function renderEducationItem(edu = {}, i = 0) {
   `;
 }
 
+let currentExpPreviewLang = 'vi';
+
+function setExpPreviewLang(lang) {
+  currentExpPreviewLang = lang;
+  const btnVi = document.getElementById('exp-preview-lang-vi');
+  const btnEn = document.getElementById('exp-preview-lang-en');
+  if (btnVi && btnEn) {
+    btnVi.className = 'btn btn-sm ' + (lang === 'vi' ? 'btn-primary' : 'btn-outline') + ' exp-preview-lang-btn';
+    btnEn.className = 'btn btn-sm ' + (lang === 'en' ? 'btn-primary' : 'btn-outline') + ' exp-preview-lang-btn';
+  }
+  updateExpSectionPreview();
+}
+
+function toggleExpPreview() {
+  const wrapper = document.getElementById('exp-live-preview-wrapper');
+  const toggleText = document.getElementById('exp-preview-toggle-text');
+  if (!wrapper) return;
+  if (wrapper.style.display === 'none') {
+    wrapper.style.display = 'block';
+    if (toggleText) toggleText.innerText = 'Ẩn xem trước';
+    updateExpSectionPreview();
+  } else {
+    wrapper.style.display = 'none';
+    if (toggleText) toggleText.innerText = 'Hiện xem trước';
+  }
+}
+
+function updateExpSectionPreview() {
+  const previewBox = document.getElementById('exp-live-preview-content');
+  if (!previewBox) return;
+
+  const items = document.querySelectorAll('#experience-list .dynamic-item');
+  if (items.length === 0) {
+    previewBox.innerHTML = `
+      <div style="text-align: center; color: #94a3b8; padding: 24px 0; font-style: italic;">
+        <i class="fas fa-briefcase" style="font-size: 2rem; margin-bottom: 8px; display: block; opacity: 0.5;"></i>
+        Chưa có mục kinh nghiệm nào. Nhấn "+ Thêm mới" để tạo.
+      </div>
+    `;
+    return;
+  }
+
+  const isEn = currentExpPreviewLang === 'en';
+  const titleVi = document.getElementById('cv-experience-title')?.value.trim() || 'Kinh nghiệm';
+  const titleEn = document.getElementById('cv-experience-title-en')?.value.trim() || 'Experience';
+  const title = isEn ? titleEn : titleVi;
+  const titleColor = document.getElementById('cv-experience-title-color')?.value || '#827717';
+  const titleBold = document.getElementById('cv-experience-title-bold')?.checked !== false;
+
+  const pick = (item, sel) => {
+    const vi = item.querySelector('.' + sel)?.value.trim() || '';
+    const en = item.querySelector('.' + sel + '_en')?.value.trim() || '';
+    return isEn ? (en || vi) : (vi || en);
+  };
+
+  let html = `
+    <div style="font-family: inherit;">
+      <h3 style="color: ${titleColor}; font-weight: ${titleBold ? 'bold' : 'normal'}; font-size: 1.35rem; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">
+        <span>${escHtml(title)}</span>
+        <span style="font-size: 0.72rem; font-weight: normal; color: #64748b; background: #f1f5f9; padding: 2px 8px; border-radius: 12px;">${items.length} mục</span>
+      </h3>
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+  `;
+
+  items.forEach((item, index) => {
+    const company = pick(item, 'exp-company');
+    const position = pick(item, 'exp-position') || (isEn ? 'Position' : 'Chức vụ');
+    const loc = pick(item, 'exp-location');
+    const summary = pick(item, 'exp-summary');
+    const start = pick(item, 'exp-start');
+    const end = pick(item, 'exp-end');
+    const dateStr = start && end ? `${start} - ${end}` : (start || end || '');
+
+    const logo = item.querySelector('.exp-logo')?.value.trim() || '';
+    const logoSizeRaw = item.querySelector('.exp-logo-size')?.value.trim() || '100';
+    const logoSizePx = /^\d+$/.test(logoSizeRaw) ? `${logoSizeRaw}px` : (logoSizeRaw || '100px');
+
+    const highVi = item.querySelector('.exp-highlights')?.value || '';
+    const highEn = item.querySelector('.exp-highlights_en')?.value || '';
+    const highlights = (isEn ? (highEn || highVi) : (highVi || highEn)).split('\n').map(s => s.trim()).filter(Boolean);
+
+    html += `
+      <div style="display: flex; flex-wrap: wrap; gap: 16px; padding-bottom: 20px; border-bottom: ${index !== items.length - 1 ? '1px solid #f1f5f9' : 'none'}; align-items: flex-start;">
+        <div style="flex: 0 0 120px;">
+          <span style="background-color: var(--accent, #827717); color: #fff; font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 4px; display: inline-block; text-align: center; letter-spacing: 0.3px;">${escHtml(dateStr)}</span>
+        </div>
+        <div style="flex: 1; min-width: 280px; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 4px; word-break: break-word;">${escHtml(position)}</div>
+            <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 0.92rem; color: #334155; margin-bottom: 6px;">
+              <i class="fa-solid fa-briefcase" style="color: #3b82f6; font-size: 0.95rem; margin-top: 3px; flex-shrink: 0;"></i>
+              <div style="flex: 1; min-width: 0; word-break: break-word;">
+                <span style="font-weight: 500;">${escHtml(company || (isEn ? 'Company name' : 'Tên công ty/tổ chức'))}</span>
+                ${loc ? `<span style="color: #64748b; font-size: 0.88rem; margin-left: 6px;">(${escHtml(loc)})</span>` : ''}
+              </div>
+            </div>
+            ${summary ? `<p style="font-size: 0.88rem; color: #64748b; margin: 0 0 6px 0; word-break: break-word;">${escHtml(summary)}</p>` : ''}
+            ${highlights.length > 0 ? `
+              <ul style="margin: 0; padding-left: 18px; list-style-type: circle; color: #475569; font-size: 0.88rem; line-height: 1.6;">
+                ${highlights.map(h => `<li style="margin-bottom: 3px;">${escHtml(h)}</li>`).join('')}
+              </ul>
+            ` : ''}
+          </div>
+          ${logo ? `
+            <div style="flex-shrink: 0; display: flex; align-items: flex-start; justify-content: center; padding: 4px; background: #fff; border: 1px dashed #e2e8f0; border-radius: 6px;" title="Logo: ${escHtml(logo)} (Kích thước: ${logoSizePx})">
+              <img src="${logo.startsWith('/') || logo.startsWith('http') ? logo : '/assets/img/' + logo}" alt="${escHtml(company || 'Logo')}" style="width: ${logoSizePx}; max-width: 260px; max-height: 110px; object-fit: contain; display: block;" onerror="this.parentElement.innerHTML='<span style=\\'font-size:0.75rem;color:#ef4444;\\'>Ảnh lỗi</span>'" />
+            </div>
+          ` : `
+            <div style="flex-shrink: 0; padding: 6px 10px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; font-size: 0.72rem; color: #94a3b8; font-style: italic;">Không có logo</div>
+          `}
+        </div>
+      </div>
+    `;
+  });
+
+  html += `
+      </div>
+    </div>
+  `;
+  previewBox.innerHTML = html;
+}
+
+function syncExpLogoSize(container, sizeNum) {
+  const slider = container.querySelector('.exp-logo-slider');
+  const number = container.querySelector('.exp-logo-number');
+  const hidden = container.querySelector('.exp-logo-size');
+  const val = Math.max(30, Math.min(300, parseInt(sizeNum, 10) || 100));
+  if (slider) slider.value = Math.min(250, Math.max(40, val));
+  if (number) number.value = val;
+  if (hidden) hidden.value = val;
+  updateExpSectionPreview();
+}
+
+function onExpLogoSliderChange(slider) {
+  const container = slider.closest('.dynamic-item');
+  if (container) syncExpLogoSize(container, slider.value);
+}
+
+function onExpLogoNumberChange(input) {
+  const container = input.closest('.dynamic-item');
+  if (container) syncExpLogoSize(container, input.value);
+}
+
+function setExpLogoPreset(btn, sizePx) {
+  const container = btn.closest('.dynamic-item');
+  if (container) syncExpLogoSize(container, sizePx);
+}
+
+function setExpLogoThumb(container, val) {
+  const thumb = container.querySelector('.exp-logo-thumb');
+  const noImg = container.querySelector('.exp-logo-no-img');
+  if (val) {
+    if (thumb) {
+      thumb.src = val.startsWith('/') || val.startsWith('http') ? val : '/assets/img/' + val;
+      thumb.style.display = 'block';
+    }
+    if (noImg) noImg.style.display = 'none';
+  } else {
+    if (thumb) {
+      thumb.src = '';
+      thumb.style.display = 'none';
+    }
+    if (noImg) noImg.style.display = 'block';
+  }
+}
+
+function onExpLogoPathChange(input) {
+  const container = input.closest('.dynamic-item');
+  if (!container) return;
+  setExpLogoThumb(container, input.value.trim());
+  updateExpSectionPreview();
+}
+
+function clearExpLogo(btn) {
+  const container = btn.closest('.dynamic-item');
+  if (!container) return;
+  const textInput = container.querySelector('.exp-logo');
+  if (textInput) textInput.value = '';
+  setExpLogoThumb(container, '');
+  updateExpSectionPreview();
+}
+
+async function uploadExpLogoFile(fileInput) {
+  if (!fileInput.files || fileInput.files.length === 0) return;
+  const file = fileInput.files[0];
+  const formData = new FormData();
+  formData.append('image', file);
+
+  showLoading();
+  try {
+    const res = await fetch(`${API}/upload`, { method: 'POST', body: formData }).then(r => r.json());
+    if (res.success) {
+      const container = fileInput.closest('.dynamic-item');
+      if (container) {
+        const textInput = container.querySelector('.exp-logo');
+        if (textInput) textInput.value = res.filename;
+        setExpLogoThumb(container, res.filename);
+        updateExpSectionPreview();
+      }
+      showToast("Tải logo lên thành công!", "success");
+    } else {
+      showToast("Lỗi: " + (res.error || "Không thể tải file"), "error");
+    }
+  } catch (err) {
+    showToast("Lỗi tải logo: " + err.message, "error");
+  } finally {
+    hideLoading();
+    fileInput.value = '';
+  }
+}
+
 function renderExperienceItem(exp = {}, i = 0) {
+  const rawSize = exp.logo_size !== undefined && exp.logo_size !== null ? String(exp.logo_size).trim() : "";
+  const currentSizeNum = parseInt(rawSize, 10) || 100;
+  const currentLogo = exp.logo || "";
+  const logoSrc = currentLogo ? (currentLogo.startsWith('/') || currentLogo.startsWith('http') ? currentLogo : '/assets/img/' + currentLogo) : '';
+
   return `
     <div class="dynamic-item" data-index="${i}">
       <div class="dynamic-item-header">
         <span class="dynamic-item-title"><i class="fas fa-arrows-alt handle mr-2" style="cursor: grab; opacity: 0.5;"></i> ${escHtml(exp.company || exp.position || "New Experience")}</span>
-        <button class="btn btn-sm btn-danger" onclick="this.closest('.dynamic-item').remove()">
+        <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.dynamic-item').remove(); setTimeout(updateExpSectionPreview, 50);">
           <i class="fas fa-trash"></i>
         </button>
       </div>
@@ -2154,6 +2400,59 @@ function renderExperienceItem(exp = {}, i = 0) {
           <div style="flex: 1;">
             <label>End Date (Tiếng Anh)</label>
             <input type="text" class="exp-end_en" value="${escHtml(String(exp.end_date_en || ""))}" />
+          </div>
+        </div>
+        <!-- Tùy chỉnh Logo & Kích thước Logo -->
+        <div class="form-group full-width" style="background: rgba(0,0,0,0.02); border: 1px dashed var(--border); border-radius: var(--radius-sm, 8px); padding: 14px 16px; margin: 4px 0 10px 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="font-size: 0.88rem; font-weight: 600; color: var(--accent-light, #0f766e);">
+              <i class="fas fa-image mr-1"></i> Logo công ty / tổ chức
+            </span>
+            <span style="font-size: 0.78rem; color: #64748b;">(Tự do điều chỉnh kích thước logo & tải ảnh mới)</span>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start;">
+            <div style="width: 100px; height: 85px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-primary, #ffffff); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; padding: 4px;" title="Ảnh logo hiện tại">
+              <img class="exp-logo-thumb" src="${logoSrc}" alt="Logo" style="max-width: 100%; max-height: 100%; object-fit: contain; display: ${currentLogo ? 'block' : 'none'};" />
+              <span class="exp-logo-no-img" style="font-size: 0.72rem; color: #94a3b8; text-align: center; display: ${currentLogo ? 'none' : 'block'};">Chưa có logo</span>
+            </div>
+            <div style="flex: 1; min-width: 260px;">
+              <label style="font-size: 0.8rem; margin-bottom: 4px; display: block; font-weight: 500;">Tên file hoặc đường dẫn ảnh:</label>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <input type="text" class="exp-logo form-control" value="${escHtml(currentLogo)}" placeholder="VD: logo-aws.png" style="font-size: 0.85rem; height: 36px;" oninput="onExpLogoPathChange(this)" />
+                <input type="file" class="exp-logo-file-input" accept="image/*,.svg,.png,.webp,.jpg,.jpeg" style="display: none;" onchange="uploadExpLogoFile(this)" />
+                <button type="button" class="btn btn-sm btn-outline" onclick="this.parentElement.querySelector('.exp-logo-file-input').click()" title="Tải ảnh logo từ máy tính" style="white-space: nowrap; font-size: 0.82rem; height: 36px; display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0;">
+                  <i class="fas fa-upload"></i> Tải ảnh
+                </button>
+                <button type="button" class="btn btn-sm btn-danger btn-icon" onclick="clearExpLogo(this)" title="Xóa logo này" style="height: 36px; width: 36px; padding: 0; flex-shrink: 0;">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div style="margin-top: 10px; background: var(--bg-primary, #ffffff); padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <label style="font-size: 0.82rem; font-weight: 600; margin: 0; color: #334155;">
+                    <i class="fas fa-arrows-alt-h text-primary"></i> Chiều rộng logo (Width):
+                  </label>
+                  <div style="display: flex; align-items: center; gap: 5px;">
+                    <input type="number" class="exp-logo-number form-control" min="30" max="260" step="5" value="${currentSizeNum}" oninput="onExpLogoNumberChange(this)" style="width: 70px; height: 28px; padding: 2px 6px; font-size: 0.85rem; font-weight: 700; text-align: center;" />
+                    <span style="font-size: 0.82rem; color: #64748b;">px</span>
+                    <input type="hidden" class="exp-logo-size" value="${currentSizeNum}" />
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                  <span style="font-size: 0.72rem; color: #94a3b8;">40px</span>
+                  <input type="range" class="exp-logo-slider" min="40" max="250" step="5" value="${currentSizeNum}" oninput="onExpLogoSliderChange(this)" style="flex: 1; cursor: pointer;" />
+                  <span style="font-size: 0.72rem; color: #94a3b8;">250px</span>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 5px; align-items: center;">
+                  <span style="font-size: 0.72rem; color: #64748b; margin-right: 2px;">Cỡ nhanh:</span>
+                  <button type="button" class="btn btn-sm btn-outline" onclick="setExpLogoPreset(this, 70)" style="padding: 1px 7px; font-size: 0.72rem;">70px (Nhỏ)</button>
+                  <button type="button" class="btn btn-sm btn-outline" onclick="setExpLogoPreset(this, 100)" style="padding: 1px 7px; font-size: 0.72rem;">100px (Chuẩn)</button>
+                  <button type="button" class="btn btn-sm btn-outline" onclick="setExpLogoPreset(this, 130)" style="padding: 1px 7px; font-size: 0.72rem; font-weight: bold;">130px (Rõ nét)</button>
+                  <button type="button" class="btn btn-sm btn-outline" onclick="setExpLogoPreset(this, 170)" style="padding: 1px 7px; font-size: 0.72rem;">170px (Lớn)</button>
+                  <button type="button" class="btn btn-sm btn-outline" onclick="setExpLogoPreset(this, 210)" style="padding: 1px 7px; font-size: 0.72rem;">210px (Cực đại)</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="form-group full-width" style="display: flex; gap: 15px;">
@@ -2404,6 +2703,8 @@ async function saveCV() {
     start_date_en: el.querySelector(".exp-start_en").value,
     end_date: el.querySelector(".exp-end").value,
     end_date_en: el.querySelector(".exp-end_en").value,
+    logo: el.querySelector(".exp-logo").value,
+    logo_size: el.querySelector(".exp-logo-size").value,
     summary: el.querySelector(".exp-summary").value,
     summary_en: el.querySelector(".exp-summary_en").value,
     highlights: el.querySelector(".exp-highlights").value.split("\n").filter((s) => s.trim()),

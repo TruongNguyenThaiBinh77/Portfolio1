@@ -47,12 +47,10 @@ cv:
         url: ""
         highlights:
           - Chuyên ngành Kỹ thuật phần mềm (K18)
-          - Đạt học bổng 100% toàn khóa học
-          - Tích cực tham gia các phong trào sinh viên và câu lạc bộ học thuật
+          - GPA 3.5/4.0
         highlights_en:
           - Major in Software Engineering (K18)
-          - Awarded 100% full-ride scholarship
-          - Actively participated in student movements and academic clubs
+          - GPA 3.5/4.0
       - institution: Đại học Bách Khoa - ĐHQGHCM
         institution_en: Ho Chi Minh City University of Technology (HCMUT)
         location: Thành phố Hồ Chí Minh
@@ -70,29 +68,44 @@ cv:
         url: ""
         highlights:
           - Nghiên cứu chế tạo xe Mecanum ứng dụng IoT
-          - Đạt điểm A đồ án cuối khóa
+          - Xếp loại Giỏi cuối khóa
         highlights_en:
           - Researched and built a Mecanum robot with IoT applications
-          - Achieved an A grade for the final project
+          - Achieved an Honorable grade for the final project
+      - institution: Đại học Tunku Abdul Rahman
+        institution_en: Tunku Abdul Rahman University
+        location: Malaysia
+        location_en: Malaysia
+        area: ""
+        area_en: ""
+        studyType: Học tiếng Anh chuyên sâu
+        studyType_en: English language training course
+        start_date: 09-2023
+        start_date_en: Sep 2023
+        end_date: 10-2023
+        end_date_en: Oct 2023
+        logo: 1d45e-tarumt-logo-1-.png
+        logo_size: "100"
+        url: ""
+        highlights: []
+        highlights_en: []
     Experience:
-      - company: Công ty Cổ phần Công nghệ FPT (FPT Software)
-        company_en: FPT Software JSC
-        position: Thực tập sinh Kỹ sư Phần mềm
-        position_en: Software Engineer Intern
+      - company: Công ty TNHH Amazon Web Services Việt Nam
+        company_en: Amazon Web Services Vietnam Co., Ltd.
+        position: Thực tập sinh FCJ Cloud
+        position_en: FCJ Cloud Intern
         location: TP. Hồ Chí Minh
         location_en: Ho Chi Minh City
-        start_date: 01-2025
-        start_date_en: Jan 2025
-        end_date: PRESENT
-        end_date_en: PRESENT
-        summary: Tham gia phát triển hệ thống quản lý nội bộ sử dụng ReactJS và Node.js.
-        summary_en: Participated in developing an internal management system using ReactJS and Node.js.
-        highlights:
-          - Xây dựng hơn 20 RESTful APIs cho module Quản lý Nhân sự.
-          - Tối ưu hóa tốc độ tải trang frontend lên 30%.
-        highlights_en:
-          - Built over 20 RESTful APIs for the Human Resources Management module.
-          - Optimized frontend page load speed by 30%.
+        start_date: 08-2025
+        start_date_en: Aug 2025
+        end_date: 12-2025
+        end_date_en: Dec 2025
+        logo: aws.svg
+        logo_size: "100"
+        summary: Thực tập tại Amazon Web Services Việt Nam trong chương trình FCJ Cloud Intern.
+        summary_en: Interned at Amazon Web Services Vietnam in the FCJ Cloud Intern program.
+        highlights: []
+        highlights_en: []
       - company: CLB Học thuật (Academic Club)
         company_en: Academic Club FPTU
         position: Trưởng ban Chuyên môn
@@ -103,6 +116,8 @@ cv:
         start_date_en: Sep 2023
         end_date: 12-2024
         end_date_en: Dec 2024
+        logo: ""
+        logo_size: "100"
         summary: Tổ chức các buổi workshop chia sẻ kiến thức lập trình cho sinh viên.
         summary_en: Organized workshops to share programming knowledge with students.
         highlights:
@@ -114,20 +129,20 @@ cv:
     Honors and Awards:
       - title: Học bổng Sáng tạo khởi nghiệp Đại học FPT
         title_en: FPT University Startup Innovation Scholarship
-        date: "2024"
-        date_en: "2024"
+        date: "2026"
+        date_en: "2026"
         issuer: Đại học FPT
         issuer_en: FPT University
         location: TP. Hồ Chí Minh
         location_en: Ho Chi Minh City
-      - title: Giải Nhất Cuộc thi Hackathon Mùa hè 2023
-        title_en: First Prize in Summer Hackathon 2023
-        date: "2023"
-        date_en: "2023"
-        issuer: Hội Sinh viên TP.HCM
-        issuer_en: HCMC Student Association
-        location: TP. Hồ Chí Minh
-        location_en: Ho Chi Minh City
+      - title: Giấy khen có thành tích trong công tác bầu cử đại biểu Quốc hội khóa XVI và HĐND các cấp nhiệm kỳ 2026–2031
+        title_en: Certificate of Merit for achievements in the election of deputies to the 16th National Assembly and People's Councils at all levels for the 2026–2031 term
+        date: "2026"
+        date_en: "2026"
+        issuer: UBND xã Hậu Nghĩa
+        issuer_en: People's Committee of Hau Nghia Commune
+        location: Xã Hậu Nghĩa
+        location_en: Hau Nghia Commune
     Languages:
       - name: Tiếng Việt
         name_en: Vietnamese

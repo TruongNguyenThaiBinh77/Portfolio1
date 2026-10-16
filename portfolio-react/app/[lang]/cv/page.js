@@ -411,7 +411,8 @@ export default async function CV({ params }) {
                                 {exp.start_date} - {exp.end_date}
                               </span>
                             </div>
-                            <div className="col-12 col-md-9 col-lg-10 mt-1 mt-md-0">
+                            <div className="col-12 col-md-9 col-lg-10 mt-1 mt-md-0" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                              <div style={{ flex: 1, minWidth: 0 }}>
                               <h6 className="title font-weight-bold ml-0 ml-md-4" style={{ fontSize: '1.05rem', marginBottom: '6px', color: 'var(--global-text-color)', wordBreak: 'break-word' }}>
                                 {exp.position}
                               </h6>
@@ -436,6 +437,22 @@ export default async function CV({ params }) {
                                     </li>
                                   ))}
                                 </ul>
+                              )}
+                              </div>
+                              {exp.logo && (
+                                <div className="cv-edu-logo" style={{ marginLeft: '16px', flexShrink: 0, display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
+                                  <img
+                                    src={`/assets/img/${exp.logo}`}
+                                    alt={exp.company || "Logo"}
+                                    style={{
+                                      width: getLogoSize(exp.logo_size),
+                                      maxWidth: '260px',
+                                      maxHeight: '110px',
+                                      objectFit: 'contain',
+                                      display: 'block'
+                                    }}
+                                  />
+                                </div>
                               )}
                             </div>
                           </div>
@@ -478,20 +495,22 @@ export default async function CV({ params }) {
                                 {honor.date}
                               </span>
                             </div>
-                            <div className="col-12 col-md-9 col-lg-10 mt-1 mt-md-0">
-                              <ul className="items ml-0 ml-md-4" style={{ listStyleType: 'none', paddingLeft: '0', marginBottom: '0' }}>
-                                <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                  <i className="fa-solid fa-award" style={{ color: '#eab308', fontSize: '1rem', flexShrink: 0, marginTop: '2px' }}></i>
-                                  <div style={{ flex: 1, minWidth: 0 }}>
-                                    <span className="item" style={{ fontSize: '0.95rem', fontWeight: '500', color: 'var(--global-text-color)', wordBreak: 'break-word' }}>
-                                      {honor.title}
-                                    </span>
-                                    {honor.issuer && (
-                                      <span style={{ color: '#64748b', fontSize: '0.88rem', marginLeft: '6px' }}>– {honor.issuer}</span>
-                                    )}
+                             <div className="col-12 col-md-9 col-lg-10 mt-1 mt-md-0">
+                              <div className="ml-0 ml-md-4">
+                                {honor.issuer && (
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minHeight: '30px', marginBottom: '4px', color: 'var(--global-text-color)', fontSize: '0.95rem', fontWeight: '600' }}>
+                                    <i className="fa-solid fa-building-columns" style={{ color: '#06b6d4', fontSize: '1rem', flexShrink: 0 }}></i>
+                                    <span style={{ wordBreak: 'break-word' }}>{honor.issuer}</span>
                                   </div>
-                                </li>
-                              </ul>
+                                )}
+                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                                  <i className="fa-solid fa-award" style={{ color: '#eab308', fontSize: '1rem', flexShrink: 0, marginTop: '2px' }}></i>
+                                  <span className="item" style={{ fontSize: '0.95rem', fontWeight: '400', color: 'var(--global-text-color)', wordBreak: 'break-word', flex: 1, minWidth: 0 }}>
+                                    {honor.title}
+                                  </span>
+                                </div>
+                              </div>
+
                             </div>
                           </div>
                         </li>
