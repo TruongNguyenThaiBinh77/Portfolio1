@@ -18,12 +18,16 @@ profile:
       logo_bg_color: '#ffffff'
 profile_en:
   align: right
-  image: 1788881916439_182076946761013925_4401139420092723248_ede41a0d53191ed44337ac945213c1dd.jpg
+  image: >-
+    1788881916439_182076946761013925_4401139420092723248_ede41a0d53191ed44337ac945213c1dd.jpg
   image_circular: false
-  more_info: |
-    <p>Member of Go Cao Hamlet Youth Union branch, Hau Nghia Commune, Tay Ninh Province</p>
+  more_info: >
+    <p>Member of Go Cao Hamlet Youth Union branch, Hau Nghia Commune, Tay Ninh
+    Province</p>
   more_info_rows:
-    - text: 'Member of Go Cao Hamlet Youth Union branch, Hau Nghia Commune, Tay Ninh Province'
+    - text: >-
+        Member of Go Cao Hamlet Youth Union branch, Hau Nghia Commune, Tay Ninh
+        Province
       logo: ''
       logo_width: ''
       logo_bg_color: '#ffffff'
@@ -60,7 +64,7 @@ content_en: >-
   academic background, and the publications I've contributed to. Let's connect
   and build something amazing together!
 ---
-Xin chào! Mình là một **Sinh viên ngành Kỹ thuật phần mềm** đầy nhiệt huyết, hiện đang theo học tại <span style="color: #fd9f24">Đại học FPT, campus Hồ Chí Minh</span>. Hành trình học thuật của mình bắt nguồn từ niềm đam mê sâu sắc với công nghệ và tiềm năng ứng dụng công nghệ để giải quyết các vấn đề thực tiễn.
+Xin chào! Mình là một **Sinh viên ngành Kỹ thuật phần mềm** đầy nhiệt huyết, hiện đang theo học tại **<span style="color: #fd9f24">Đại học FPT, campus Hồ Chí Minh</span>**. Hành trình học thuật của mình bắt nguồn từ niềm đam mê sâu sắc với công nghệ và tiềm năng ứng dụng công nghệ để giải quyết các vấn đề thực tiễn.
 
 Chuyên môn của mình tập trung vào **Phát triển Web, App**, đặc biệt là sử dụng các framework hiện đại như React và Next.js, cùng với việc xây dựng các hệ thống backend mạnh mẽ bằng Node.js và Python. Mình luôn không ngừng học hỏi và khám phá những kiến trúc phần mềm, điện toán đám mây và trí tuệ nhân tạo mới nhất.
 

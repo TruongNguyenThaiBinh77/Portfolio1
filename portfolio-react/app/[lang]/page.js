@@ -59,6 +59,9 @@ export default async function Home({ params }) {
               color: var(--global-hover-color, #8c0303) !important;
               text-decoration: none !important;
             }
+            .about-content-body p {
+              margin-bottom: 1rem;
+            }
             @media (max-width: 767px) {
               .profile.float-right {
                 float: none !important;
@@ -108,7 +111,7 @@ export default async function Home({ params }) {
           </div>
           
           {/* Render the actual Markdown content from about.md here, not more_info */}
-          <div className="clearfix" dangerouslySetInnerHTML={{ __html: contentHtml }}></div>
+          <div className="clearfix about-content-body" dangerouslySetInnerHTML={{ __html: contentHtml }}></div>
 
           {/* News Section */}
           {processedNews.length > 0 && (fm.news || fm.announcements?.enabled !== false) && (

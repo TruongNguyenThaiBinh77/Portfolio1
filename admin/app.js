@@ -1060,25 +1060,24 @@ async function loadAbout() {
 
     <div class="card">
       <div class="card-header">
-        <h2><i class="fas fa-edit"></i> Nội dung (Markdown)</h2>
+        <h2><i class="fas fa-edit"></i> Nội dung trang chủ (Soạn thảo văn bản như Word)</h2>
       </div>
       <div class="card-body">
+        <p class="text-muted" style="font-size: 0.88rem; margin-bottom: 18px;">
+          Bạn có thể định dạng chữ <strong>In đậm (B)</strong>, <em>In nghiêng (I)</em>, gạch đầu dòng, căn chỉnh, chèn link... trực tiếp bằng các nút trên thanh công cụ giống như trong Word mà không cần nhớ các ký tự Markdown.
+        </p>
         <div class="form-grid">
-          <div class="form-group full-width" style="display: flex; gap: 15px;">
-            <div style="flex: 1;">
-              <label>Nội dung (Tiếng Việt)</label>
-              <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="text" class="form-control" readonly value="..." style="flex: 1;" />
-                <button class="btn btn-outline" onclick="openEditorModal('Nội dung (Tiếng Việt)', window._aboutContentVi, (val) => window._aboutContentVi = val)"><i class="fas fa-edit"></i> Chỉnh sửa</button>
-              </div>
-            </div>
-            <div style="flex: 1;">
-              <label>Nội dung (Tiếng Anh)</label>
-              <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="text" class="form-control" readonly value="..." style="flex: 1;" />
-                <button class="btn btn-outline" onclick="openEditorModal('Nội dung (Tiếng Anh)', window._aboutContentEn, (val) => window._aboutContentEn = val)"><i class="fas fa-edit"></i> Chỉnh sửa</button>
-              </div>
-            </div>
+          <div class="form-group full-width" style="margin-bottom: 24px;">
+            <label style="font-weight: 600; font-size: 0.95rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; color: var(--accent-light);">
+              <i class="fas fa-file-alt"></i> Nội dung (Tiếng Việt)
+            </label>
+            <div id="about-editor-vi-container" style="background: var(--bg-tertiary); border-radius: 8px; overflow: hidden; border: 1px solid var(--border);"></div>
+          </div>
+          <div class="form-group full-width">
+            <label style="font-weight: 600; font-size: 0.95rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; color: var(--accent-light);">
+              <i class="fas fa-globe"></i> Nội dung (Tiếng Anh)
+            </label>
+            <div id="about-editor-en-container" style="background: var(--bg-tertiary); border-radius: 8px; overflow: hidden; border: 1px solid var(--border);"></div>
           </div>
         </div>
       </div>
@@ -1092,7 +1091,14 @@ async function loadAbout() {
       </div>
     </div>
   `);
+
   renderMoreInfoRows();
+
+  // Khởi tạo 2 bộ soạn thảo WYSIWYG trực tiếp (như Word)
+  setTimeout(() => {
+    initEditor('about-editor-vi-container', data.body || '', '420px');
+    initEditor('about-editor-en-container', fm.content_en || '', '420px');
+  }, 100);
 }
 
 async function saveAbout() {
@@ -1120,8 +1126,14 @@ async function saveAbout() {
     more_info_rows: moreInfoRowsData
   };
   
-  const finalBody = window._aboutContentVi;
-  fm.content_en = window._aboutContentEn;
+  // Lấy nội dung từ WYSIWYG editor nếu có, nếu không lấy từ textarea/biến
+  const finalBody = editors['about-editor-vi-container'] 
+    ? editors['about-editor-vi-container'].getMarkdown() 
+    : (document.getElementById("about-content-vi") ? document.getElementById("about-content-vi").value : (window._aboutContentVi || ""));
+
+  fm.content_en = editors['about-editor-en-container'] 
+    ? editors['about-editor-en-container'].getMarkdown() 
+    : (document.getElementById("about-content-en") ? document.getElementById("about-content-en").value : (window._aboutContentEn || ""));
 
   try {
     await fetch(`${API}/about`, {
@@ -1129,7 +1141,7 @@ async function saveAbout() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ frontMatter: fm, body: finalBody }),
     });
-    showToast("Trang About đã được lưu!", "success");
+    showToast("Trang About đã được lưu thành công!", "success");
   } catch (err) {
     showToast(`Lỗi: ${err.message}`, "error");
   }
