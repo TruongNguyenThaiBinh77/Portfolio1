@@ -75,7 +75,11 @@ export default async function Home({ params }) {
               font-size: 1.75rem !important;
               margin-bottom: 12px;
             }
-            .social .contact-icons a {
+            .social .contact-icons a,
+            .social .contact-icons a:visited,
+            .social .contact-icons a:hover,
+            .social .contact-icons a:focus,
+            .social .contact-icons a:active {
               display: inline-flex;
               align-items: center;
               justify-content: center;
@@ -88,16 +92,41 @@ export default async function Home({ params }) {
               object-fit: contain;
               margin-bottom: 0 !important;
               display: inline-block;
+              transition: transform 0.2s ease, filter 0.2s ease;
             }
             .social .contact-icons a:hover {
-              transform: translateY(-3px) scale(1.12);
+              transform: translateY(-3px) scale(1.15);
               filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.16));
+              text-decoration: none !important;
             }
-            .social .contact-icons a i {
+            .social .contact-icons a i,
+            .social .contact-icons a:hover i,
+            .social .contact-icons a:focus i,
+            .social .contact-icons a:active i,
+            .social .contact-icons a i::before,
+            .social .contact-icons a:hover i::before,
+            .social .contact-icons a:focus i::before,
+            .social .contact-icons a:active i::before {
               color: inherit !important;
+              transition: none !important;
             }
-            .social .contact-icons a i::before {
-              color: inherit !important;
+
+            /* Natural brand colors - preserved on hover */
+            .social-icon-orcid, .social-icon-orcid:hover, .social-icon-orcid:hover i, .social-icon-orcid:hover i::before { color: #A6CE39 !important; }
+            .social-icon-scopus, .social-icon-scopus:hover, .social-icon-scopus:hover i, .social-icon-scopus:hover i::before { color: #FF6C00 !important; }
+            .social-icon-github, .social-icon-github:hover, .social-icon-github:hover i, .social-icon-github:hover i::before { color: #24292E !important; }
+            .social-icon-linkedin, .social-icon-linkedin:hover, .social-icon-linkedin:hover i, .social-icon-linkedin:hover i::before { color: #0A66C2 !important; }
+            .social-icon-researchgate, .social-icon-researchgate:hover, .social-icon-researchgate:hover i, .social-icon-researchgate:hover i::before { color: #00CCBB !important; }
+            .social-icon-semanticscholar, .social-icon-semanticscholar:hover, .social-icon-semanticscholar:hover i, .social-icon-semanticscholar:hover i::before { color: #185ADB !important; }
+            .social-icon-kaggle, .social-icon-kaggle:hover, .social-icon-kaggle:hover i, .social-icon-kaggle:hover i::before { color: #20BEFF !important; }
+            .social-icon-discord, .social-icon-discord:hover, .social-icon-discord:hover i, .social-icon-discord:hover i::before { color: #5865F2 !important; }
+            .social-icon-rss, .social-icon-rss:hover, .social-icon-rss:hover i, .social-icon-rss:hover i::before { color: #FFA500 !important; }
+
+            html[data-theme='dark'] .social-icon-github,
+            html[data-theme='dark'] .social-icon-github:hover,
+            html[data-theme='dark'] .social-icon-github:hover i,
+            html[data-theme='dark'] .social-icon-github:hover i::before {
+              color: #f0f6fc !important;
             }
             .social .contact-note {
               font-size: 0.88rem;
@@ -559,6 +588,7 @@ export default async function Home({ params }) {
                         <a
                           href={getEmailUrl(config.email)}
                           title="Gmail / Email"
+                          className="social-icon-email"
                           target="_blank"
                           rel="noopener noreferrer"
                         >
@@ -579,6 +609,7 @@ export default async function Home({ params }) {
                         <a
                           href={getSocialUrl(config.orcid_id, 'https://orcid.org/')}
                           title="ORCID"
+                          className="social-icon-orcid"
                           style={{ color: '#A6CE39' }}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -593,6 +624,7 @@ export default async function Home({ params }) {
                             'https://scholar.google.com/citations?user='
                           )}
                           title="Google Scholar"
+                          className="social-icon-scholar"
                           target="_blank"
                           rel="noopener noreferrer"
                         >
@@ -616,6 +648,7 @@ export default async function Home({ params }) {
                             'https://www.scopus.com/authid/detail.uri?authorId='
                           )}
                           title="Scopus"
+                          className="social-icon-scopus"
                           style={{ color: '#FF6C00' }}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -627,6 +660,7 @@ export default async function Home({ params }) {
                         <a
                           href={getSocialUrl(config.github_username, 'https://github.com/')}
                           title="GitHub"
+                          className="social-icon-github"
                           style={{ color: '#24292E' }}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -638,6 +672,7 @@ export default async function Home({ params }) {
                         <a
                           href={getSocialUrl(config.linkedin_username, 'https://www.linkedin.com/in/')}
                           title="LinkedIn"
+                          className="social-icon-linkedin"
                           style={{ color: '#0A66C2' }}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -652,6 +687,7 @@ export default async function Home({ params }) {
                             'https://www.researchgate.net/profile/'
                           )}
                           title="ResearchGate"
+                          className="social-icon-researchgate"
                           style={{ color: '#00CCBB' }}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -666,6 +702,7 @@ export default async function Home({ params }) {
                             'https://www.semanticscholar.org/author/'
                           )}
                           title="Semantic Scholar"
+                          className="social-icon-semanticscholar"
                           style={{ color: '#185ADB' }}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -677,6 +714,7 @@ export default async function Home({ params }) {
                         <a
                           href={getSocialUrl(config.kaggle_id, 'https://kaggle.com/')}
                           title="Kaggle"
+                          className="social-icon-kaggle"
                           style={{ color: '#20BEFF' }}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -688,6 +726,7 @@ export default async function Home({ params }) {
                         <a
                           href={getSocialUrl(config.discord_id, 'https://discord.com/users/')}
                           title="Discord"
+                          className="social-icon-discord"
                           style={{ color: '#5865F2' }}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -699,6 +738,7 @@ export default async function Home({ params }) {
                         <a
                           href={config.rss_url ? String(config.rss_url).trim() : '/feed.xml'}
                           title="RSS"
+                          className="social-icon-rss"
                           style={{ color: '#FFA500' }}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -710,6 +750,7 @@ export default async function Home({ params }) {
                         <a
                           href={config.custom_social.url}
                           title={config.custom_social.title || 'Social'}
+                          className="social-icon-custom"
                           target="_blank"
                           rel="noopener noreferrer"
                         >
