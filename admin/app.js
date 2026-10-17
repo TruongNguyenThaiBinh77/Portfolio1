@@ -613,14 +613,21 @@ async function loadSiteSettings() {
             <input type="text" id="cfg-keywords" value="${escHtml(data.keywords)}" />
           </div>
           <div class="form-group">
-            <label>Icon Tab (Favicon)</label>
+            <label><i class="fas fa-window-maximize" style="color: var(--primary);"></i> Icon Tab trình duyệt (Favicon)</label>
             <div style="display: flex; gap: 10px; align-items: center;">
-              <img id="cfg-icon_preview" src="${data.icon ? `/assets/img/${data.icon}` : ''}" style="max-height: 40px; display: ${data.icon ? 'block' : 'none'}; border: 1px solid var(--border-color); border-radius: 4px;" />
-              <input type="text" id="cfg-icon" value="${escHtml(data.icon || "")}" style="flex: 1;" oninput="document.getElementById('cfg-icon_preview').src = this.value ? '/assets/img/' + this.value : ''; document.getElementById('cfg-icon_preview').style.display = this.value ? 'block' : 'none';" />
-              <input type="file" id="cfg-icon_upload" accept="image/*,.ico" style="display: none;" onchange="uploadFavicon(this)" />
-              <button class="btn btn-secondary" onclick="document.getElementById('cfg-icon_upload').click()"><i class="fas fa-upload"></i> Tải icon lên</button>
+              <img id="cfg-icon_preview" src="${data.icon ? (data.icon.startsWith('http') || data.icon.startsWith('/') ? data.icon : `/assets/img/${data.icon}`) : ''}" style="width: 36px; height: 36px; object-fit: contain; display: ${data.icon ? 'block' : 'none'}; border: 1px solid var(--border-color); border-radius: 6px; padding: 2px; background: var(--bg-primary);" />
+              <input type="text" id="cfg-icon" value="${escHtml(data.icon || "")}" placeholder="VD: favicon.ico hoặc co-dang.jpg" style="flex: 1;" oninput="const val = this.value.trim(); const p = document.getElementById('cfg-icon_preview'); const tabIcon = document.getElementById('cfg-tab_preview_icon'); if (val) { const s = val.startsWith('http') || val.startsWith('/') ? val : '/assets/img/' + val; p.src = s; p.style.display = 'block'; if (tabIcon) tabIcon.src = s; } else { p.style.display = 'none'; if (tabIcon) tabIcon.src = '/favicon.ico'; }" />
+              <input type="file" id="cfg-icon_upload" accept="image/*,.ico,.svg" style="display: none;" onchange="uploadFavicon(this)" />
+              <button type="button" class="btn btn-secondary" onclick="document.getElementById('cfg-icon_upload').click()"><i class="fas fa-upload"></i> Tải icon mới</button>
             </div>
-            <span class="form-help">VD: favicon.ico hoặc logo.png (file tải lên sẽ lưu trong assets/img)</span>
+            <div style="margin-top: 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+              <span class="form-help" style="margin: 0;">Mô phỏng hiển thị trên tab trình duyệt:</span>
+              <div class="mock-browser-tab" style="display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; background: #292d3e; color: #f8f8f2; border-radius: 6px 6px 0 0; font-size: 12px; font-family: system-ui, sans-serif; border: 1px solid rgba(255,255,255,0.1); border-bottom: none;">
+                <img id="cfg-tab_preview_icon" src="${data.icon ? (data.icon.startsWith('http') || data.icon.startsWith('/') ? data.icon : `/assets/img/${data.icon}`) : '/favicon.ico'}" style="width: 16px; height: 16px; object-fit: contain; border-radius: 2px;" />
+                <span id="cfg-tab_preview_title" style="max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11.5px;">${escHtml([data.first_name, data.middle_name, data.last_name].filter(Boolean).join(' ') || 'Portfolio')}</span>
+                <span style="opacity: 0.5; margin-left: 4px; font-size: 10px;">✕</span>
+              </div>
+            </div>
           </div>
           <div class="form-group">
             <label>URL</label>
@@ -758,9 +765,45 @@ async function saveSiteSettings() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-    showToast("âœ… Đã lưu! Jekyll đang rebuild (~30-60 giây). Sau đó F5 lại trang portfolio.", "success");
+    showToast("✅ Đã lưu cấu hình! Giao diện trang web và icon tab sẽ được cập nhật.", "success");
   } catch (err) {
     showToast(`Lỗi: ${err.message}`, "error");
+  }
+}
+
+async function uploadFavicon(fileInput) {
+  if (!fileInput.files || fileInput.files.length === 0) return;
+  const file = fileInput.files[0];
+  const formData = new FormData();
+  formData.append('image', file);
+
+  showLoading();
+  try {
+    const res = await fetch(`${API}/upload`, { method: 'POST', body: formData }).then(r => r.json());
+    if (res.success) {
+      const input = document.getElementById("cfg-icon");
+      const preview = document.getElementById("cfg-icon_preview");
+      const tabIcon = document.getElementById("cfg-tab_preview_icon");
+      if (input) {
+        input.value = res.filename;
+      }
+      const newSrc = `/assets/img/${res.filename}?v=${Date.now()}`;
+      if (preview) {
+        preview.src = newSrc;
+        preview.style.display = "block";
+      }
+      if (tabIcon) {
+        tabIcon.src = newSrc;
+      }
+      showToast("Tải icon tab (favicon) lên thành công! Hãy bấm 'Lưu thay đổi' để cập nhật.", "success");
+    } else {
+      showToast("Lỗi khi tải icon: " + (res.error || "Không rõ"), "error");
+    }
+  } catch (err) {
+    showToast("Lỗi kết nối khi tải icon: " + err.message, "error");
+  } finally {
+    hideLoading();
+    fileInput.value = "";
   }
 }
 
@@ -2807,27 +2850,32 @@ async function saveCV() {
   }
 }
 // ============================================================================
+// ============================================================================
 // Socials
 // ============================================================================
 
 async function loadSocials() {
   const data = await fetch(`${API}/socials`).then((r) => r.json());
 
-  // Build form fields for each key
+  // 10 Icons matching UI and user screenshot
   const knownFields = [
-    { key: "email", label: "Email", icon: "fa-envelope" },
-    { key: "github_username", label: "GitHub Username", icon: "fa-github" },
-    { key: "x_username", label: "X (Twitter) Username", icon: "fa-x-twitter" },
-    { key: "linkedin_username", label: "LinkedIn Username", icon: "fa-linkedin" },
-    { key: "scholar_userid", label: "Google Scholar ID", icon: "fa-graduation-cap" },
-    { key: "orcid_id", label: "ORCID ID", icon: "fa-orcid" },
-    { key: "inspirehep_id", label: "Inspire HEP ID", icon: "fa-atom" },
+    { key: "email", label: "Email / Gmail", icon: "fa-envelope", iconType: "fas", placeholder: "yourname@gmail.com hoặc link", help: "Địa chỉ email hoặc link webmail" },
+    { key: "orcid_id", label: "ORCID", icon: "fa-id-badge", iconType: "fas", placeholder: "0000-0002-1825-0097 hoặc https://orcid.org/...", help: "Mã ORCID ID hoặc link orcid.org" },
+    { key: "scholar_userid", label: "Google Scholar", icon: "fa-graduation-cap", iconType: "fas", placeholder: "ID hoặc https://scholar.google.com/citations?user=...", help: "Scholar User ID hoặc link hồ sơ Google Scholar" },
+    { key: "scopus_id", label: "Scopus", icon: "fa-book-open", iconType: "fas", placeholder: "Author ID hoặc https://www.scopus.com/authid/detail.uri?authorId=...", help: "Scopus Author ID hoặc link tác giả Scopus" },
+    { key: "github_username", label: "GitHub", icon: "fa-github", iconType: "fab", placeholder: "username hoặc https://github.com/...", help: "GitHub username hoặc link trang cá nhân" },
+    { key: "linkedin_username", label: "LinkedIn", icon: "fa-linkedin", iconType: "fab", placeholder: "username hoặc https://www.linkedin.com/in/...", help: "LinkedIn username hoặc link profile" },
+    { key: "research_gate_profile", label: "ResearchGate", icon: "fa-flask", iconType: "fas", placeholder: "profile hoặc https://www.researchgate.net/profile/...", help: "Tên profile hoặc link ResearchGate" },
+    { key: "kaggle_id", label: "Kaggle", icon: "fa-kaggle", iconType: "fab", placeholder: "username hoặc https://kaggle.com/...", help: "Kaggle username hoặc link profile" },
+    { key: "discord_id", label: "Discord", icon: "fa-discord", iconType: "fab", placeholder: "ID hoặc link https://discord.gg/...", help: "Discord User ID hoặc link máy chủ/mời" },
+    { key: "rss_url", label: "Link RSS", icon: "fa-rss", iconType: "fas", placeholder: "/feed.xml hoặc link rss tùy chỉnh", help: "Đường dẫn file feed RSS (mặc định: /feed.xml)" },
   ];
 
   let fieldsHtml = knownFields.map((f) => `
     <div class="form-group">
-      <label><i class="fas ${f.icon}"></i> ${f.label}</label>
-      <input type="text" id="social-${f.key}" value="${escHtml(String(data[f.key] || ''))}" />
+      <label><i class="${f.iconType || 'fas'} ${f.icon}"></i> ${f.label}</label>
+      <input type="text" id="social-${f.key}" value="${escHtml(String(data[f.key] || ''))}" placeholder="${f.placeholder || ''}" />
+      ${f.help ? `<small class="form-text text-muted" style="font-size: 11px; opacity: 0.7; display: block; margin-top: 4px;">${f.help}</small>` : ''}
     </div>
   `).join("");
 
@@ -2835,19 +2883,37 @@ async function loadSocials() {
     <div class="form-group full-width" style="display: flex; gap: 15px;">
       <div style="flex: 1;">
         <label><i class="fas fa-file-pdf"></i> CV PDF (Tiếng Việt)</label>
-        <input type="text" id="social-cv_pdf" value="${escHtml(data.cv_pdf || '')}" />
+        <input type="text" id="social-cv_pdf" value="${escHtml(data.cv_pdf || '')}" placeholder="/assets/pdf/example.pdf" />
       </div>
       <div style="flex: 1;">
         <label><i class="fas fa-file-pdf"></i> CV PDF (Tiếng Anh)</label>
-        <input type="text" id="social-cv_pdf_en" value="${escHtml(data.cv_pdf_en || '')}" />
+        <input type="text" id="social-cv_pdf_en" value="${escHtml(data.cv_pdf_en || '')}" placeholder="/assets/pdf/example_en.pdf" />
       </div>
     </div>
   `;
 
-  // Other/custom fields
-  const customKeys = Object.keys(data).filter((k) =>
-    !knownFields.find((f) => f.key === k) && k !== "cv_pdf" && k !== "cv_pdf_en" && k !== "rss_icon" && k !== "custom_social"
-  );
+  // Extra social platforms
+  const extraFields = [
+    { key: "x_username", label: "X (Twitter) Username", icon: "fa-x-twitter", iconType: "fab", placeholder: "username hoặc https://x.com/..." },
+    { key: "semanticscholar_id", label: "Semantic Scholar ID", icon: "fa-atom", iconType: "fas", placeholder: "Author ID hoặc link" },
+    { key: "inspirehep_id", label: "Inspire HEP ID", icon: "fa-atom", iconType: "fas", placeholder: "Inspire HEP ID" },
+  ];
+
+  let extraHtml = extraFields.map((f) => `
+    <div class="form-group">
+      <label><i class="${f.iconType || 'fas'} ${f.icon}"></i> ${f.label}</label>
+      <input type="text" id="social-${f.key}" value="${escHtml(String(data[f.key] || ''))}" placeholder="${f.placeholder || ''}" />
+    </div>
+  `).join("");
+
+  // Other custom fields
+  const allHandledKeys = new Set([
+    ...knownFields.map(f => f.key),
+    ...extraFields.map(f => f.key),
+    "cv_pdf", "cv_pdf_en", "rss_icon", "custom_social", "google_scholar_id", "semantic_scholar_id"
+  ]);
+
+  const customKeys = Object.keys(data).filter((k) => !allHandledKeys.has(k));
   const customHtml = customKeys.map((k) => `
     <div class="form-group">
       <label>${k}</label>
@@ -2857,12 +2923,15 @@ async function loadSocials() {
 
   renderContent(`
     <div class="section-intro">
-      <p>Quản lý các liên kết mạng xã hội và file CV.</p>
+      <p>Quản lý các liên kết mạng xã hội và file CV. Bạn có thể nhập <strong>Username / ID</strong> hoặc <strong>dán toàn bộ Link liên kết (https://...)</strong>. UI ngoài trang chủ sẽ tự động nhận diện và cập nhật.</p>
     </div>
 
     <div class="card">
-      <div class="card-header">
-        <h2><i class="fas fa-share-alt"></i> Liên kết</h2>
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h2><i class="fas fa-share-alt"></i> Các biểu tượng mạng xã hội (Icons)</h2>
+        <button class="btn btn-primary btn-sm" onclick="saveSocials()">
+          <i class="fas fa-save"></i> Lưu thông tin
+        </button>
       </div>
       <div class="card-body">
         <div class="form-grid">
@@ -2874,32 +2943,42 @@ async function loadSocials() {
 
     <div class="card mt-4">
       <div class="card-header">
-        <h2><i class="fas fa-rss"></i> Tuỳ chọn khác</h2>
+        <h2><i class="fas fa-plus-circle"></i> Mạng xã hội bổ sung & Tuỳ chọn khác</h2>
       </div>
       <div class="card-body">
-        <div class="form-group row align-items-center">
-          <div class="col-auto">
-            <input type="checkbox" id="social-rss" ${data.rss_icon ? "checked" : ""} />
+        <div class="form-grid">
+          ${extraHtml}
+        </div>
+
+        <div class="form-group row align-items-center mt-3" style="display: flex; gap: 10px; align-items: center;">
+          <div>
+            <input type="checkbox" id="social-rss" ${data.rss_icon ? "checked" : ""} style="width: 18px; height: 18px; cursor: pointer;" />
           </div>
-          <div class="col">
-            <label for="social-rss" class="mb-0">Hiển thị biểu tượng RSS</label>
+          <div>
+            <label for="social-rss" style="margin-bottom: 0; cursor: pointer; font-weight: 500;">Hiển thị biểu tượng RSS trên giao diện</label>
           </div>
         </div>
         
-        <h3 class="mt-4">Custom Social (Ví dụ)</h3>
+        <h3 class="mt-4" style="font-size: 15px; font-weight: 600;">Custom Social (Biểu tượng tự định nghĩa)</h3>
         <div class="form-grid">
           <div class="form-group">
-            <label>Logo URL</label>
-            <input type="text" id="social-custom-logo" value="${escHtml(data.custom_social?.logo || '')}" />
+            <label>Logo URL (icon / ảnh)</label>
+            <input type="text" id="social-custom-logo" value="${escHtml(data.custom_social?.logo || '')}" placeholder="https://... hoặc /assets/img/..." />
           </div>
           <div class="form-group">
-            <label>Title</label>
-            <input type="text" id="social-custom-title" value="${escHtml(data.custom_social?.title || '')}" />
+            <label>Tiêu đề (Title)</label>
+            <input type="text" id="social-custom-title" value="${escHtml(data.custom_social?.title || '')}" placeholder="Website riêng" />
           </div>
           <div class="form-group full-width">
-            <label>URL</label>
-            <input type="text" id="social-custom-url" value="${escHtml(data.custom_social?.url || '')}" />
+            <label>URL liên kết</label>
+            <input type="text" id="social-custom-url" value="${escHtml(data.custom_social?.url || '')}" placeholder="https://..." />
           </div>
+        </div>
+
+        <div class="mt-4" style="display: flex; justify-content: flex-end;">
+          <button class="btn btn-primary" onclick="saveSocials()">
+            <i class="fas fa-save"></i> Lưu thay đổi Socials
+          </button>
         </div>
       </div>
     </div>
@@ -2916,21 +2995,16 @@ async function saveSocials() {
       data.rss_icon = input.checked;
     } else if (key.startsWith('custom-')) {
       if (!data.custom_social) data.custom_social = {};
-      data.custom_social[key.replace('custom-', '')] = input.value;
+      data.custom_social[key.replace('custom-', '')] = input.value.trim();
     } else {
-      data[key] = input.value;
+      data[key] = input.value.trim();
     }
   });
 
-  // Xóa các key rỗng nếu không cần thiết, hoặc có thể giữ lại để backend xử lý.
-  Object.keys(data).forEach(k => {
-    if (data[k] === "" && k !== "custom_social") delete data[k];
-  });
-  
   if (data.custom_social) {
     let hasCustom = false;
     Object.keys(data.custom_social).forEach(k => {
-      if (data.custom_social[k] === "") delete data.custom_social[k];
+      if (!data.custom_social[k]) delete data.custom_social[k];
       else hasCustom = true;
     });
     if (!hasCustom) delete data.custom_social;
@@ -2943,10 +3017,11 @@ async function saveSocials() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
+    const result = await res.json();
     if (res.ok) {
-      showToast("Đã lưu thông tin Socials!", "success");
+      showToast("Đã lưu thông tin Socials thành công! UI đã được cập nhật.", "success");
     } else {
-      showToast("Lỗi khi lưu", "error");
+      showToast(result.error || "Lỗi khi lưu", "error");
     }
   } catch (err) {
     showToast(`Lỗi: ${err.message}`, "error");
@@ -3143,6 +3218,57 @@ async function loadRepositories() {
             <div id="repo-card-title-preview" style="font-size: 1.05rem; font-weight: 700; color: ${cardTitleColor};">
               <i class="far fa-bookmark mr-1"></i> TruongNguyenThaiBinh77/Portfolio1
             </div>
+          </div>
+        </div>
+      </div>
+    <!-- Cấu hình GitHub Stats & Hiển thị Repositories -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line" style="color:var(--accent-light);margin-right:8px"></i> Cấu hình GitHub Stats & Huy hiệu (Badges & Theme)</h2>
+      </div>
+      <div class="card-body">
+        <div class="form-grid mb-3" style="grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div>
+            <label style="font-weight:600;font-size:0.9rem;margin-bottom:6px;display:block;">
+              <i class="fas fa-layer-group text-primary mr-1"></i> Tổng số lượng Repositories (Hiển thị trên Badge)
+            </label>
+            <input type="number" id="repo-total-count" class="form-control" value="${escHtml(data.total_repos_count || 21)}" placeholder="21" min="1" />
+            <small class="text-muted" style="display:block;margin-top:4px;">
+              Số lượng hiển thị trên trang (Ví dụ: <strong>21</strong> repositories theo tab Repositories của GitHub).
+            </small>
+          </div>
+          <div>
+            <label style="font-weight:600;font-size:0.9rem;margin-bottom:6px;display:block;">
+              <i class="fas fa-magic text-info mr-1"></i> Giao diện Thẻ GitHub (Theme & Nền)
+            </label>
+            <select id="repo-stats-theme" class="form-control" style="width:100%">
+              <option value="light" ${(data.stats_theme || 'light') === 'light' ? 'selected' : ''}>⚪ Nền Trắng Sáng Hiện Đại (Khuyên dùng - Chuẩn B+, đồng bộ trang web)</option>
+              <option value="soft_gray" ${data.stats_theme === 'soft_gray' ? 'selected' : ''}>🌫️ Xám Sáng Tinh Tế (#f8fafc - Chuẩn B+)</option>
+              <option value="radical" ${data.stats_theme === 'radical' ? 'selected' : ''}>⚫ Radical Dark (Nền đen neon tím/hồng)</option>
+              <option value="tokyonight" ${data.stats_theme === 'tokyonight' ? 'selected' : ''}>Tokyo Night (Tối)</option>
+              <option value="dracula" ${data.stats_theme === 'dracula' ? 'selected' : ''}>Dracula (Tối)</option>
+            </select>
+            <small class="text-muted" style="display:block;margin-top:4px;">
+              Theme <strong>Nền Trắng Sáng</strong> giúp các card hoà hợp hoàn hảo với website, đồng thời vẫn giữ nguyên xếp hạng <strong>B+</strong>.
+            </small>
+          </div>
+        </div>
+
+        <div id="repo-card-bg-container" style="padding-top: 10px; border-top: 1px solid var(--border);">
+          <label style="font-weight:600;font-size:0.9rem;margin-bottom:6px;display:block;">
+            <i class="fas fa-fill-drip text-success mr-1"></i> Tùy chỉnh Màu nền thẻ (Card Background Color)
+          </label>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;">
+            <input type="color" id="repo-card-bg-color" value="${escHtml(data.card_bg_color || '#ffffff')}" style="width: 44px; height: 34px; padding: 2px; cursor: pointer; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-card);" oninput="onColorInputChange('repo-card-bg-color', this.value)" />
+            <input type="text" class="form-control" id="repo-card-bg-color-text" value="${escHtml(data.card_bg_color || '#ffffff')}" placeholder="#ffffff" style="width: 110px;" oninput="onColorInputChange('repo-card-bg-color', this.value)" />
+            <button type="button" class="btn btn-sm btn-secondary" onclick="resetColor('repo-card-bg-color', '#ffffff')" style="font-size: 11px; padding: 5px 12px;">Mặc định Trắng</button>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span style="font-size: 12px; color: var(--text-muted); margin-right: 4px; font-weight: 500;">Chọn nhanh màu nền đẹp:</span>
+            <button type="button" class="btn btn-sm" onclick="resetColor('repo-card-bg-color', '#ffffff')" style="background:#ffffff;color:#1e293b;border:1px solid #cbd5e1;font-size:11px;padding:3px 8px;border-radius:4px">⚪ Trắng (#ffffff)</button>
+            <button type="button" class="btn btn-sm" onclick="resetColor('repo-card-bg-color', '#f8fafc')" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;font-size:11px;padding:3px 8px;border-radius:4px">🌫️ Xám sáng (#f8fafc)</button>
+            <button type="button" class="btn btn-sm" onclick="resetColor('repo-card-bg-color', '#fffdf9')" style="background:#fffdf9;color:#1e293b;border:1px solid #cbd5e1;font-size:11px;padding:3px 8px;border-radius:4px">🍦 Kem ngà (#fffdf9)</button>
+            <button type="button" class="btn btn-sm" onclick="resetColor('repo-card-bg-color', '#f0fdf4')" style="background:#f0fdf4;color:#1e293b;border:1px solid #bbf7d0;font-size:11px;padding:3px 8px;border-radius:4px">🍃 Xanh ngọc (#f0fdf4)</button>
           </div>
         </div>
       </div>
@@ -3560,7 +3686,20 @@ async function fetchGitHubReposFromApi() {
   }
   showToast("Đang tải danh sách Repositories từ GitHub...", "info");
   try {
-    const res = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=30`);
+    // 1. Fetch user profile for repo count
+    try {
+      const userRes = await fetch(`https://api.github.com/users/${username}`);
+      if (userRes.ok) {
+        const uData = await userRes.json();
+        const countInput = document.getElementById("repo-total-count");
+        if (countInput && uData.public_repos) {
+          countInput.value = uData.public_repos;
+        }
+      }
+    } catch (_) {}
+
+    // 2. Fetch list of repositories
+    const res = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=100`);
     if (!res.ok) throw new Error("Không thể tải dữ liệu từ GitHub API");
     const repos = await res.json();
     const list = document.getElementById("gh-repos-list");
@@ -3587,6 +3726,10 @@ async function saveRepositories() {
   const users = Array.from(document.querySelectorAll(".gh-user")).map((el) => el.value.trim()).filter(Boolean);
   const repos = Array.from(document.querySelectorAll(".gh-repo")).map((el) => el.value.trim()).filter(Boolean);
 
+  const totalReposCount = document.getElementById("repo-total-count") ? parseInt(document.getElementById("repo-total-count").value, 10) || 21 : 21;
+  const statsTheme = document.getElementById("repo-stats-theme") ? document.getElementById("repo-stats-theme").value : "light";
+  const cardBgColor = document.getElementById("repo-card-bg-color") ? document.getElementById("repo-card-bg-color").value.trim() : "#ffffff";
+
   const pageTitle = document.getElementById("repo-page-title") ? document.getElementById("repo-page-title").value.trim() : "Lưu trữ";
   const pageTitleEn = document.getElementById("repo-page-title-en") ? document.getElementById("repo-page-title-en").value.trim() : "Repositories";
   const pageTitleBold = document.getElementById("repo-page-title-bold") ? document.getElementById("repo-page-title-bold").checked : true;
@@ -3602,7 +3745,7 @@ async function saveRepositories() {
   const reposTitleBold = document.getElementById("repo-repos-title-bold") ? document.getElementById("repo-repos-title-bold").checked : true;
   const reposTitleColor = document.getElementById("repo-repos-title-color") ? document.getElementById("repo-repos-title-color").value.trim() : "#8c0303";
 
-  const cardTitleColor = document.getElementById("repo-card-title-color") ? document.getElementById("repo-card-title-color").value.trim() : "#8c0303";
+  const cardTitleColor = document.getElementById("repo-card-title-color") ? document.getElementById("repo-card-title-color").value.trim() : "#15803d";
 
   try {
     // 1. Update _data/repositories.yml
@@ -3612,6 +3755,11 @@ async function saveRepositories() {
       body: JSON.stringify({
         github_users: users,
         repo_description_lines_max: 2,
+        total_repos_count: totalReposCount,
+        stats_theme: statsTheme,
+        card_bg_color: cardBgColor,
+        card_border_color: "#e2e8f0",
+        card_text_color: "#334155",
         github_repos: repos,
         page_title: pageTitle,
         page_title_en: pageTitleEn,

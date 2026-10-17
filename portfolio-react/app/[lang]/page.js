@@ -530,16 +530,37 @@ export default async function Home({ params }) {
                 {(() => {
                   const getSocialUrl = (id, baseUrl) => {
                     if (!id) return null;
-                    const strId = String(id);
+                    let strId = String(id).trim();
+                    if (!strId) return null;
                     if (strId.startsWith('http://') || strId.startsWith('https://')) return strId;
+                    if (strId.startsWith('www.')) return `https://${strId}`;
+                    if (baseUrl.endsWith('/') && strId.startsWith('/')) {
+                      strId = strId.slice(1);
+                    }
                     return `${baseUrl}${strId}`;
                   };
+
+                  const getEmailUrl = (email) => {
+                    if (!email) return null;
+                    const str = String(email).trim();
+                    if (!str) return null;
+                    if (str.startsWith('http://') || str.startsWith('https://') || str.startsWith('mailto:')) {
+                      return str;
+                    }
+                    if (str.startsWith('www.')) {
+                      return `https://${str}`;
+                    }
+                    return `mailto:${str}`;
+                  };
+
                   return (
                     <>
                       {config.email && (
                         <a
-                          href={String(config.email).startsWith('mailto:') ? String(config.email) : `mailto:${config.email}`}
+                          href={getEmailUrl(config.email)}
                           title="Gmail / Email"
+                          target="_blank"
+                          rel="noopener noreferrer"
                         >
                           <img
                             src="/assets/img/gmail-icon.png"
@@ -555,14 +576,25 @@ export default async function Home({ params }) {
                         </a>
                       )}
                       {config.orcid_id && (
-                        <a href={getSocialUrl(config.orcid_id, 'https://orcid.org/')} title="ORCID" style={{ color: '#A6CE39' }}>
+                        <a
+                          href={getSocialUrl(config.orcid_id, 'https://orcid.org/')}
+                          title="ORCID"
+                          style={{ color: '#A6CE39' }}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <i className="ai ai-orcid"></i>
                         </a>
                       )}
-                      {(config.scholar_userid || config.google_scholar_id || true) && (
+                      {(config.scholar_userid || config.google_scholar_id) && (
                         <a
-                          href={getSocialUrl(config.scholar_userid || config.google_scholar_id || 'your_id', 'https://scholar.google.com/citations?user=')}
+                          href={getSocialUrl(
+                            config.scholar_userid || config.google_scholar_id,
+                            'https://scholar.google.com/citations?user='
+                          )}
                           title="Google Scholar"
+                          target="_blank"
+                          rel="noopener noreferrer"
                         >
                           <img
                             src="/assets/img/scholar-icon.png"
@@ -578,43 +610,118 @@ export default async function Home({ params }) {
                         </a>
                       )}
                       {config.scopus_id && (
-                        <a href={getSocialUrl(config.scopus_id, 'https://www.scopus.com/authid/detail.uri?authorId=')} title="Scopus" style={{ color: '#FF6C00' }}>
+                        <a
+                          href={getSocialUrl(
+                            config.scopus_id,
+                            'https://www.scopus.com/authid/detail.uri?authorId='
+                          )}
+                          title="Scopus"
+                          style={{ color: '#FF6C00' }}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <i className="ai ai-scopus"></i>
                         </a>
                       )}
                       {config.github_username && (
-                        <a href={getSocialUrl(config.github_username, 'https://github.com/')} title="GitHub" style={{ color: '#24292E' }}>
+                        <a
+                          href={getSocialUrl(config.github_username, 'https://github.com/')}
+                          title="GitHub"
+                          style={{ color: '#24292E' }}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <i className="fab fa-github"></i>
                         </a>
                       )}
                       {config.linkedin_username && (
-                        <a href={getSocialUrl(config.linkedin_username, 'https://www.linkedin.com/in/')} title="LinkedIn" style={{ color: '#0A66C2' }}>
+                        <a
+                          href={getSocialUrl(config.linkedin_username, 'https://www.linkedin.com/in/')}
+                          title="LinkedIn"
+                          style={{ color: '#0A66C2' }}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <i className="fab fa-linkedin"></i>
                         </a>
                       )}
                       {config.research_gate_profile && (
-                        <a href={getSocialUrl(config.research_gate_profile, 'https://www.researchgate.net/profile/')} title="ResearchGate" style={{ color: '#00CCBB' }}>
+                        <a
+                          href={getSocialUrl(
+                            config.research_gate_profile,
+                            'https://www.researchgate.net/profile/'
+                          )}
+                          title="ResearchGate"
+                          style={{ color: '#00CCBB' }}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <i className="ai ai-researchgate"></i>
                         </a>
                       )}
                       {config.semantic_scholar_id && (
-                        <a href={getSocialUrl(config.semantic_scholar_id, 'https://www.semanticscholar.org/author/')} title="Semantic Scholar" style={{ color: '#185ADB' }}>
+                        <a
+                          href={getSocialUrl(
+                            config.semantic_scholar_id,
+                            'https://www.semanticscholar.org/author/'
+                          )}
+                          title="Semantic Scholar"
+                          style={{ color: '#185ADB' }}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <i className="ai ai-semantic-scholar"></i>
                         </a>
                       )}
                       {config.kaggle_id && (
-                        <a href={getSocialUrl(config.kaggle_id, 'https://kaggle.com/')} title="Kaggle" style={{ color: '#20BEFF' }}>
+                        <a
+                          href={getSocialUrl(config.kaggle_id, 'https://kaggle.com/')}
+                          title="Kaggle"
+                          style={{ color: '#20BEFF' }}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <i className="fab fa-kaggle"></i>
                         </a>
                       )}
                       {config.discord_id && (
-                        <a href={getSocialUrl(config.discord_id, 'https://discord.com/users/')} title="Discord" style={{ color: '#5865F2' }}>
+                        <a
+                          href={getSocialUrl(config.discord_id, 'https://discord.com/users/')}
+                          title="Discord"
+                          style={{ color: '#5865F2' }}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <i className="fab fa-discord"></i>
                         </a>
                       )}
                       {config.rss_icon && (
-                        <a href="/feed.xml" title="RSS" style={{ color: '#FFA500' }}>
+                        <a
+                          href={config.rss_url ? String(config.rss_url).trim() : '/feed.xml'}
+                          title="RSS"
+                          style={{ color: '#FFA500' }}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
                           <i className="fas fa-rss"></i>
+                        </a>
+                      )}
+                      {config.custom_social && config.custom_social.url && (
+                        <a
+                          href={config.custom_social.url}
+                          title={config.custom_social.title || 'Social'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {config.custom_social.logo ? (
+                            <img
+                              src={config.custom_social.logo}
+                              alt={config.custom_social.title || 'Social'}
+                              style={{ width: '1.15em', height: '1.15em', objectFit: 'contain' }}
+                            />
+                          ) : (
+                            <i className="fas fa-globe"></i>
+                          )}
                         </a>
                       )}
                     </>

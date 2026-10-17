@@ -5,7 +5,9 @@ cv:
   label: Kỹ sư Phần mềm
   label_en: Software Engineer
   label_icon: fa-solid fa-id-badge
-  email: "truongnguyenthaibinh1050@gmail.com\nbinhtntse182370@fpt.edu.vn"
+  email: |-
+    truongnguyenthaibinh1050@gmail.com
+    binhtntse182370@fpt.edu.vn
   email_icon: fa-solid fa-envelope
   location: TP. Hồ Chí Minh, Việt Nam
   location_en: Ho Chi Minh City, Vietnam
@@ -16,7 +18,7 @@ cv:
       name_en: Organization
       value: Chi bộ Ấp Gò Cao
       value_en: Go Cao Hamlet Party Cell
-      icon: "Icon bÃºa liá»\x81m 256px.png"
+      icon: Group_1000004135_53109.png
       icon_size: 24
   image: ""
   summary: Là một Kỹ sư Phần mềm trẻ đam mê công nghệ, mình luôn không ngừng học hỏi và thử thách bản thân với những công nghệ mới nhất. Thế mạnh của mình là khả năng tư duy logic tốt, xây dựng kiến trúc hệ thống ổn định và phát triển các giao diện người dùng thân thiện. Mình đặc biệt yêu thích việc tối ưu hóa hiệu suất ứng dụng và nghiên cứu các giải pháp Trí tuệ Nhân tạo để mang lại trải nghiệm tốt nhất cho người dùng.

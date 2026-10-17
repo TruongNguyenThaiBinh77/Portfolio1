@@ -10,6 +10,24 @@ export function getConfig(lang = 'vi') {
   const fileContents = fs.readFileSync(path.join(ROOT, '_config.yml'), 'utf8');
   let config = yaml.load(fileContents) || {};
   config = JSON.parse(JSON.stringify(config));
+
+  // Merge _data/socials.yml if exists
+  const socialsPath = path.join(ROOT, '_data', 'socials.yml');
+  if (fs.existsSync(socialsPath)) {
+    try {
+      const socialsData = yaml.load(fs.readFileSync(socialsPath, 'utf8')) || {};
+      if (socialsData && typeof socialsData === 'object') {
+        Object.keys(socialsData).forEach(key => {
+          if (socialsData[key] !== undefined) {
+            config[key] = socialsData[key];
+          }
+        });
+      }
+    } catch (e) {
+      console.error('Error loading socials.yml:', e);
+    }
+  }
+
   if (lang === 'en') {
     Object.keys(config).forEach(key => {
       if (key.endsWith('_en')) {
@@ -186,9 +204,14 @@ export function getPublications(lang = 'vi') {
 
 export function getRepositories() {
   const filePath = path.join(ROOT, '_data', 'repositories.yml');
-  if (!fs.existsSync(filePath)) return null;
-  const fileContents = fs.readFileSync(filePath, 'utf8');
-  return yaml.load(fileContents) || {};
+  if (!fs.existsSync(filePath)) return {};
+  try {
+    const fileContents = fs.readFileSync(filePath, 'utf8');
+    return yaml.load(fileContents) || {};
+  } catch (e) {
+    console.error("Error loading repositories.yml:", e);
+    return {};
+  }
 }
 
 export function getAllArticles(lang = 'vi') {

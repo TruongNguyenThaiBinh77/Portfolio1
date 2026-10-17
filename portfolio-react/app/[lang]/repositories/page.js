@@ -38,8 +38,54 @@ export default async function Repositories({ params }) {
   const reposTitleBold = repoData.repos_title_bold !== false;
   const reposTitleColor = repoData.repos_title_color || '';
 
-  const cardTitleColor = repoData.card_title_color || '';
-  const cardTitleParam = cardTitleColor ? `&title_color=${cardTitleColor.replace('#', '')}` : '';
+  const statsTheme = repoData.stats_theme || 'light';
+  const totalReposCount = repoData.total_repos_count || githubRepos.length || 21;
+
+  // Colors for light/custom cards (defaults match site palette)
+  const cardBgColor = (repoData.card_bg_color || '#ffffff').replace('#', '');
+  const cardBorderColor = (repoData.card_border_color || '#e2e8f0').replace('#', '');
+  const cardTitleColor = (repoData.card_title_color || repoData.repos_title_color || '#15803d').replace('#', '');
+  const cardTextColor = (repoData.card_text_color || '#334155').replace('#', '');
+
+  const getStatsUrl = (user) => {
+    if (statsTheme === 'radical') {
+      return `https://github-readme-stats.vercel.app/api/?username=${user}&show_icons=true&theme=radical`;
+    }
+    if (statsTheme === 'tokyonight' || statsTheme === 'dracula' || statsTheme === 'dark') {
+      return `https://github-readme-stats.vercel.app/api/?username=${user}&show_icons=true&theme=${statsTheme}`;
+    }
+    return `https://github-readme-stats.vercel.app/api/?username=${user}&show_icons=true&bg_color=${cardBgColor}&border_color=${cardBorderColor}&title_color=${cardTitleColor}&icon_color=${cardTitleColor}&text_color=${cardTextColor}`;
+  };
+
+  const getTopLangsUrl = (user) => {
+    if (statsTheme === 'radical') {
+      return `https://github-readme-stats.vercel.app/api/top-langs/?username=${user}&layout=compact&theme=radical`;
+    }
+    if (statsTheme === 'tokyonight' || statsTheme === 'dracula' || statsTheme === 'dark') {
+      return `https://github-readme-stats.vercel.app/api/top-langs/?username=${user}&layout=compact&theme=${statsTheme}`;
+    }
+    return `https://github-readme-stats.vercel.app/api/top-langs/?username=${user}&layout=compact&bg_color=${cardBgColor}&border_color=${cardBorderColor}&title_color=${cardTitleColor}&text_color=${cardTextColor}`;
+  };
+
+  const getStreakUrl = (user) => {
+    if (statsTheme === 'radical') {
+      return `https://github-readme-streak-stats.herokuapp.com/?user=${user}&theme=radical`;
+    }
+    if (statsTheme === 'tokyonight' || statsTheme === 'dracula' || statsTheme === 'dark') {
+      return `https://github-readme-streak-stats.herokuapp.com/?user=${user}&theme=${statsTheme}`;
+    }
+    return `https://github-readme-streak-stats.herokuapp.com/?user=${user}&background=${cardBgColor}&border=${cardBorderColor}&stroke=${cardBorderColor}&ring=${cardTitleColor}&fire=${cardTitleColor}&currStreakNum=${cardTitleColor}&sideNums=${cardTextColor}&currStreakLabel=${cardTitleColor}&sideLabels=64748b&dates=64748b`;
+  };
+
+  const getPinUrl = (username, reponame) => {
+    if (statsTheme === 'radical') {
+      return `https://github-readme-stats.vercel.app/api/pin/?username=${username}&repo=${reponame}&show_icons=true&theme=radical`;
+    }
+    if (statsTheme === 'tokyonight' || statsTheme === 'dracula' || statsTheme === 'dark') {
+      return `https://github-readme-stats.vercel.app/api/pin/?username=${username}&repo=${reponame}&show_icons=true&theme=${statsTheme}`;
+    }
+    return `https://github-readme-stats.vercel.app/api/pin/?username=${username}&repo=${reponame}&show_icons=true&bg_color=${cardBgColor}&border_color=${cardBorderColor}&title_color=${cardTitleColor}&text_color=${cardTextColor}&icon_color=${cardTitleColor}`;
+  };
 
   return (
     <div className="container mt-5" role="main">
@@ -104,9 +150,16 @@ export default async function Repositories({ params }) {
                       className="d-block"
                     >
                       <img
-                        src={`https://github-readme-stats.vercel.app/api/?username=${user}&show_icons=true&locale=en${cardTitleParam}`}
+                        src={getStatsUrl(user)}
                         alt={`${user} GitHub Stats`}
-                        style={{ width: '100%', borderRadius: '10px' }}
+                        style={{
+                          width: '100%',
+                          borderRadius: '12px',
+                          boxShadow: '0 4px 14px rgba(0, 0, 0, 0.05)',
+                          border: '1px solid rgba(0, 0, 0, 0.06)',
+                          transition: 'transform 0.22s ease, box-shadow 0.22s ease'
+                        }}
+                        className="hover-card"
                       />
                     </a>
                   </div>
@@ -121,9 +174,16 @@ export default async function Repositories({ params }) {
                       className="d-block"
                     >
                       <img
-                        src={`https://github-readme-stats.vercel.app/api/top-langs/?username=${user}&layout=compact${cardTitleParam}`}
+                        src={getTopLangsUrl(user)}
                         alt={`${user} Top Languages`}
-                        style={{ width: '100%', borderRadius: '10px' }}
+                        style={{
+                          width: '100%',
+                          borderRadius: '12px',
+                          boxShadow: '0 4px 14px rgba(0, 0, 0, 0.05)',
+                          border: '1px solid rgba(0, 0, 0, 0.06)',
+                          transition: 'transform 0.22s ease, box-shadow 0.22s ease'
+                        }}
+                        className="hover-card"
                       />
                     </a>
                   </div>
@@ -138,9 +198,16 @@ export default async function Repositories({ params }) {
                       className="d-block"
                     >
                       <img
-                        src={`https://github-readme-streak-stats.herokuapp.com/?user=${user}&theme=default`}
+                        src={getStreakUrl(user)}
                         alt={`${user} Streak Stats`}
-                        style={{ width: '100%', borderRadius: '10px' }}
+                        style={{
+                          width: '100%',
+                          borderRadius: '12px',
+                          boxShadow: '0 4px 14px rgba(0, 0, 0, 0.05)',
+                          border: '1px solid rgba(0, 0, 0, 0.06)',
+                          transition: 'transform 0.22s ease, box-shadow 0.22s ease'
+                        }}
+                        className="hover-card"
                       />
                     </a>
                   </div>
@@ -164,7 +231,7 @@ export default async function Repositories({ params }) {
                   {reposTitle}
                 </h2>
                 <span className="badge badge-light text-muted border px-2 py-1" style={{ fontSize: '0.85rem' }}>
-                  {githubRepos.length} {lang === 'vi' ? 'dự án' : 'repositories'}
+                  {totalReposCount} repositories
                 </span>
               </div>
 
@@ -183,12 +250,14 @@ export default async function Repositories({ params }) {
                         style={{ textDecoration: 'none' }}
                       >
                         <img
-                          src={`https://github-readme-stats.vercel.app/api/pin/?username=${username}&repo=${reponame}&show_icons=true${cardTitleParam}`}
+                          src={getPinUrl(username, reponame)}
                           alt={`${repo} Repository`}
                           style={{
                             width: '100%',
-                            borderRadius: '10px',
-                            transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                            borderRadius: '12px',
+                            boxShadow: '0 4px 14px rgba(0, 0, 0, 0.05)',
+                            border: '1px solid rgba(0, 0, 0, 0.06)',
+                            transition: 'transform 0.22s ease, box-shadow 0.22s ease'
                           }}
                           className="hover-card"
                         />

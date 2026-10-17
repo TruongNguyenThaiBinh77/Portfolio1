@@ -257,6 +257,7 @@ app.put("/api/config", (req, res) => {
     });
     
     fs.writeFileSync(configPath, newYaml, "utf8");
+    notifyLiveReload();
     
     // Restart Jekyll so it picks up the new _config.yml
     restartJekyll();
@@ -356,13 +357,50 @@ app.put("/api/cv", (req, res) => {
 });
 
 // ============================================================================
-// API: Socials (_data/socials.yml)
+// API: Socials (_data/socials.yml & _config.yml)
 // ============================================================================
 
 app.get("/api/socials", (req, res) => {
   try {
-    const data = readYaml(path.join(ROOT, "_data", "socials.yml"));
-    res.json(data);
+    const configPath = path.join(ROOT, "_config.yml");
+    const config = fs.existsSync(configPath) ? readYaml(configPath) || {} : {};
+    const socialsDataPath = path.join(ROOT, "_data", "socials.yml");
+    let socialsData = {};
+    if (fs.existsSync(socialsDataPath)) {
+      try {
+        socialsData = readYaml(socialsDataPath) || {};
+      } catch (e) {
+        socialsData = {};
+      }
+    }
+
+    const cleanVal = (val, dummy) => {
+      if (!val) return "";
+      const str = String(val).trim();
+      return str === dummy ? "" : str;
+    };
+
+    const merged = {
+      email: socialsData.email !== undefined ? socialsData.email : (config.email || ""),
+      orcid_id: socialsData.orcid_id !== undefined ? socialsData.orcid_id : cleanVal(config.orcid_id, "0000-0000-0000-0000"),
+      scholar_userid: socialsData.scholar_userid !== undefined ? socialsData.scholar_userid : cleanVal(config.scholar_userid || config.google_scholar_id, "your_id"),
+      scopus_id: socialsData.scopus_id !== undefined ? socialsData.scopus_id : cleanVal(config.scopus_id, "1111111111"),
+      github_username: socialsData.github_username !== undefined ? socialsData.github_username : (config.github_username || ""),
+      linkedin_username: socialsData.linkedin_username !== undefined ? socialsData.linkedin_username : cleanVal(config.linkedin_username, "your_username"),
+      research_gate_profile: socialsData.research_gate_profile !== undefined ? socialsData.research_gate_profile : cleanVal(config.research_gate_profile, "your_profile"),
+      kaggle_id: socialsData.kaggle_id !== undefined ? socialsData.kaggle_id : cleanVal(config.kaggle_id, "your_id"),
+      discord_id: socialsData.discord_id !== undefined ? socialsData.discord_id : cleanVal(config.discord_id, "your_id"),
+      rss_icon: socialsData.rss_icon !== undefined ? Boolean(socialsData.rss_icon) : (config.rss_icon !== undefined ? Boolean(config.rss_icon) : true),
+      rss_url: socialsData.rss_url !== undefined ? socialsData.rss_url : (config.rss_url || "/feed.xml"),
+      semanticscholar_id: socialsData.semanticscholar_id !== undefined ? socialsData.semanticscholar_id : cleanVal(config.semanticscholar_id || config.semantic_scholar_id, "your_id"),
+      x_username: socialsData.x_username !== undefined ? socialsData.x_username : (config.x_username || ""),
+      inspirehep_id: socialsData.inspirehep_id !== undefined ? socialsData.inspirehep_id : (config.inspirehep_id || ""),
+      cv_pdf: socialsData.cv_pdf !== undefined ? socialsData.cv_pdf : (config.cv_pdf || ""),
+      cv_pdf_en: socialsData.cv_pdf_en !== undefined ? socialsData.cv_pdf_en : (config.cv_pdf_en || ""),
+      custom_social: socialsData.custom_social !== undefined ? socialsData.custom_social : (config.custom_social || null),
+      ...socialsData
+    };
+    res.json(merged);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -370,8 +408,57 @@ app.get("/api/socials", (req, res) => {
 
 app.put("/api/socials", (req, res) => {
   try {
-    writeYaml(path.join(ROOT, "_data", "socials.yml"), req.body);
-    res.json({ success: true });
+    const payload = req.body || {};
+    const configPath = path.join(ROOT, "_config.yml");
+    let config = fs.existsSync(configPath) ? readYaml(configPath) || {} : {};
+
+    const socialKeys = [
+      "email",
+      "orcid_id",
+      "scholar_userid",
+      "scopus_id",
+      "github_username",
+      "linkedin_username",
+      "research_gate_profile",
+      "kaggle_id",
+      "discord_id",
+      "rss_icon",
+      "rss_url",
+      "semanticscholar_id",
+      "x_username",
+      "inspirehep_id",
+      "cv_pdf",
+      "cv_pdf_en",
+      "custom_social"
+    ];
+
+    socialKeys.forEach(k => {
+      if (k in payload) {
+        config[k] = payload[k] === "" ? null : payload[k];
+      }
+    });
+
+    if ("scholar_userid" in payload) {
+      config.google_scholar_id = payload.scholar_userid === "" ? null : payload.scholar_userid;
+    }
+    if ("semanticscholar_id" in payload) {
+      config.semantic_scholar_id = payload.semanticscholar_id === "" ? null : payload.semanticscholar_id;
+    }
+
+    // Write to _config.yml
+    const newYaml = yaml.dump(config, {
+      lineWidth: -1,
+      noRefs: true,
+      quotingType: '"',
+      forceQuotes: false,
+    });
+    fs.writeFileSync(configPath, newYaml, "utf8");
+
+    // Write to _data/socials.yml
+    const socialsDataPath = path.join(ROOT, "_data", "socials.yml");
+    writeYaml(socialsDataPath, payload);
+
+    res.json({ success: true, message: "Đã lưu thông tin mạng xã hội thành công!" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

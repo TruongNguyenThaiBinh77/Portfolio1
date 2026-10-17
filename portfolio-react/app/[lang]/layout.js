@@ -3,6 +3,8 @@ import LiveReload from '../LiveReload';
 import NavbarWrapper from '../../components/NavbarWrapper';
 import Footer from '../../components/Footer';
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
   const lang = resolvedParams.lang || 'vi';
@@ -13,11 +15,18 @@ export async function generateMetadata({ params }) {
     pageTitle = [config.first_name, config.middle_name, config.last_name].filter(Boolean).join(' ');
   }
 
+  const iconSrc = config.icon ? String(config.icon).trim() : '';
+  const iconUrl = iconSrc
+    ? (iconSrc.startsWith('http') || iconSrc.startsWith('/') ? iconSrc : `/assets/img/${iconSrc}`)
+    : '/favicon.ico';
+
   return {
     title: pageTitle || 'Portfolio',
     description: config.description || 'Academic Portfolio',
     icons: {
-      icon: config.icon ? `/assets/img/${config.icon}` : '/favicon.ico',
+      icon: iconUrl,
+      shortcut: iconUrl,
+      apple: iconUrl,
     }
   };
 }
@@ -43,6 +52,11 @@ export default async function RootLayout({ children, params }) {
     return `linear-gradient(${rgba}, ${rgba}), `;
   };
 
+  const iconSrc = config.icon ? String(config.icon).trim() : '';
+  const iconUrl = iconSrc
+    ? (iconSrc.startsWith('http') || iconSrc.startsWith('/') ? iconSrc : `/assets/img/${iconSrc}`)
+    : '/favicon.ico';
+
   return (
     <html lang="en">
       <head>
@@ -50,6 +64,11 @@ export default async function RootLayout({ children, params }) {
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         
+        {/* Dynamic Favicon */}
+        <link rel="icon" href={iconUrl} />
+        <link rel="shortcut icon" href={iconUrl} />
+        <link rel="apple-touch-icon" href={iconUrl} />
+
         <link rel="stylesheet" href="/assets/css/tailwind.css" />
         <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&display=swap" />
         

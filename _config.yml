@@ -10,7 +10,7 @@ middle_name_en: Thai
 last_name_en: Binh
 keywords: jekyll, jekyll-theme, academic-website, portfolio-website
 lang: vi
-icon: co-dang_d040e.jpg
+icon: logo-flag_6305d_4eea1.png
 url: https://alshedivat.github.io
 baseurl: /al-folio
 last_updated: false
@@ -39,7 +39,7 @@ dblp_url: null
 discord_id: your_id
 facebook_id: null
 flickr_id: null
-github_username: TruongNguyenThaiBinh77
+github_username: https://github.com/TruongNguyenThaiBinh77
 gitlab_username: null
 ieee_id: null
 instagram_id: null
@@ -57,7 +57,7 @@ publons_id: null
 quora_username: null
 research_gate_profile: your_profile
 scholar_userid: your_id
-scopus_id: 1111111111
+scopus_id: "1111111111"
 semanticscholar_id: your_id
 spotify_id: null
 stackoverflow_id: null
@@ -525,8 +525,8 @@ footer_text: |-
          });
          </script>
 first_name_bold: true
-middle_name_bold: true
-last_name_bold: true
+middle_name_bold: false
+last_name_bold: false
 header_logo: MacLenin.jpg
 header_logo_size: 56px
 header_logo_bg: "#ffffff"
@@ -551,7 +551,7 @@ nav_names_en:
   repositories: Repositories
 navbar_bg_image: e4b318059a7824c886901e16d341eb5f.png
 navbar_bg_image_size: "56"
-email: your_email@example.com
+email: truongnguyenthaibinh1050@gmail.com
 global_bg_hue: "0"
 global_bg_opacity: "100"
 global_bg_overlay: "#ffffff"
@@ -587,3 +587,5 @@ section_titles_en:
   cv_honors: Honors and Awards
   about_news: News
 section_titles_color: "#8c0303"
+rss_url: /feed.xml
+google_scholar_id: your_id

@@ -1,13 +1,31 @@
 github_users:
   - TruongNguyenThaiBinh77
 repo_description_lines_max: 2
+total_repos_count: 21
+stats_theme: light
+card_bg_color: "#ffffff"
+card_border_color: "#e2e8f0"
+card_title_color: "#15803d"
+card_text_color: "#334155"
+show_trophies: true
 github_repos:
   - TruongNguyenThaiBinh77/Portfolio1
-  - TruongNguyenThaiBinh77/AutoWashPro-WDP301
-  - TruongNguyenThaiBinh77/EV-Station-based-Rental-System
+  - TruongNguyenThaiBinh77/Portfolio
   - TruongNguyenThaiBinh77/smart-locker-iot
+  - TruongNguyenThaiBinh77/AutoWashPro-WDP301
   - TruongNguyenThaiBinh77/QuanlyCanbo
+  - TruongNguyenThaiBinh77/QuanlyCanbo-be
+  - TruongNguyenThaiBinh77/EV-Station-based-Rental-System
   - TruongNguyenThaiBinh77/School_Medical_Management_System
+  - TruongNguyenThaiBinh77/MerryChristmas-22
+  - TruongNguyenThaiBinh77/MerryChristmas-2
+  - TruongNguyenThaiBinh77/MerryChristmas
+  - TruongNguyenThaiBinh77/bemi
+  - TruongNguyenThaiBinh77/TruongNguyenThaiBinh77
+  - TruongNguyenThaiBinh77/Internship-Report
+  - TruongNguyenThaiBinh77/TrangCaNhan_1
+  - TruongNguyenThaiBinh77/fer202-se1859
+  - TruongNguyenThaiBinh77/SDN302
 page_title: Lưu trữ
 page_title_en: Repositories
 page_title_bold: false
@@ -20,4 +38,3 @@ repos_title: Kho lưu trữ nổi bật
 repos_title_en: Featured Repositories
 repos_title_bold: false
 repos_title_color: "#15803d"
-card_title_color: "#15803d"
