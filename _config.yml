@@ -525,8 +525,8 @@ footer_text: |-
          });
          </script>
 first_name_bold: true
-middle_name_bold: false
-last_name_bold: false
+middle_name_bold: true
+last_name_bold: true
 header_logo: MacLenin.jpg
 header_logo_size: 56px
 header_logo_bg: "#ffffff"
