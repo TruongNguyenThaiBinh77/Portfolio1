@@ -3705,17 +3705,173 @@ function addGhUser() {
   `);
 }
 
-function addGhRepo() {
-  document.getElementById("gh-repos-list").insertAdjacentHTML("beforeend", `
-    <div class="dynamic-item" style="padding:10px 16px">
-      <div class="flex items-center justify-between">
-        <input type="text" class="gh-repo" value="" placeholder="owner/repo" style="flex:1;margin-right:10px" />
-        <button class="btn btn-sm btn-danger btn-icon" onclick="this.closest('.dynamic-item').remove()">
-          <i class="fas fa-trash"></i>
-        </button>
+function renderRepoItemHtml(r, isHidden) {
+  return `
+    <div class="dynamic-item repo-item ${isHidden ? 'is-hidden-repo' : ''}" data-repo="${escHtml(r)}" style="padding:10px 16px; margin-bottom:8px; border-radius:6px; transition:all 0.2s ease; ${isHidden ? 'opacity:0.65; background:rgba(239,68,68,0.06); border:1px dashed rgba(239,68,68,0.35);' : ''}">
+      <div class="flex items-center justify-between" style="gap:10px">
+        <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+          <i class="fas fa-code-branch" style="color:${isHidden ? 'var(--text-muted)' : 'var(--accent-light)'};font-size:14px;flex-shrink:0"></i>
+          <input type="text" class="gh-repo form-control" value="${escHtml(r)}" placeholder="owner/repo" style="flex:1;margin-right:0;${isHidden ? 'text-decoration:line-through;color:var(--text-muted);' : ''}" oninput="this.closest('.dynamic-item').dataset.repo = this.value.trim()" />
+          <span class="repo-hidden-badge" style="display:${isHidden ? 'inline-flex' : 'none'};align-items:center;font-size:11px;padding:3px 8px;background:rgba(245,158,11,0.18);color:#f59e0b;border:1px solid rgba(245,158,11,0.4);border-radius:4px;white-space:nowrap;font-weight:600;">
+            <i class="fas fa-eye-slash mr-1"></i> Đã ẩn trên UI
+          </span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+          <button type="button" class="btn btn-sm ${isHidden ? 'btn-warning' : 'btn-outline-secondary'} btn-repo-visibility" onclick="toggleRepoItemVisibility(this)" title="${isHidden ? 'Nhấp để hiện lại repo này lên trang web UI' : 'Nhấp để ẩn repo này khỏi trang web UI'}" style="font-size:12px;padding:5px 12px;display:inline-flex;align-items:center;gap:5px;min-width:76px;justify-content:center;">
+            <i class="fas ${isHidden ? 'fa-eye-slash' : 'fa-eye'}" style="color:${isHidden ? '#fff' : '#10b981'}"></i>
+            <span class="btn-vis-text" style="font-weight:600;">${isHidden ? 'Đã ẩn' : 'Hiện'}</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-danger btn-icon" onclick="this.closest('.dynamic-item').remove(); updateRepoCounters();" title="Xóa repo này">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
       </div>
     </div>
-  `);
+  `;
+}
+
+function addGhRepo() {
+  document.getElementById("gh-repos-list").insertAdjacentHTML("beforeend", renderRepoItemHtml("", false));
+  updateRepoCounters();
+}
+
+async function toggleRepoItemVisibility(btn) {
+  const item = btn.closest(".dynamic-item");
+  if (!item) return;
+  const input = item.querySelector(".gh-repo");
+  const repoName = input ? input.value.trim() : "";
+  if (!repoName) {
+    showToast("Vui lòng nhập tên repository trước!", "warning");
+    return;
+  }
+
+  const isCurrentlyHidden = item.classList.contains("is-hidden-repo");
+  const willBeHidden = !isCurrentlyHidden;
+
+  // Optimistic UI update
+  setRepoItemVisualState(item, willBeHidden);
+  updateRepoCounters();
+
+  // Call API
+  try {
+    const res = await fetch(`${API}/repositories/toggle-visibility`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ repo: repoName, hidden: willBeHidden })
+    });
+    const result = await res.json();
+    if (!res.ok || !result.success) {
+      throw new Error(result.error || "Không thể cập nhật trạng thái");
+    }
+    showToast(result.message || (willBeHidden ? `Đã ẩn ${repoName}` : `Đã hiển thị ${repoName}`), willBeHidden ? "warning" : "success");
+  } catch (err) {
+    // Revert on error
+    setRepoItemVisualState(item, isCurrentlyHidden);
+    updateRepoCounters();
+    showToast(`Lỗi: ${err.message}`, "error");
+  }
+}
+
+function setRepoItemVisualState(item, isHidden) {
+  const input = item.querySelector(".gh-repo");
+  const badge = item.querySelector(".repo-hidden-badge");
+  const btn = item.querySelector(".btn-repo-visibility");
+  const icon = item.querySelector(".fa-code-branch");
+
+  if (isHidden) {
+    item.classList.add("is-hidden-repo");
+    item.style.opacity = "0.65";
+    item.style.background = "rgba(239,68,68,0.06)";
+    item.style.border = "1px dashed rgba(239,68,68,0.35)";
+    if (input) {
+      input.style.textDecoration = "line-through";
+      input.style.color = "var(--text-muted)";
+    }
+    if (badge) badge.style.display = "inline-flex";
+    if (icon) icon.style.color = "var(--text-muted)";
+    if (btn) {
+      btn.className = "btn btn-sm btn-warning btn-repo-visibility";
+      btn.title = "Nhấp để hiện lại repo này lên trang web UI";
+      btn.innerHTML = `<i class="fas fa-eye-slash" style="color:#fff"></i> <span class="btn-vis-text" style="font-weight:600;">Đã ẩn</span>`;
+    }
+  } else {
+    item.classList.remove("is-hidden-repo");
+    item.style.opacity = "1";
+    item.style.background = "";
+    item.style.border = "";
+    if (input) {
+      input.style.textDecoration = "none";
+      input.style.color = "";
+    }
+    if (badge) badge.style.display = "none";
+    if (icon) icon.style.color = "var(--accent-light)";
+    if (btn) {
+      btn.className = "btn btn-sm btn-outline-secondary btn-repo-visibility";
+      btn.title = "Nhấp để ẩn repo này khỏi trang web UI";
+      btn.innerHTML = `<i class="fas fa-eye" style="color:#10b981"></i> <span class="btn-vis-text" style="font-weight:600;">Hiện</span>`;
+    }
+  }
+}
+
+async function batchSetRepoVisibility(action) {
+  const items = Array.from(document.querySelectorAll("#gh-repos-list .dynamic-item"));
+  if (items.length === 0) return;
+
+  const willHideAll = action === "hide_all";
+  items.forEach(item => setRepoItemVisualState(item, willHideAll));
+  updateRepoCounters();
+
+  try {
+    const res = await fetch(`${API}/repositories/batch-visibility`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action })
+    });
+    const result = await res.json();
+    if (!res.ok || !result.success) throw new Error(result.error || "Lỗi thao tác");
+    showToast(willHideAll ? "Đã ẩn tất cả repositories khỏi trang UI!" : "Đã bật hiển thị tất cả repositories lên trang UI!", "success");
+  } catch (err) {
+    showToast(`Lỗi: ${err.message}`, "error");
+  }
+}
+
+function filterRepoList(type, clickedBtn) {
+  const buttons = document.querySelectorAll(".repo-filter-btn");
+  buttons.forEach(b => {
+    b.classList.remove("active", "btn-primary");
+    b.classList.add("btn-secondary");
+  });
+  if (clickedBtn) {
+    clickedBtn.classList.remove("btn-secondary");
+    clickedBtn.classList.add("active", "btn-primary");
+  }
+
+  const items = document.querySelectorAll("#gh-repos-list .dynamic-item");
+  items.forEach(item => {
+    const isHidden = item.classList.contains("is-hidden-repo");
+    if (type === "all") {
+      item.style.display = "";
+    } else if (type === "visible") {
+      item.style.display = isHidden ? "none" : "";
+    } else if (type === "hidden") {
+      item.style.display = isHidden ? "" : "none";
+    }
+  });
+}
+
+function updateRepoCounters() {
+  const items = Array.from(document.querySelectorAll("#gh-repos-list .dynamic-item"));
+  const total = items.length;
+  const hiddenCount = items.filter(el => el.classList.contains("is-hidden-repo")).length;
+  const visibleCount = total - hiddenCount;
+
+  const countAll = document.getElementById("repo-count-all");
+  const countVis = document.getElementById("repo-count-visible");
+  const countHid = document.getElementById("repo-count-hidden");
+
+  if (countAll) countAll.textContent = total;
+  if (countVis) countVis.textContent = visibleCount;
+  if (countHid) countHid.textContent = hiddenCount;
 }
 
 async function fetchGitHubReposFromApi() {
@@ -3743,20 +3899,21 @@ async function fetchGitHubReposFromApi() {
     const res = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=100`);
     if (!res.ok) throw new Error("Không thể tải dữ liệu từ GitHub API");
     const repos = await res.json();
+
+    // Giữ lại các repo đã bị ẩn trước đó nếu có
+    const currentHidden = new Set(
+      Array.from(document.querySelectorAll("#gh-repos-list .dynamic-item.is-hidden-repo .gh-repo"))
+        .map(el => el.value.trim())
+        .filter(Boolean)
+    );
+
     const list = document.getElementById("gh-repos-list");
     list.innerHTML = "";
     repos.forEach(r => {
-      list.insertAdjacentHTML("beforeend", `
-        <div class="dynamic-item" style="padding:10px 16px">
-          <div class="flex items-center justify-between">
-            <input type="text" class="gh-repo" value="${escHtml(r.full_name)}" placeholder="owner/repo" style="flex:1;margin-right:10px" />
-            <button class="btn btn-sm btn-danger btn-icon" onclick="this.closest('.dynamic-item').remove()">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>
-      `);
+      const isHidden = currentHidden.has(r.full_name);
+      list.insertAdjacentHTML("beforeend", renderRepoItemHtml(r.full_name, isHidden));
     });
+    updateRepoCounters();
     showToast(`Đã tải thành công ${repos.length} repositories của ${username}! Nhấn "Lưu Repositories" để áp dụng.`, "success");
   } catch (err) {
     showToast(`Lỗi: ${err.message}`, "error");
@@ -3765,7 +3922,10 @@ async function fetchGitHubReposFromApi() {
 
 async function saveRepositories() {
   const users = Array.from(document.querySelectorAll(".gh-user")).map((el) => el.value.trim()).filter(Boolean);
-  const repos = Array.from(document.querySelectorAll(".gh-repo")).map((el) => el.value.trim()).filter(Boolean);
+  const repos = Array.from(document.querySelectorAll("#gh-repos-list .gh-repo")).map((el) => el.value.trim()).filter(Boolean);
+  const hiddenRepos = Array.from(document.querySelectorAll("#gh-repos-list .dynamic-item.is-hidden-repo .gh-repo"))
+    .map((el) => el.value.trim())
+    .filter(Boolean);
 
   const totalReposCount = document.getElementById("repo-total-count") ? parseInt(document.getElementById("repo-total-count").value, 10) || 21 : 21;
   const statsTheme = document.getElementById("repo-stats-theme") ? document.getElementById("repo-stats-theme").value : "light";
@@ -3802,6 +3962,7 @@ async function saveRepositories() {
         card_border_color: "#e2e8f0",
         card_text_color: "#334155",
         github_repos: repos,
+        hidden_repos: hiddenRepos,
         page_title: pageTitle,
         page_title_en: pageTitleEn,
         page_title_bold: pageTitleBold,
