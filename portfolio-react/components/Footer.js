@@ -27,7 +27,7 @@ export default function Footer({ config = {}, cv = {}, lang = 'vi' }) {
 
   const links = [
     { href: `/${lang}`, label: isEn ? 'About' : 'Về tôi' },
-    { href: `/${lang}/cv`, label: isEn ? 'Curriculum Vitae' : 'Sơ yếu lý lịch' },
+    { href: `/${lang}/cv`, label: isEn ? 'Curriculum Vitae' : 'Hồ sơ' },
     { href: `/${lang}/achievements`, label: isEn ? 'Achievements' : 'Thành tích' },
     { href: `/${lang}/publications`, label: isEn ? 'Publications' : 'Ấn phẩm' },
     { href: `/${lang}/repositories`, label: isEn ? 'Repositories' : 'Lưu trữ' },

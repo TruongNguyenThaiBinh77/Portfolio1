@@ -31,16 +31,17 @@ export default async function Achievements({ params }) {
   const renderGrid = (items, title, iconClass, emptyMessage, titleBold, titleColor, isCertificateSection = false, customStyle = {}) => (
     <div style={{ marginBottom: isCertificateSection ? '0' : '50px', ...customStyle }}>
       <h2
-        className="d-flex align-items-center"
+        className="title-nexa-rust d-flex align-items-center"
         style={{
           fontSize: '1.65rem',
-          color: titleColor || 'var(--global-text-color)',
-          fontWeight: titleBold ? 'bold' : '600',
+          color: '#6f3706',
           marginBottom: '22px',
+          letterSpacing: '1px',
+          textTransform: 'uppercase',
         }}
       >
-        <i className={`fas ${iconClass}`} style={{ color: titleColor || 'var(--global-theme-color)', marginRight: '12px', flexShrink: 0, fontSize: '1.35rem' }}></i>
-        <span style={{ color: titleColor || 'inherit' }}>{title}</span>
+        <i className={`fas ${iconClass}`} style={{ color: '#6f3706', marginRight: '12px', flexShrink: 0, fontSize: '1.35rem' }}></i>
+        <span>{title}</span>
       </h2>
       <div className={isCertificateSection ? "achievements-grid-4" : "achievements-grid-auto"}>
         {items.length > 0 ? (
@@ -228,17 +229,19 @@ export default async function Achievements({ params }) {
       <div className="container mt-5 mb-4 text-center">
         <header className="post-header mb-4">
           <h1
-            className="post-title"
+            className="title-nexa-rust star-title post-title"
             style={{
-              fontSize: '2.8rem',
-              fontWeight: pageTitleBold ? 'bold' : 'normal',
-              color: pageTitleColor || '#8c0303',
+              fontSize: 'clamp(32px, 4.5vw, 54px)',
+              lineHeight: '1.25',
+              marginBottom: '16px',
             }}
           >
-            <span style={{ color: pageTitleColor || 'inherit' }}>{pageTitle}</span>
+            <span className="star-icon">★</span>
+            <span>{pageTitle}</span>
+            <span className="star-icon">★</span>
           </h1>
-          <p className="post-description text-muted fs-5 mt-2">{fm.description}</p>
-          <div style={{ width: '60px', height: '4px', backgroundColor: pageTitleColor || '#8c0303', margin: '18px auto', borderRadius: '2px' }}></div>
+          {fm.description && <p className="post-description text-muted fs-5 mt-2">{fm.description}</p>}
+          <div style={{ width: '60px', height: '4px', backgroundColor: '#6f3706', margin: '18px auto', borderRadius: '2px' }}></div>
         </header>
         
         {content && (

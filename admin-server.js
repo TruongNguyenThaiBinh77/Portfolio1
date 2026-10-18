@@ -33,6 +33,7 @@ app.use("/admin", (req, res, next) => {
   next();
 }, express.static(path.join(ROOT, "admin")));
 app.use("/assets", express.static(path.join(ROOT, "assets"))); // Serve assets for admin preview
+app.use("/assets", express.static(path.join(ROOT, "portfolio-react", "public", "assets")));
 
 // Redirect /admin to /admin/index.html
 app.get("/admin", (req, res) => {
@@ -178,6 +179,17 @@ app.get("/api/config", (req, res) => {
       navbar_padding_y: config.navbar_padding_y || "3px",
       navbar_font_size: config.navbar_font_size || "13.5px",
       navbar_brand_size: config.navbar_brand_size || "15px",
+      header_top: config.header_top || "20px",
+      header_margin_x: config.header_margin_x || "20px",
+      header_width: config.header_width || "calc(100% - 40px)",
+      header_max_width: config.header_max_width || "1400px",
+      header_border_radius: config.header_border_radius || "12px",
+      header_shadow: config.header_shadow !== undefined ? config.header_shadow : true,
+      header_border_color: config.header_border_color || "rgba(255, 255, 255, 0.2)",
+      top_banner_bg_color: config.top_banner_bg_color || "#AE0100",
+      top_banner_height: config.top_banner_height || "280px",
+      top_banner_title: config.top_banner_title || "ĐẠI HỘI ĐẠI BIỂU TOÀN QUỐC LẦN THỨ XIV CỦA ĐẢNG",
+      top_banner_enabled: config.top_banner_enabled !== undefined ? config.top_banner_enabled : true,
       footer_text_en: config.footer_text_en || "",
       blog_name_en: config.blog_name_en || "",
       blog_description_en: config.blog_description_en || "",
@@ -205,6 +217,8 @@ app.put("/api/config", (req, res) => {
       "description", "description_en", "footer_text", "footer_text_en",
       "header_logo", "header_logo_size", "header_logo_height", "header_logo_bg",
       "navbar_scale", "navbar_padding_y", "navbar_font_size", "navbar_brand_size",
+      "header_top", "header_margin_x", "header_width", "header_max_width", "header_border_radius", "header_shadow", "header_border_color",
+      "top_banner_bg_color", "top_banner_height", "top_banner_title", "top_banner_enabled",
       "global_bg_color", "global_bg_image", "global_bg_image_size", "global_bg_hue", "global_bg_opacity", "global_bg_overlay", "global_bg_overlay_opacity", "global_hover_color",
       "body_bg_image", "body_bg_image_size", "body_bg_hue", "body_bg_opacity", "body_bg_overlay", "body_bg_overlay_opacity",
       "navbar_bg_color", "navbar_bg_image", "navbar_bg_image_size", "navbar_bg_hue", "navbar_bg_opacity", "navbar_bg_overlay", "navbar_bg_overlay_opacity",
@@ -306,6 +320,118 @@ app.put("/api/pages/:name", (req, res) => {
     
     writeMarkdown(pagePath, frontMatter, newBody !== undefined ? newBody : body);
     res.json({ success: true, message: "Page updated" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ============================================================================
+// API: Tu Tuong Page & Hero Banner Settings (_pages/tu-tuong.md)
+// ============================================================================
+
+const defaultHeroBanner = {
+  banner_scale: 100,
+  drum_box_bg: "#F2DFCE",
+  drum_box_radius: 16,
+  drum_box_height: 410,
+  drum_box_margin_left: 140,
+  drum_image: "/assets/img/background-trong-dong-png_095238288.png",
+  drum_x: 68,
+  drum_y: 50,
+  drum_size: 560,
+  drum_opacity: 32,
+  drum_blur: 0,
+  drum_rotate: 0,
+  drum_sepia: 35,
+  drum_saturate: 115,
+  drum_blend_mode: "normal",
+  portrait_image: "/assets/img/BacHo.png",
+  portrait_x: 0,
+  portrait_y: 0,
+  portrait_scale: 100,
+  portrait_max_height: 470,
+  portrait_opacity: 100,
+  portrait_blur: 0,
+  portrait_contrast: 100,
+  portrait_brightness: 100,
+  portrait_grayscale: 0,
+  portrait_blend_mode: "normal",
+  portrait_mask: false,
+  portrait_flip: false,
+  subtitle: "Chủ tịch",
+  subtitle_en: "President",
+  subtitle_color: "#3B291A",
+  subtitle_size: 32,
+  title: "HỒ CHÍ MINH",
+  title_en: "HO CHI MINH",
+  title_color: "#68350B",
+  title_size: 46,
+  show_stars: false,
+  star_color: "#FFD700",
+  text_x: 0,
+  text_y: 0,
+  bottom_bar_enabled: false,
+  bottom_bar_text: "Vững bước dưới cờ Đảng",
+  bottom_bar_text_en: "Steadfast Under the Party Flag",
+  bottom_bar_bg: "rgba(255, 241, 229, 0.92)",
+  bottom_bar_color: "#6f3706",
+  bottom_bar_size: 28,
+  poem_enabled: true,
+  poem_title: "TỨC CẢNH PÁC BÓ",
+  poem_title_en: "RUSTIC SCENE OF PAC BO",
+  poem_subtitle: "Hang Cốc Bó, Pác Bó, Hà Quảng, Cao Bằng (Tháng 2 - 1941)",
+  poem_subtitle_en: "Coc Bo Cave, Pac Bo, Cao Bang (February 1941)",
+  poem_line1: "“Sáng ra bờ suối, tối vào hang,",
+  poem_line2: "Cháo bẹ rau măng vẫn sẵn sàng.",
+  poem_line3: "Bàn đá chông chênh dịch sử Đảng,",
+  poem_line4: "Cuộc đời cách mạng thật là sang.”",
+  poem_line1_en: "“Morning by the stream, evening in the cave,",
+  poem_line2_en: "Maize soup and bamboo shoots always ready.",
+  poem_line3_en: "A shaky stone slab to translate the Party history,",
+  poem_line4_en: "What a glorious revolutionary life!”",
+  poem_note: "Mùa xuân năm 1941, sau 30 năm bôn ba tìm đường cứu nước, Bác Hồ trở về Tổ quốc trực tiếp lãnh đạo cách mạng Việt Nam. Giữa núi rừng Pác Bó muôn trùng gian lao, bài thơ thể hiện khí phách lạc quan và phong thái ung dung, tự tại của Người.",
+  poem_note_en: "In spring 1941, after 30 years seeking salvation for the nation, Uncle Ho returned to lead the revolution. Amid the hardships of Pac Bo, the poem shows his supreme revolutionary optimism and serene spirit.",
+};
+
+app.get("/api/tu-tuong", (req, res) => {
+  try {
+    const pagePath = path.join(ROOT, "_pages", "tu-tuong.md");
+    if (!fs.existsSync(pagePath)) return res.status(404).json({ error: "Page not found" });
+
+    const { frontMatter, body } = readMarkdown(pagePath);
+    const hero_banner = {
+      ...defaultHeroBanner,
+      ...(frontMatter.hero_banner || {})
+    };
+
+    res.json({
+      frontMatter,
+      hero_banner,
+      body
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put("/api/tu-tuong", (req, res) => {
+  try {
+    const pagePath = path.join(ROOT, "_pages", "tu-tuong.md");
+    if (!fs.existsSync(pagePath)) return res.status(404).json({ error: "Page not found" });
+
+    const { frontMatter, body } = readMarkdown(pagePath);
+    const { hero_banner, ...otherFields } = req.body;
+
+    if (hero_banner) {
+      frontMatter.hero_banner = {
+        ...(frontMatter.hero_banner || {}),
+        ...hero_banner
+      };
+    }
+    Object.assign(frontMatter, otherFields);
+
+    writeMarkdown(pagePath, frontMatter, body);
+    res.json({ success: true, message: "Đã lưu cấu hình banner thành công!" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -481,6 +607,79 @@ app.put("/api/repositories", (req, res) => {
   try {
     writeYaml(path.join(ROOT, "_data", "repositories.yml"), req.body);
     res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// API: Bật/Tắt ẩn repo trên UI
+app.post("/api/repositories/toggle-visibility", (req, res) => {
+  try {
+    const filePath = path.join(ROOT, "_data", "repositories.yml");
+    const data = readYaml(filePath) || {};
+    const repo = (req.body.repo || "").trim();
+    if (!repo) {
+      return res.status(400).json({ error: "Thiếu tên repository" });
+    }
+
+    if (!Array.isArray(data.hidden_repos)) {
+      data.hidden_repos = [];
+    }
+
+    let isHidden;
+    if (typeof req.body.hidden === "boolean") {
+      isHidden = req.body.hidden;
+      if (isHidden && !data.hidden_repos.includes(repo)) {
+        data.hidden_repos.push(repo);
+      } else if (!isHidden) {
+        data.hidden_repos = data.hidden_repos.filter(r => r !== repo);
+      }
+    } else {
+      // Toggle nếu không chỉ định giá trị cụ thể
+      const idx = data.hidden_repos.indexOf(repo);
+      if (idx >= 0) {
+        data.hidden_repos.splice(idx, 1);
+        isHidden = false;
+      } else {
+        data.hidden_repos.push(repo);
+        isHidden = true;
+      }
+    }
+
+    writeYaml(filePath, data);
+    res.json({ 
+      success: true, 
+      repo, 
+      isHidden, 
+      hidden_repos: data.hidden_repos,
+      message: isHidden ? `Đã ẩn repo "${repo}" khỏi trang UI` : `Đã hiển thị repo "${repo}" lên trang UI`
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// API: Cập nhật ẩn/hiện hàng loạt (Batch toggle)
+app.post("/api/repositories/batch-visibility", (req, res) => {
+  try {
+    const filePath = path.join(ROOT, "_data", "repositories.yml");
+    const data = readYaml(filePath) || {};
+    const action = req.body.action; // 'hide_all', 'show_all', 'set_list'
+
+    if (!Array.isArray(data.hidden_repos)) {
+      data.hidden_repos = [];
+    }
+
+    if (action === "show_all") {
+      data.hidden_repos = [];
+    } else if (action === "hide_all") {
+      data.hidden_repos = Array.isArray(data.github_repos) ? [...data.github_repos] : [];
+    } else if (action === "set_list" && Array.isArray(req.body.hidden_repos)) {
+      data.hidden_repos = req.body.hidden_repos.map(r => String(r).trim()).filter(Boolean);
+    }
+
+    writeYaml(filePath, data);
+    res.json({ success: true, hidden_repos: data.hidden_repos });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

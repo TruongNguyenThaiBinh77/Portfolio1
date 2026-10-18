@@ -9,6 +9,11 @@ export default async function Repositories({ params }) {
 
   const githubUsers = repoData.github_users || [];
   const githubRepos = repoData.github_repos || [];
+  const hiddenRepos = new Set(repoData.hidden_repos || []);
+  const visibleRepos = githubRepos.filter((repo) => {
+    const repoName = typeof repo === 'string' ? repo : (repo?.name || '');
+    return !hiddenRepos.has(repoName) && !repo?.hidden;
+  });
 
   // Filter out any legacy Liquid template or heading artifacts from Jekyll
   const cleanContent = content
@@ -39,7 +44,7 @@ export default async function Repositories({ params }) {
   const reposTitleColor = repoData.repos_title_color || '';
 
   const statsTheme = repoData.stats_theme || 'light';
-  const totalReposCount = repoData.total_repos_count || githubRepos.length || 21;
+  const totalReposCount = repoData.total_repos_count || visibleRepos.length || 21;
 
   // Colors for light/custom cards (defaults match site palette)
   const cardBgColor = (repoData.card_bg_color || '#ffffff').replace('#', '');
@@ -90,22 +95,25 @@ export default async function Repositories({ params }) {
   return (
     <div className="container mt-5" role="main">
       <div className="post">
-        <header className="post-header mb-4">
+        <header className="post-header mb-4 text-center">
           <h1
-            className="post-title"
+            className="title-nexa-rust star-title post-title"
             style={{
-              fontSize: '2.1rem',
-              fontWeight: pageTitleBold ? '700' : '400',
-              color: pageTitleColor || 'inherit',
+              fontSize: 'clamp(30px, 4.2vw, 50px)',
+              lineHeight: '1.25',
+              marginBottom: '16px',
             }}
           >
-            {pageTitle}
+            <span className="star-icon">★</span>
+            <span>{pageTitle}</span>
+            <span className="star-icon">★</span>
           </h1>
           {fm.description && (
-            <p className="post-description text-muted" style={{ fontSize: '1.05rem' }}>
+            <p className="post-description text-muted text-center" style={{ fontSize: '1.05rem' }}>
               {fm.description}
             </p>
           )}
+          <div style={{ width: '60px', height: '4px', backgroundColor: '#6f3706', margin: '16px auto', borderRadius: '2px' }}></div>
         </header>
 
         <article>
@@ -115,12 +123,13 @@ export default async function Repositories({ params }) {
 
           {githubUsers.length > 0 && (
             <>
-              <div className="d-flex justify-content-between align-items-center mb-3">
+              <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                 <h2
-                  className="h4 mb-0"
+                  className="title-nexa-rust h4 mb-0"
                   style={{
-                    fontWeight: overviewTitleBold ? '700' : '400',
-                    color: overviewTitleColor || 'inherit',
+                    color: '#6f3706',
+                    letterSpacing: '1px',
+                    textTransform: 'uppercase',
                   }}
                 >
                   <i className="fab fa-github mr-2"></i>
@@ -131,8 +140,8 @@ export default async function Repositories({ params }) {
                     href={`https://github.com/${githubUsers[0]}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn btn-sm btn-outline-secondary"
-                    style={{ borderRadius: '20px', fontSize: '0.85rem' }}
+                    className="btn btn-sm btn-outline-secondary text-truncate"
+                    style={{ borderRadius: '20px', fontSize: '0.85rem', maxWidth: '100%' }}
                   >
                     <i className="fab fa-github mr-1"></i>
                     github.com/{githubUsers[0]} <i className="fas fa-external-link-alt ml-1" style={{ fontSize: '10px' }}></i>
@@ -142,7 +151,7 @@ export default async function Repositories({ params }) {
 
               <div className="d-flex flex-wrap justify-content-center align-items-center mb-4" style={{ gap: '1.25rem' }}>
                 {githubUsers.map((user, idx) => (
-                  <div key={idx} style={{ flex: '1 1 420px', maxWidth: '480px', textAlign: 'center' }}>
+                  <div key={idx} style={{ flex: '1 1 300px', width: '100%', maxWidth: '480px', minWidth: 0, textAlign: 'center' }}>
                     <a
                       href={`https://github.com/${user}`}
                       target="_blank"
@@ -166,7 +175,7 @@ export default async function Repositories({ params }) {
                 ))}
 
                 {githubUsers.map((user, idx) => (
-                  <div key={`langs-${idx}`} style={{ flex: '1 1 420px', maxWidth: '480px', textAlign: 'center' }}>
+                  <div key={`langs-${idx}`} style={{ flex: '1 1 300px', width: '100%', maxWidth: '480px', minWidth: 0, textAlign: 'center' }}>
                     <a
                       href={`https://github.com/${user}`}
                       target="_blank"
@@ -190,7 +199,7 @@ export default async function Repositories({ params }) {
                 ))}
 
                 {githubUsers.map((user, idx) => (
-                  <div key={`streak-${idx}`} style={{ width: '100%', maxWidth: '480px', textAlign: 'center' }}>
+                  <div key={`streak-${idx}`} style={{ width: '100%', maxWidth: '480px', minWidth: 0, textAlign: 'center' }}>
                     <a
                       href={`https://github.com/${user}`}
                       target="_blank"
@@ -217,14 +226,15 @@ export default async function Repositories({ params }) {
             </>
           )}
 
-          {githubRepos.length > 0 && (
+          {visibleRepos.length > 0 && (
             <>
-              <div className="d-flex justify-content-between align-items-center mb-3">
+              <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                 <h2
-                  className="h4 mb-0"
+                  className="title-nexa-rust h4 mb-0"
                   style={{
-                    fontWeight: reposTitleBold ? '700' : '400',
-                    color: reposTitleColor || 'inherit',
+                    color: '#6f3706',
+                    letterSpacing: '1px',
+                    textTransform: 'uppercase',
                   }}
                 >
                   <i className="fas fa-code-branch mr-2"></i>
@@ -236,7 +246,8 @@ export default async function Repositories({ params }) {
               </div>
 
               <div className="row">
-                {githubRepos.map((repo, idx) => {
+                {visibleRepos.map((repoItem, idx) => {
+                  const repo = typeof repoItem === 'string' ? repoItem : repoItem.name;
                   const parts = repo.split('/');
                   const username = parts[0];
                   const reponame = parts[1];

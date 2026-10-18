@@ -44,20 +44,26 @@ export default function Navbar({ config }) {
           {currentPath === '/repositories' && <span className="sr-only">(current)</span>}
         </Link>
       </li>
+      <li className={`nav-item ${currentPath === '/tu-tuong' ? 'active' : ''}`}>
+        <Link className="nav-link" href={`/${lang}/tu-tuong`}>
+          {navNames.tu_tuong || (lang === 'vi' ? 'Chi bộ' : 'Party Cell')}
+          {currentPath === '/tu-tuong' && <span className="sr-only">(current)</span>}
+        </Link>
+      </li>
       
       {/* Language Toggle */}
-      <li className="nav-item ml-3 pl-3" style={{ borderLeft: '1px solid var(--global-divider-color)', display: 'flex', alignItems: 'center' }}>
+      <li className="nav-item ml-3 pl-3" style={{ display: 'flex', alignItems: 'center' }}>
         <Link 
           href={lang === 'vi' ? `/en${currentPath === '/' ? '' : currentPath}` : `/vi${currentPath === '/' ? '' : currentPath}`} 
-          className="btn btn-sm" 
+          className="btn btn-sm btn-lang-toggle" 
           style={{ 
-            color: 'var(--global-theme-color)', 
-            borderColor: 'var(--global-theme-color)',
-            backgroundColor: 'transparent',
             fontWeight: 'bold',
             display: 'flex',
             alignItems: 'center',
-            gap: '5px'
+            gap: '5px',
+            borderRadius: '6px',
+            padding: '3px 8px',
+            transition: 'all 0.15s ease-in-out',
           }}
           title={lang === 'vi' ? 'Switch to English' : 'Chuyển sang Tiếng Việt'}
         >

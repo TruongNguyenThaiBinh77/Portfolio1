@@ -14,6 +14,23 @@ export default function NavbarWrapper({ config, lang }) {
     setIsOpen(false);
   }, [pathname]);
 
+  // Lắng nghe sự kiện cuộn trang để chuyển đổi giao diện header
+  useEffect(() => {
+    const handleScroll = () => {
+      const navbar = document.getElementById('navbar');
+      if (!navbar) return;
+      if (window.scrollY > 35) {
+        navbar.classList.add('navbar-scrolled');
+      } else {
+        navbar.classList.remove('navbar-scrolled');
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const toggleNavbar = () => {
     setIsOpen(!isOpen);
   };

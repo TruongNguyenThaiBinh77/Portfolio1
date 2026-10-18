@@ -56,19 +56,23 @@ export default async function Publications({ params }) {
   return (
     <div className="container mt-5" role="main" style={{ maxWidth: '980px', margin: '0 auto' }}>
       <div className="post">
-        <header className="post-header mb-4">
+        <header className="post-header mb-4 text-center">
           <h1
-            className="post-title"
+            className="title-nexa-rust star-title post-title"
             style={{
-              color: pageTitleColor,
-              fontWeight: pageTitleBold ? '700' : '400',
+              fontSize: 'clamp(30px, 4.2vw, 50px)',
+              lineHeight: '1.25',
+              marginBottom: '16px',
             }}
           >
-            <span style={{ color: pageTitleColor || 'inherit' }}>{pageTitle}</span>
+            <span className="star-icon">★</span>
+            <span>{pageTitle}</span>
+            <span className="star-icon">★</span>
           </h1>
-          <p className="post-description mb-0" style={{ fontSize: '1.05rem', color: '#64748b' }}>
+          <p className="post-description mb-0 text-center" style={{ fontSize: '1.05rem', color: '#64748b' }}>
             {fm.description || (lang === 'vi' ? 'Danh sách đầy đủ các bài báo, nghiên cứu và ấn phẩm khoa học đã được công bố.' : 'Full list of published papers, research and scientific publications.')}
           </p>
+          <div style={{ width: '60px', height: '4px', backgroundColor: '#6f3706', margin: '16px auto', borderRadius: '2px' }}></div>
         </header>
 
         <article>

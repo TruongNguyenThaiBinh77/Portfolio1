@@ -141,7 +141,7 @@ function initAdminRouter() {
   const validSections = [
     "site-settings", "pages-settings", "section-titles",
     "about", "cv", "socials", "repositories",
-    "teachings", "news", "bibliography", "resume-json"
+    "teachings", "news", "bibliography", "resume-json", "tu-tuong"
   ];
   const section = validSections.includes(hash) ? hash : "site-settings";
 
@@ -259,6 +259,10 @@ async function loadSection(section) {
       case "resume-json":
         globalSave.onclick = saveResumeJson;
         await loadResumeJson();
+        break;
+      case "tu-tuong":
+        globalSave.onclick = saveTuTuongSettings;
+        await loadTuTuongSettings();
         break;
     }
   } catch (err) {
@@ -382,7 +386,7 @@ async function loadSiteSettings() {
 
     <div class="card">
       <div class="card-header">
-        <h2><i class="fas fa-ruler-combined"></i> Kích thước & Thu phóng Header (Header Scale & Sizing)</h2>
+        <h2><i class="fas fa-ruler-combined"></i> Kích thước & Thu phóng Header khi chưa lăn chuột (Floating Header)</h2>
       </div>
       <div class="card-body">
         <div class="form-grid">
@@ -393,6 +397,17 @@ async function loadSiteSettings() {
               <span id="navbar_scale_val" style="min-width: 45px; font-weight: bold; color: var(--primary);">${data.navbar_scale || 88}%</span>
             </div>
             <span class="form-help">Thu nhỏ Header (khuyên dùng 80% - 90% để thanh menu thanh thoát, gọn gàng).</span>
+          </div>
+
+          <div class="form-group">
+            <label>Chiều ngang Header khi chưa lăn chuột (Header Width / Max-Width)</label>
+            <div style="display: flex; gap: 15px; align-items: center;">
+              <input type="range" id="cfg-header_max_width_slider" min="750" max="1600" step="10" value="${parseInt(data.header_max_width || 1080)}" oninput="document.getElementById('cfg-header_max_width').value = this.value + 'px'; document.getElementById('cfg-header_width').value = 'min(92vw, ' + this.value + 'px)'; document.getElementById('header_max_width_val').innerText = this.value + 'px'" style="flex: 1;" />
+              <span id="header_max_width_val" style="min-width: 55px; font-weight: bold; color: var(--primary);">${parseInt(data.header_max_width || 1080)}px</span>
+            </div>
+            <input type="hidden" id="cfg-header_max_width" value="${escHtml(data.header_max_width || "1080px")}" />
+            <input type="hidden" id="cfg-header_width" value="${escHtml(data.header_width || "min(92vw, 1080px)")}" />
+            <span class="form-help">Độ rộng của thanh Header nổi khi ở đầu trang (chưa lăn chuột). Mặc định 1080px - 1180px. Kéo tăng để Header dài rộng hơn sang 2 bên màn hình hoặc kéo giảm để thu gọn lại.</span>
           </div>
 
           <div class="form-group">
@@ -728,6 +743,8 @@ async function saveSiteSettings() {
       header_logo_height: document.getElementById("cfg-header_logo_height").value,
       header_logo_bg: document.getElementById("cfg-header_logo_bg").value,
       navbar_scale: parseInt(document.getElementById("cfg-navbar_scale") ? document.getElementById("cfg-navbar_scale").value : 88),
+      header_max_width: document.getElementById("cfg-header_max_width") ? document.getElementById("cfg-header_max_width").value : "1080px",
+      header_width: document.getElementById("cfg-header_width") ? document.getElementById("cfg-header_width").value : "min(92vw, 1080px)",
       navbar_padding_y: document.getElementById("cfg-navbar_padding_y") ? document.getElementById("cfg-navbar_padding_y").value : "3px",
       navbar_font_size: document.getElementById("cfg-navbar_font_size") ? document.getElementById("cfg-navbar_font_size").value : "13.5px",
       navbar_brand_size: document.getElementById("cfg-navbar_brand_size") ? document.getElementById("cfg-navbar_brand_size").value : "15px",
@@ -3300,24 +3317,47 @@ async function loadRepositories() {
 
     <!-- 3. GitHub Repositories -->
     <div class="card mb-4">
-      <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
-        <h2><i class="fas fa-code-branch"></i> GitHub Repositories</h2>
-        <button class="btn btn-sm btn-secondary" onclick="fetchGitHubReposFromApi()" style="font-size:12px;padding:6px 14px">
-          <i class="fab fa-github" style="color:var(--accent-light);margin-right:6px"></i> Tải Repos từ GitHub
-        </button>
+      <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+        <div>
+          <h2><i class="fas fa-code-branch" style="color:var(--accent-light);margin-right:8px"></i> GitHub Repositories</h2>
+          <small class="text-muted" style="display:block;margin-top:2px;">Bấm nút <strong style="color:#10b981"><i class="fas fa-eye"></i> Hiện</strong> / <strong style="color:#f59e0b"><i class="fas fa-eye-slash"></i> Đã ẩn</strong> cạnh mỗi repo để ẩn/hiện trực tiếp lên UI mà không mất dữ liệu.</small>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-sm btn-secondary" onclick="fetchGitHubReposFromApi()" style="font-size:12px;padding:6px 14px">
+            <i class="fab fa-github" style="color:var(--accent-light);margin-right:6px"></i> Tải Repos từ GitHub
+          </button>
+        </div>
       </div>
       <div class="card-body">
+        <!-- Filter Tabs & Batch Actions -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding:8px 12px;background:var(--bg-tertiary);border-radius:6px;border:1px solid var(--border);flex-wrap:wrap;gap:10px">
+          <div style="display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap;">
+            <span style="font-size:12px;color:var(--text-muted);font-weight:600;margin-right:4px;">Bộ lọc:</span>
+            <button type="button" class="btn btn-sm btn-primary repo-filter-btn active" data-filter="all" onclick="filterRepoList('all', this)" style="font-size:11px;padding:4px 11px;border-radius:12px;">
+              Tất cả (<span id="repo-count-all">0</span>)
+            </button>
+            <button type="button" class="btn btn-sm btn-secondary repo-filter-btn" data-filter="visible" onclick="filterRepoList('visible', this)" style="font-size:11px;padding:4px 11px;border-radius:12px;">
+              <i class="fas fa-eye" style="color:#10b981;margin-right:3px"></i> Đang hiện (<span id="repo-count-visible">0</span>)
+            </button>
+            <button type="button" class="btn btn-sm btn-secondary repo-filter-btn" data-filter="hidden" onclick="filterRepoList('hidden', this)" style="font-size:11px;padding:4px 11px;border-radius:12px;">
+              <i class="fas fa-eye-slash" style="color:#f59e0b;margin-right:3px"></i> Đã ẩn (<span id="repo-count-hidden">0</span>)
+            </button>
+          </div>
+          <div style="display:inline-flex;gap:6px;align-items:center;">
+            <button type="button" class="btn btn-sm btn-secondary" onclick="batchSetRepoVisibility('show_all')" style="font-size:11px;padding:4px 10px;" title="Hiện lại tất cả repos trên trang web UI">
+              <i class="fas fa-eye" style="color:#10b981;margin-right:4px"></i> Hiện tất cả
+            </button>
+            <button type="button" class="btn btn-sm btn-secondary" onclick="batchSetRepoVisibility('hide_all')" style="font-size:11px;padding:4px 10px;" title="Ẩn toàn bộ repos khỏi trang web UI">
+              <i class="fas fa-eye-slash" style="color:#f59e0b;margin-right:4px"></i> Ẩn tất cả
+            </button>
+          </div>
+        </div>
+
         <div class="dynamic-list" id="gh-repos-list">
-          ${(data.github_repos || []).map((r, i) => `
-            <div class="dynamic-item" style="padding:10px 16px">
-              <div class="flex items-center justify-between">
-                <input type="text" class="gh-repo" value="${escHtml(r)}" placeholder="owner/repo" style="flex:1;margin-right:10px" />
-                <button class="btn btn-sm btn-danger btn-icon" onclick="this.closest('.dynamic-item').remove()">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </div>
-          `).join("")}
+          ${(data.github_repos || []).map((r) => {
+            const isHidden = (data.hidden_repos || []).includes(r);
+            return renderRepoItemHtml(r, isHidden);
+          }).join("")}
         </div>
         <button class="add-item-btn mt-4" onclick="addGhRepo()">
           <i class="fas fa-plus"></i> Thêm Repository thủ công
@@ -3334,6 +3374,7 @@ async function loadRepositories() {
       </div>
     </div>
   `);
+  updateRepoCounters();
 }
 
 function renderTitleStylingBlock({ id, num, icon, label, titleVi, titleEn, isBold, color, defaultColor = '#8c0303', previewIcon = '', showTextInputs = true }) {
@@ -6827,5 +6868,1482 @@ async function uploadCertificateFile(input) {
     hideLoading();
   }
 }
+
+// ============================================================================
+// Banner Bác Hồ & Trống Đồng (Trang Chi bộ / Tư tưởng) - 2 Section Layout
+// ============================================================================
+
+const DEFAULT_HB_CONFIG = {
+  banner_scale: 100,
+  banner_offset_x: 0,
+  drum_box_bg: "#F2DFCE",
+  drum_box_radius: 16,
+  drum_box_height: 410,
+  drum_box_margin_left: 140,
+  drum_image: "/assets/img/background-trong-dong-png_095238288.png",
+  drum_x: 47,
+  drum_y: 71,
+  drum_size: 560,
+  drum_opacity: 32,
+  drum_blur: 0,
+  drum_rotate: 0,
+  drum_sepia: 35,
+  drum_saturate: 115,
+  drum_blend_mode: "normal",
+  portrait_image: "/assets/img/BacHo.png",
+  portrait_x: 0,
+  portrait_y: 0,
+  portrait_scale: 100,
+  portrait_max_height: 470,
+  portrait_opacity: 100,
+  portrait_blur: 0,
+  portrait_contrast: 100,
+  portrait_brightness: 100,
+  portrait_grayscale: 0,
+  portrait_blend_mode: "normal",
+  portrait_mask: false,
+  portrait_flip: false,
+  subtitle: "Chủ tịch",
+  subtitle_en: "President",
+  subtitle_color: "#3B291A",
+  subtitle_size: 32,
+  title: "HỒ CHÍ MINH",
+  title_en: "HO CHI MINH",
+  title_color: "#68350B",
+  title_size: 46,
+  show_stars: false,
+  star_color: "#FFD700",
+  text_x: 0,
+  text_y: 0,
+  bottom_bar_enabled: false,
+  bottom_bar_text: "Vững bước dưới cờ Đảng",
+  bottom_bar_text_en: "Steadfast Under the Party Flag",
+  bottom_bar_bg: "rgba(255, 241, 229, 0.92)",
+  bottom_bar_color: "#6f3706",
+  bottom_bar_size: 28,
+  poem_enabled: true,
+  poem_title: "TỨC CẢNH PÁC BÓ",
+  poem_title_en: "RUSTIC SCENE OF PAC BO",
+  poem_subtitle: "Hang Cốc Bó, Pác Bó, Hà Quảng, Cao Bằng (Tháng 2 - 1941)",
+  poem_subtitle_en: "Coc Bo Cave, Pac Bo, Cao Bang (February 1941)",
+  poem_line1: "“Sáng ra bờ suối, tối vào hang,",
+  poem_line2: "Cháo bẹ rau măng vẫn sẵn sàng.",
+  poem_line3: "Bàn đá chông chênh dịch sử Đảng,",
+  poem_line4: "Cuộc đời cách mạng thật là sang.”",
+  poem_note: "Mùa xuân năm 1941, sau 30 năm bôn ba tìm đường cứu nước, Bác Hồ trở về Tổ quốc trực tiếp lãnh đạo cách mạng Việt Nam. Giữa núi rừng Pác Bó muôn trùng gian lao, bài thơ thể hiện khí phách lạc quan và phong thái ung dung, tự tại của Người.",
+};
+
+let currentHbData = { ...DEFAULT_HB_CONFIG };
+let hbDragTarget = "portrait"; // 'portrait' or 'drum'
+
+async function loadTuTuongSettings() {
+  showLoading();
+  try {
+    const res = await fetch(`${API}/tu-tuong`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    
+    currentHbData = {
+      ...DEFAULT_HB_CONFIG,
+      ...(data.hero_banner || {})
+    };
+    
+    // Đảm bảo kiểu dữ liệu chuẩn số
+    [
+      'banner_scale', 'banner_offset_x',
+      'drum_box_radius', 'drum_box_height', 'drum_box_margin_left',
+      'drum_x', 'drum_y', 'drum_size', 'drum_opacity', 'drum_blur', 'drum_rotate', 'drum_sepia', 'drum_saturate',
+      'portrait_x', 'portrait_y', 'portrait_scale', 'portrait_max_height', 'portrait_opacity', 'portrait_blur',
+      'portrait_contrast', 'portrait_brightness', 'portrait_grayscale',
+      'subtitle_size', 'title_size', 'text_x', 'text_y', 'bottom_bar_size'
+    ].forEach(k => {
+      if (currentHbData[k] !== undefined) {
+        currentHbData[k] = Number(currentHbData[k]);
+      }
+    });
+
+    renderTuTuongUI();
+  } catch (err) {
+    showToast("Không thể tải cấu hình Banner: " + err.message, "error");
+    renderContent(`
+      <div class="card" style="border-left: 4px solid #e74c3c; padding: 2rem;">
+        <h3 style="color:#e74c3c;"><i class="fas fa-exclamation-triangle"></i> Lỗi tải trang Chi bộ / Tư tưởng</h3>
+        <p>${err.message}</p>
+        <button class="btn btn-primary" onclick="loadTuTuongSettings()">Thử lại</button>
+      </div>
+    `);
+  } finally {
+    hideLoading();
+  }
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function renderTuTuongUI() {
+  const d = currentHbData;
+
+  const html = `
+    <div class="tu-tuong-config-container" style="max-width: 1300px; margin: 0 auto; padding-bottom: 80px;">
+      
+      <!-- Top header bar -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px;">
+        <div>
+          <h2 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 700; color: var(--text-color, #2c3e50);">
+            <i class="fas fa-landmark" style="color: #c0392b; margin-right: 10px;"></i>Thiết kế Banner Bác Hồ & Trống Đồng (2 Section Độc Lập)
+          </h2>
+          <p style="margin: 0; color: #7f8c8d; font-size: 13.5px;">
+            Bố cục chuẩn theo hình mẫu: Section 1 Khung chữ nhật Trống Đồng + Section 2 Ảnh Bác đứng riêng đè lên góc trái dễ dàng kéo thả.
+          </p>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <button class="btn btn-secondary" onclick="applyHbPreset('tolam')" style="background: #fdf5e6; border-color: #e67e22; color: #d35400; font-weight: 600;">
+            <i class="fas fa-magic"></i> Áp dụng Hình mẫu chuẩn
+          </button>
+          <button class="btn btn-primary" onclick="saveTuTuongSettings()" style="font-weight: 600; padding: 8px 20px;">
+            <i class="fas fa-save"></i> Lưu Thay Đổi
+          </button>
+        </div>
+      </div>
+
+      <!-- MASTER BANNER CONTROLLER (PHÓNG TO / THU NHỎ & CĂN GIỮA SECTION MẸ) -->
+      <div style="background: linear-gradient(135deg, #fffaf5 0%, #ffffff 100%); border: 1.5px solid #ebdcd0; border-radius: 12px; padding: 18px 20px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 4px 16px rgba(104, 53, 11, 0.05);">
+        
+        <!-- Hàng 1: Thu phóng toàn bộ Section Mẹ -->
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; border-bottom: 1px dashed #ebdcd0; padding-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(192, 57, 43, 0.1); color: #c0392b; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+              <i class="fas fa-expand-arrows-alt"></i>
+            </div>
+            <div>
+              <div style="font-weight: 700; font-size: 14.5px; color: #5a3818; display: flex; align-items: center; gap: 8px;">
+                <span>Thu phóng Section Mẹ (Banner Master Scale)</span>
+                <span style="font-size: 11px; background: #27ae60; color: #fff; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Tự co dãn Section con</span>
+              </div>
+              <div style="font-size: 12.5px; color: #7f8c8d; margin-top: 2px;">
+                Kéo để phóng to/thu nhỏ toàn bộ Section Mẹ. Các Section con (ảnh Bác, khung Trống Đồng, tiêu đề chữ) tự động co dãn chuẩn tỷ lệ.
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 10px; flex: 1; max-width: 460px; min-width: 280px;">
+            <button class="btn btn-sm btn-outline-secondary" onclick="stepHbScale(-5)" title="Giảm 5%" style="padding: 5px 12px; font-weight: bold; font-size: 14px; border-color: #d5c8be; color: #68350B; background: #fff;">
+              <i class="fas fa-minus"></i>
+            </button>
+            <input type="range" class="form-range" id="input-banner-scale" min="60" max="150" step="2" value="${d.banner_scale || 100}" oninput="syncHbField('banner_scale', Number(this.value)); document.getElementById('val-banner-scale').innerText = this.value + '%'; if(document.getElementById('input-drum-box-scale')) document.getElementById('input-drum-box-scale').value = this.value; if(document.getElementById('val-drum-box-scale')) document.getElementById('val-drum-box-scale').innerText = this.value + '%';" style="flex: 1; accent-color: #c0392b; cursor: pointer;">
+            <button class="btn btn-sm btn-outline-secondary" onclick="stepHbScale(5)" title="Tăng 5%" style="padding: 5px 12px; font-weight: bold; font-size: 14px; border-color: #d5c8be; color: #68350B; background: #fff;">
+              <i class="fas fa-plus"></i>
+            </button>
+            <button class="btn btn-sm" onclick="syncHbField('banner_scale', 100); document.getElementById('input-banner-scale').value = 100; document.getElementById('val-banner-scale').innerText = '100%'; if(document.getElementById('input-drum-box-scale')) document.getElementById('input-drum-box-scale').value = 100; if(document.getElementById('val-drum-box-scale')) document.getElementById('val-drum-box-scale').innerText = '100%';" title="Khôi phục về kích thước gốc 100%" style="background: #fdf5e6; border: 1px solid #e67e22; color: #d35400; font-weight: 700; min-width: 68px; padding: 5px 10px;">
+              <span id="val-banner-scale">${d.banner_scale || 100}%</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Hàng 2: Căn giữa Section Mẹ (Auto-Center & Offset X) -->
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(230, 126, 34, 0.12); color: #d35400; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+              <i class="fas fa-align-center"></i>
+            </div>
+            <div>
+              <div style="font-weight: 700; font-size: 14.5px; color: #5a3818; display: flex; align-items: center; gap: 8px;">
+                <span>Căn giữa Section Mẹ (Master Section Alignment)</span>
+                <span style="font-size: 11px; background: #2980b9; color: #fff; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Không đổi layout con</span>
+              </div>
+              <div style="font-size: 12.5px; color: #7f8c8d; margin-top: 2px;">
+                Khi tùy chỉnh làm các phần tử (ảnh Bác, Trống Đồng) lọt ra ngoài mép, bấm nút để tự động cân đối đưa toàn bộ Section Mẹ vào chính giữa.
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 10px; flex: 1; max-width: 460px; min-width: 280px; justify-content: flex-end;">
+            <button class="btn btn-sm" onclick="autoCenterMasterSection()" style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); color: #fff; font-weight: 700; padding: 6px 14px; border: none; border-radius: 6px; box-shadow: 0 2px 8px rgba(211,84,0,0.25); display: flex; align-items: center; gap: 6px; white-space: nowrap; cursor: pointer;">
+              <i class="fas fa-magic"></i> Căn giữa Section Mẹ
+            </button>
+            <div style="display: flex; align-items: center; gap: 6px; flex: 1; max-width: 260px;">
+              <button class="btn btn-sm btn-outline-secondary" onclick="stepHbOffsetX(-5)" title="Dịch trái 5px" style="padding: 4px 8px; font-weight: bold; border-color: #d5c8be; color: #68350B; background: #fff;">
+                <i class="fas fa-minus"></i>
+              </button>
+              <input type="range" class="form-range" id="input-banner-offset-x" min="-200" max="200" step="1" value="${d.banner_offset_x || 0}" oninput="syncHbField('banner_offset_x', Number(this.value)); document.getElementById('val-banner-offset-x').innerText = (this.value > 0 ? '+' : '') + this.value + 'px'; if(document.getElementById('input-drum-box-offset-x')) document.getElementById('input-drum-box-offset-x').value = this.value; if(document.getElementById('val-drum-box-offset-x')) document.getElementById('val-drum-box-offset-x').innerText = (this.value > 0 ? '+' : '') + this.value + 'px';" style="flex: 1; accent-color: #d35400; cursor: pointer;">
+              <button class="btn btn-sm btn-outline-secondary" onclick="stepHbOffsetX(5)" title="Dịch phải 5px" style="padding: 4px 8px; font-weight: bold; border-color: #d5c8be; color: #68350B; background: #fff;">
+                <i class="fas fa-plus"></i>
+              </button>
+              <button class="btn btn-sm" onclick="syncHbField('banner_offset_x', 0); document.getElementById('input-banner-offset-x').value = 0; document.getElementById('val-banner-offset-x').innerText = '0px'; if(document.getElementById('input-drum-box-offset-x')) document.getElementById('input-drum-box-offset-x').value = 0; if(document.getElementById('val-drum-box-offset-x')) document.getElementById('val-drum-box-offset-x').innerText = '0px';" title="Đưa về 0px" style="background: #fdf5e6; border: 1px solid #e67e22; color: #d35400; font-weight: 700; min-width: 60px; padding: 4px 8px; font-size: 12px;">
+                <span id="val-banner-offset-x">${(d.banner_offset_x > 0 ? '+' : '') + (d.banner_offset_x || 0)}px</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- LIVE PREVIEW CARD -->
+      <div class="card" style="margin-bottom: 25px; border-radius: 14px; box-shadow: 0 6px 22px rgba(0,0,0,0.07); overflow: hidden; border: 1px solid #e2dcd5;">
+        <div class="card-header" style="background: #fdfcfb; border-bottom: 1px solid #ede7df; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div style="font-weight: 700; color: #5a3818; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-eye" style="color: #e67e22;"></i> 
+            <span>Màn hình xem trước trực tiếp (Live Preview)</span>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <span style="font-size: 12.5px; color: #7f8c8d;">Chế độ kéo thả chuột:</span>
+            <div class="btn-group" style="display: inline-flex; border-radius: 6px; overflow: hidden; border: 1px solid #d5c8be;">
+              <button id="btn-drag-portrait" onclick="setHbDragTarget('portrait')" class="btn" style="padding: 4px 10px; font-size: 12px; font-weight: 600; background: ${hbDragTarget === 'portrait' ? '#68350B' : '#fff'}; color: ${hbDragTarget === 'portrait' ? '#fff' : '#555'};">
+                <i class="fas fa-user"></i> Kéo Ảnh Bác
+              </button>
+              <button id="btn-drag-drum" onclick="setHbDragTarget('drum')" class="btn" style="padding: 4px 10px; font-size: 12px; font-weight: 600; background: ${hbDragTarget === 'drum' ? '#68350B' : '#fff'}; color: ${hbDragTarget === 'drum' ? '#fff' : '#555'};">
+                <i class="fas fa-sun"></i> Kéo Trống Đồng
+              </button>
+              <button id="btn-drag-master" onclick="setHbDragTarget('master')" class="btn" style="padding: 4px 10px; font-size: 12px; font-weight: 600; background: ${hbDragTarget === 'master' ? '#68350B' : '#fff'}; color: ${hbDragTarget === 'master' ? '#fff' : '#555'};" title="Kéo chuột để dịch chuyển toàn bộ Section Mẹ">
+                <i class="fas fa-arrows-alt-h"></i> Kéo Section Mẹ
+              </button>
+            </div>
+            <button class="btn btn-sm" onclick="autoCenterMasterSection()" title="Tự động tính toán & căn giữa toàn bộ Section Mẹ" style="padding: 4px 12px; font-size: 12px; font-weight: 700; background: #e67e22; color: #fff; border: none; border-radius: 6px; display: flex; align-items: center; gap: 5px;">
+              <i class="fas fa-align-center"></i> Căn giữa Section
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="resetHbPositions()" title="Đưa về vị trí mặc định" style="padding: 4px 10px; font-size: 12px;">
+              <i class="fas fa-undo"></i> Reset Vị Trí
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body" style="padding: 24px; background: #faf8f5;">
+          <div style="font-size: 12px; color: #8c7662; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+            <i class="fas fa-info-circle"></i> 
+            <span><strong>Mẹo kéo thả:</strong> Click giữ chuột trực tiếp lên <strong>Ảnh Bác</strong> để di chuyển góc trái. Chọn <em>Kéo Trống Đồng</em> để di chuyển hoa văn Trống Đồng. Hoặc bấm nút <strong>Căn giữa Section</strong> để tự động cân bằng toàn bộ bố cục.</span>
+          </div>
+
+          <!-- Live Preview Canvas Stage Wrapper -->
+          <div 
+            id="preview-hb-wrapper"
+            style="
+              width: 100%;
+              display: flex;
+              justify-content: center;
+              align-items: flex-end;
+              min-height: ${Math.round(Math.max(d.drum_box_height, d.portrait_max_height) * ((d.banner_scale || 100) / 100))}px;
+              overflow: visible;
+              background: #fff;
+              border-radius: 14px;
+              box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+              transition: min-height 0.2s ease;
+            "
+          >
+            <div 
+              id="preview-hb-main-container"
+              style="
+                position: relative;
+                width: 100%;
+                left: ${d.banner_offset_x || 0}px;
+                min-height: ${Math.max(d.drum_box_height, d.portrait_max_height)}px;
+                display: flex;
+                align-items: flex-end;
+                user-select: none;
+                transform: scale(${(d.banner_scale || 100) / 100});
+                transform-origin: bottom center;
+                transition: transform 0.15s ease, min-height 0.2s ease, left 0.2s ease;
+              "
+            >
+              <!-- SECTION 1: KHUNG CHỮ NHẬT CHỨA TRỐNG ĐỒNG & TIÊU ĐỀ -->
+              <div 
+                id="preview-hb-drum-box"
+                style="
+                  position: relative;
+                  width: 100%;
+                  flex: 1;
+                  margin-left: ${d.drum_box_margin_left}px;
+                  min-height: ${d.drum_box_height}px;
+                  background-color: ${d.drum_box_bg};
+                  border-radius: ${d.drum_box_radius}px;
+                  overflow: hidden;
+                  display: flex;
+                  align-items: center;
+                  justify-content: flex-end;
+                  padding: 40px 60px 40px 240px;
+                  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+                  cursor: ${hbDragTarget === 'drum' ? 'crosshair' : 'default'};
+                  transition: background-color 0.2s, border-radius 0.2s, min-height 0.2s, margin-left 0.2s;
+                "
+            >
+              <!-- Hoa văn Trống Đồng Watermark -->
+              <div 
+                id="preview-hb-drum"
+                style="
+                  position: absolute;
+                  top: ${d.drum_y}%;
+                  left: ${d.drum_x}%;
+                  transform: translate(-50%, -50%) rotate(${d.drum_rotate}deg);
+                  width: ${d.drum_size}px;
+                  height: ${d.drum_size}px;
+                  background-image: url('${d.drum_image}');
+                  background-size: contain;
+                  background-position: center;
+                  background-repeat: no-repeat;
+                  opacity: ${d.drum_opacity / 100};
+                  pointer-events: none;
+                  filter: sepia(${d.drum_sepia}%) saturate(${d.drum_saturate}%) blur(${d.drum_blur}px);
+                  mix-blend-mode: ${d.drum_blend_mode};
+                "
+              ></div>
+
+              <!-- Cụm Tiêu Đề trên Trống Đồng -->
+              <div 
+                id="preview-hb-title-block"
+                style="
+                  position: relative;
+                  z-index: 3;
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  text-align: center;
+                  transform: translate(${d.text_x}px, ${d.text_y}px);
+                  pointer-events: none;
+                "
+              >
+                <span 
+                  id="preview-hb-subtitle"
+                  style="
+                    font-family: Georgia, 'Times New Roman', serif;
+                    font-size: ${d.subtitle_size}px;
+                    font-weight: 600;
+                    color: ${d.subtitle_color};
+                    margin-bottom: 10px;
+                    letter-spacing: 0.5px;
+                  "
+                >
+                  ${escapeHtml(d.subtitle || 'Chủ tịch')}
+                </span>
+
+                <div 
+                  id="preview-hb-title-wrapper"
+                  style="
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 12px;
+                    font-size: ${d.title_size}px;
+                    line-height: 1.2;
+                    letter-spacing: 2px;
+                    color: ${d.title_color};
+                    font-weight: 900;
+                    font-family: 'Times New Roman', serif;
+                    white-space: nowrap;
+                  "
+                >
+                  <span id="preview-hb-star-left" style="color: ${d.star_color}; font-size: ${d.title_size * 0.64}px; display: ${d.show_stars ? 'inline' : 'none'};">★</span>
+                  <span id="preview-hb-title" style="color: ${d.title_color}; font-weight: 900;">${escapeHtml(d.title || 'HỒ CHÍ MINH')}</span>
+                  <span id="preview-hb-star-right" style="color: ${d.star_color}; font-size: ${d.title_size * 0.64}px; display: ${d.show_stars ? 'inline' : 'none'};">★</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- SECTION 2: KHUNG CHỨA ẢNH BÁC RIÊNG BIỆT (ĐỘC LẬP, KÉO THẢ DỄ DÀNG, NẰM ĐÈ GÓC TRÁI) -->
+            <div 
+              id="preview-hb-portrait-container"
+              style="
+                position: absolute;
+                left: 0px;
+                bottom: 0px;
+                z-index: 10;
+                transform: translate(${d.portrait_x}px, ${d.portrait_y}px);
+                display: flex;
+                align-items: flex-end;
+                cursor: grab;
+                touch-action: none;
+              "
+              title="Click giữ và kéo chuột để di chuyển ảnh Bác"
+            >
+              <img 
+                id="preview-hb-portrait"
+                src="${d.portrait_image}" 
+                alt="Bác Hồ"
+                style="
+                  max-height: ${d.portrait_max_height}px;
+                  width: auto;
+                  max-width: none;
+                  object-fit: contain;
+                  display: block;
+                  mix-blend-mode: ${d.portrait_blend_mode};
+                  opacity: ${d.portrait_opacity / 100};
+                  filter: contrast(${d.portrait_contrast}%) brightness(${d.portrait_brightness}%) grayscale(${d.portrait_grayscale}%) blur(${d.portrait_blur}px);
+                  -webkit-mask-image: ${d.portrait_mask ? 'radial-gradient(ellipse 90% 92% at 50% 50%, black 65%, transparent 100%)' : 'none'};
+                  mask-image: ${d.portrait_mask ? 'radial-gradient(ellipse 90% 92% at 50% 50%, black 65%, transparent 100%)' : 'none'};
+                  transform: scale(${d.portrait_scale / 100}) ${d.portrait_flip ? 'scaleX(-1)' : ''};
+                  transform-origin: bottom center;
+                  pointer-events: none;
+                "
+              />
+              <div 
+                id="preview-hb-portrait-badge"
+                style="
+                  position: absolute;
+                  top: 15px;
+                  left: 15px;
+                  background: rgba(104, 53, 11, 0.85);
+                  color: #fff;
+                  font-size: 11px;
+                  font-weight: 600;
+                  padding: 3px 10px;
+                  border-radius: 20px;
+                  pointer-events: none;
+                  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+                  opacity: 0.9;
+                "
+              >
+                <i class="fas fa-arrows-alt"></i> Kéo Bác
+              </div>
+            </div>
+
+            <!-- Thanh chân trang dưới (Tùy chọn, mặc định tắt theo yêu cầu) -->
+            <div 
+              id="preview-hb-bottom-bar"
+              style="
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                z-index: 4;
+                background-color: ${d.bottom_bar_bg || 'rgba(255, 241, 229, 0.95)'};
+                padding: 12px 35px;
+                border-radius: 8px 0 16px 0;
+                display: ${d.bottom_bar_enabled ? 'block' : 'none'};
+              "
+            >
+              <span id="preview-hb-bottom-bar-text" style="font-size: ${d.bottom_bar_size || 24}px; color: ${d.bottom_bar_color || '#6f3706'}; font-weight: 700;">
+                ${escapeHtml(d.bottom_bar_text || 'Vững bước dưới cờ Đảng')}
+              </span>
+            </div>
+
+          </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABS CONTROLLER -->
+      <div class="card" style="border-radius: 14px; box-shadow: 0 4px 18px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e2dcd5;">
+        <div class="card-header" style="background: #fdfcfb; padding: 0 15px; border-bottom: 1px solid #ede7df;">
+          <ul class="nav nav-tabs" style="border-bottom: none; display: flex; gap: 4px; margin: 0; padding: 0; list-style: none;">
+            <li class="nav-item">
+              <a class="nav-link active" id="tab-btn-1" href="javascript:void(0)" onclick="switchHbTab(1)" style="padding: 14px 20px; font-weight: 600; font-size: 13.5px; border: none; border-bottom: 3px solid #68350B; color: #68350B; display: inline-block;">
+                <i class="fas fa-vector-square" style="margin-right: 6px;"></i> 1. Khung Chữ Nhật & Trống Đồng (Section 1)
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="tab-btn-2" href="javascript:void(0)" onclick="switchHbTab(2)" style="padding: 14px 20px; font-weight: 600; font-size: 13.5px; border: none; border-bottom: 3px solid transparent; color: #7f8c8d; display: inline-block;">
+                <i class="fas fa-portrait" style="margin-right: 6px;"></i> 2. Section Ảnh Bác Kéo Thả (Section 2)
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="tab-btn-3" href="javascript:void(0)" onclick="switchHbTab(3)" style="padding: 14px 20px; font-weight: 600; font-size: 13.5px; border: none; border-bottom: 3px solid transparent; color: #7f8c8d; display: inline-block;">
+                <i class="fas fa-heading" style="margin-right: 6px;"></i> 3. Tiêu Đề & Chữ
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="tab-btn-4" href="javascript:void(0)" onclick="switchHbTab(4)" style="padding: 14px 20px; font-weight: 600; font-size: 13.5px; border: none; border-bottom: 3px solid transparent; color: #7f8c8d; display: inline-block;">
+                <i class="fas fa-sliders-h" style="margin-right: 6px;"></i> 4. Mẫu Chuẩn & Nâng Cao
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="tab-btn-5" href="javascript:void(0)" onclick="switchHbTab(5)" style="padding: 14px 20px; font-weight: 600; font-size: 13.5px; border: none; border-bottom: 3px solid transparent; color: #7f8c8d; display: inline-block;">
+                <i class="fas fa-feather-alt" style="margin-right: 6px;"></i> 5. Bài Thơ Pác Bó
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="card-body" style="padding: 26px;">
+          
+          <!-- TAB 1: KHUNG CHỮ NHẬT & TRỐNG ĐỒNG -->
+          <div id="hb-tab-pane-1" class="hb-tab-pane">
+            <h4 style="font-size: 15px; font-weight: 700; color: #68350B; margin-bottom: 16px; border-bottom: 1px dashed #d5c8be; padding-bottom: 8px;">
+              <i class="fas fa-layer-group"></i> Cấu hình Khung Hình Chữ Nhật Nền
+            </h4>
+            <div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
+              <div class="form-group">
+                <label style="font-weight: 600; font-size: 13px;">Màu nền khung chữ nhật (Màu kem chuẩn):</label>
+                <div style="display: flex; gap: 10px; align-items: center; margin-top: 6px;">
+                  <input type="color" id="input-drum-box-bg-picker" value="${d.drum_box_bg}" onchange="syncHbField('drum_box_bg', this.value); document.getElementById('input-drum-box-bg').value = this.value;" style="height: 38px; width: 50px; border-radius: 6px; border: 1px solid #ccc; cursor: pointer;">
+                  <input type="text" id="input-drum-box-bg" class="form-control" value="${d.drum_box_bg}" oninput="syncHbField('drum_box_bg', this.value); document.getElementById('input-drum-box-bg-picker').value = this.value;">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Chiều cao khung chữ nhật (px):</label>
+                  <span id="val-drum-box-height" style="font-weight: bold; color: #68350B;">${d.drum_box_height}px</span>
+                </div>
+                <input type="range" class="form-range" min="300" max="600" step="5" value="${d.drum_box_height}" oninput="syncHbField('drum_box_height', Number(this.value)); document.getElementById('val-drum-box-height').innerText = this.value + 'px';">
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Bo góc khung (Radius px):</label>
+                  <span id="val-drum-box-radius" style="font-weight: bold; color: #68350B;">${d.drum_box_radius}px</span>
+                </div>
+                <input type="range" class="form-range" min="0" max="40" step="2" value="${d.drum_box_radius}" oninput="syncHbField('drum_box_radius', Number(this.value)); document.getElementById('val-drum-box-radius').innerText = this.value + 'px';">
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Khoảng cách lề trái (Chừa chỗ cho ảnh Bác px):</label>
+                  <span id="val-drum-box-margin-left" style="font-weight: bold; color: #68350B;">${d.drum_box_margin_left}px</span>
+                </div>
+                <input type="range" class="form-range" min="0" max="300" step="5" value="${d.drum_box_margin_left}" oninput="syncHbField('drum_box_margin_left', Number(this.value)); document.getElementById('val-drum-box-margin-left').innerText = this.value + 'px';">
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Thu phóng toàn bộ Section Mẹ (%):</label>
+                  <span id="val-drum-box-scale" style="font-weight: bold; color: #68350B;">${d.banner_scale || 100}%</span>
+                </div>
+                <input type="range" class="form-range" id="input-drum-box-scale" min="60" max="150" step="2" value="${d.banner_scale || 100}" oninput="syncHbField('banner_scale', Number(this.value)); if(document.getElementById('input-banner-scale')) document.getElementById('input-banner-scale').value = this.value; if(document.getElementById('val-banner-scale')) document.getElementById('val-banner-scale').innerText = this.value + '%'; document.getElementById('val-drum-box-scale').innerText = this.value + '%';">
+                <span class="form-help" style="font-size: 11.5px; color: #888; display: block; margin-top: 4px;">Phóng to/thu nhỏ toàn bộ Section Mẹ (các Section con tự động co dãn theo tỷ lệ).</span>
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Căn giữa Section Mẹ (Offset X px):</label>
+                  <span id="val-drum-box-offset-x" style="font-weight: bold; color: #68350B;">${(d.banner_offset_x > 0 ? '+' : '') + (d.banner_offset_x || 0)}px</span>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="stepHbOffsetX(-5)" style="padding: 2px 8px; font-weight: bold;">-5</button>
+                  <input type="range" class="form-range" id="input-drum-box-offset-x" min="-200" max="200" step="1" value="${d.banner_offset_x || 0}" oninput="syncHbField('banner_offset_x', Number(this.value)); document.getElementById('val-drum-box-offset-x').innerText = (this.value > 0 ? '+' : '') + this.value + 'px'; if(document.getElementById('input-banner-offset-x')) document.getElementById('input-banner-offset-x').value = this.value; if(document.getElementById('val-banner-offset-x')) document.getElementById('val-banner-offset-x').innerText = (this.value > 0 ? '+' : '') + this.value + 'px';" style="flex: 1; accent-color: #d35400;">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="stepHbOffsetX(5)" style="padding: 2px 8px; font-weight: bold;">+5</button>
+                  <button type="button" class="btn btn-sm btn-outline-primary" onclick="autoCenterMasterSection()" style="font-size: 11px; padding: 4px 10px; font-weight: 600; white-space: nowrap;"><i class="fas fa-magic"></i> Căn giữa</button>
+                </div>
+                <span class="form-help" style="font-size: 11.5px; color: #888; display: block; margin-top: 4px;">Dịch chuyển toàn bộ Section Mẹ sang trái/phải để cân đối chính giữa mà không làm thay đổi các layout con.</span>
+              </div>
+            </div>
+
+            <h4 style="font-size: 15px; font-weight: 700; color: #68350B; margin-bottom: 16px; border-bottom: 1px dashed #d5c8be; padding-bottom: 8px;">
+              <i class="fas fa-sun"></i> Hoa Văn Trống Đồng (Watermark Nằm Trong Khung)
+            </h4>
+            
+            <div style="margin-bottom: 20px;">
+              <label style="font-weight: 600; font-size: 13px;">Đường dẫn ảnh Trống Đồng:</label>
+              <div style="display: flex; gap: 10px; margin-top: 6px;">
+                <input type="text" id="input-drum-image" class="form-control" value="${d.drum_image}" oninput="syncHbField('drum_image', this.value)">
+                <label class="btn btn-secondary" style="margin: 0; white-space: nowrap; cursor: pointer;">
+                  <i class="fas fa-upload"></i> Tải ảnh mới
+                  <input type="file" accept="image/*" style="display: none;" onchange="uploadHbDrum(this)">
+                </label>
+              </div>
+            </div>
+
+            <div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Vị trí ngang X (%):</label>
+                  <span id="val-drum-x" style="font-weight: bold; color: #68350B;">${d.drum_x}%</span>
+                </div>
+                <input type="range" id="input-drum-x" class="form-range" min="0" max="100" value="${d.drum_x}" oninput="syncHbField('drum_x', Number(this.value)); document.getElementById('val-drum-x').innerText = this.value + '%';">
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Vị trí dọc Y (%):</label>
+                  <span id="val-drum-y" style="font-weight: bold; color: #68350B;">${d.drum_y}%</span>
+                </div>
+                <input type="range" id="input-drum-y" class="form-range" min="0" max="100" value="${d.drum_y}" oninput="syncHbField('drum_y', Number(this.value)); document.getElementById('val-drum-y').innerText = this.value + '%';">
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Kích thước Trống Đồng (px):</label>
+                  <span id="val-drum-size" style="font-weight: bold; color: #68350B;">${d.drum_size}px</span>
+                </div>
+                <input type="range" class="form-range" min="200" max="900" step="10" value="${d.drum_size}" oninput="syncHbField('drum_size', Number(this.value)); document.getElementById('val-drum-size').innerText = this.value + 'px';">
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Độ mờ chìm (Opacity %):</label>
+                  <span id="val-drum-opacity" style="font-weight: bold; color: #68350B;">${d.drum_opacity}%</span>
+                </div>
+                <input type="range" class="form-range" min="5" max="100" value="${d.drum_opacity}" oninput="syncHbField('drum_opacity', Number(this.value)); document.getElementById('val-drum-opacity').innerText = this.value + '%';">
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Góc xoay hoa văn (Độ):</label>
+                  <span id="val-drum-rotate" style="font-weight: bold; color: #68350B;">${d.drum_rotate}°</span>
+                </div>
+                <input type="range" class="form-range" min="0" max="360" value="${d.drum_rotate}" oninput="syncHbField('drum_rotate', Number(this.value)); document.getElementById('val-drum-rotate').innerText = this.value + '°';">
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Độ nhòe hoa văn (Blur px):</label>
+                  <span id="val-drum-blur" style="font-weight: bold; color: #68350B;">${d.drum_blur}px</span>
+                </div>
+                <input type="range" class="form-range" min="0" max="10" step="0.5" value="${d.drum_blur}" oninput="syncHbField('drum_blur', Number(this.value)); document.getElementById('val-drum-blur').innerText = this.value + 'px';">
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: SECTION ẢNH BÁC (KÉO THẢ ĐỘC LẬP) -->
+          <div id="hb-tab-pane-2" class="hb-tab-pane" style="display: none;">
+            <div style="background: #fdfaf7; border-left: 4px solid #68350B; padding: 12px 18px; border-radius: 6px; margin-bottom: 22px;">
+              <span style="font-size: 13.5px; color: #5a3818;">
+                <strong>Section Chân Dung Độc Lập:</strong> Nằm ở lớp trên cùng (z-index: 10), dễ dàng kéo thả bằng chuột mà không bị kẹt hay chạm vào các thành phần phía dưới.
+              </span>
+            </div>
+
+            <!-- Upload ảnh chân dung -->
+            <div style="margin-bottom: 24px;">
+              <label style="font-weight: 600; font-size: 13px;">Đường dẫn file ảnh Bác (PNG tách nền):</label>
+              <div style="display: flex; gap: 10px; margin-top: 6px;">
+                <input type="text" id="input-portrait-image" class="form-control" value="${d.portrait_image}" oninput="syncHbField('portrait_image', this.value)">
+                <label class="btn btn-primary" style="margin: 0; white-space: nowrap; cursor: pointer;">
+                  <i class="fas fa-upload"></i> Tải ảnh Bác mới
+                  <input type="file" accept="image/*" style="display: none;" onchange="uploadHbPortrait(this)">
+                </label>
+              </div>
+            </div>
+
+            <!-- Nút chọn nhanh chế độ màu sắc -->
+            <div style="margin-bottom: 25px; padding: 16px; background: #fff; border: 1px solid #ebdcd0; border-radius: 10px;">
+              <label style="font-weight: 700; font-size: 13.5px; color: #68350B; display: block; margin-bottom: 10px;">
+                <i class="fas fa-palette"></i> Chế độ màu sắc chân dung:
+              </label>
+              <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn" onclick="setPortraitColorMode('natural')" style="background: #27ae60; color: #fff; font-weight: 600; padding: 8px 16px;">
+                  <i class="fas fa-paint-brush"></i> 1. Giữ Màu Gốc Tự Nhiên (Khuyên dùng)
+                </button>
+                <button class="btn" onclick="setPortraitColorMode('bw')" style="background: #34495e; color: #fff; font-weight: 600; padding: 8px 16px;">
+                  <i class="fas fa-camera"></i> 2. Đen Trắng Cổ Điển
+                </button>
+                <button class="btn" onclick="setPortraitColorMode('multiply')" style="background: #8e44ad; color: #fff; font-weight: 600; padding: 8px 16px;">
+                  <i class="fas fa-clone"></i> 3. Hòa Trộn Mờ Ảo (Multiply)
+                </button>
+              </div>
+              <div style="font-size: 12px; color: #7f8c8d; margin-top: 8px;">
+                <em>* Khi chọn "Màu Gốc Tự Nhiên", ảnh Bác sẽ hiển thị đúng 100% màu sắc gốc như file bạn tải lên.</em>
+              </div>
+            </div>
+
+            <!-- Vị trí và kích thước kéo thả -->
+            <h4 style="font-size: 15px; font-weight: 700; color: #68350B; margin-bottom: 16px; border-bottom: 1px dashed #d5c8be; padding-bottom: 8px;">
+              <i class="fas fa-arrows-alt"></i> Tọa Độ & Kích Thước Kéo Thả
+            </h4>
+            <div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Tọa độ ngang X (px) - Có thể kéo trực tiếp:</label>
+                  <span id="val-portrait-x" style="font-weight: bold; color: #68350B;">${d.portrait_x}px</span>
+                </div>
+                <input type="range" id="input-portrait-x" class="form-range" min="-300" max="400" step="5" value="${d.portrait_x}" oninput="syncHbField('portrait_x', Number(this.value)); document.getElementById('val-portrait-x').innerText = this.value + 'px';">
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Tọa độ dọc Y (px) - Có thể kéo trực tiếp:</label>
+                  <span id="val-portrait-y" style="font-weight: bold; color: #68350B;">${d.portrait_y}px</span>
+                </div>
+                <input type="range" id="input-portrait-y" class="form-range" min="-250" max="250" step="5" value="${d.portrait_y}" oninput="syncHbField('portrait_y', Number(this.value)); document.getElementById('val-portrait-y').innerText = this.value + 'px';">
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Chiều cao tối đa ảnh (px):</label>
+                  <span id="val-portrait-max-height" style="font-weight: bold; color: #68350B;">${d.portrait_max_height}px</span>
+                </div>
+                <input type="range" class="form-range" min="300" max="650" step="10" value="${d.portrait_max_height}" oninput="syncHbField('portrait_max_height', Number(this.value)); document.getElementById('val-portrait-max-height').innerText = this.value + 'px';">
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Tỷ lệ thu phóng Scale (%):</label>
+                  <span id="val-portrait-scale" style="font-weight: bold; color: #68350B;">${d.portrait_scale}%</span>
+                </div>
+                <input type="range" class="form-range" min="50" max="180" step="2" value="${d.portrait_scale}" oninput="syncHbField('portrait_scale', Number(this.value)); document.getElementById('val-portrait-scale').innerText = this.value + '%';">
+              </div>
+            </div>
+
+            <!-- Tinh chỉnh hiệu ứng -->
+            <h4 style="font-size: 15px; font-weight: 700; color: #68350B; margin-bottom: 16px; border-bottom: 1px dashed #d5c8be; padding-bottom: 8px;">
+              <i class="fas fa-sliders-h"></i> Tinh Chỉnh Hiệu Ứng Hình Ảnh
+            </h4>
+            <div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Độ đen trắng Grayscale (%):</label>
+                  <span id="val-portrait-grayscale" style="font-weight: bold; color: #68350B;">${d.portrait_grayscale}%</span>
+                </div>
+                <input type="range" id="input-portrait-grayscale" class="form-range" min="0" max="100" value="${d.portrait_grayscale}" oninput="syncHbField('portrait_grayscale', Number(this.value)); document.getElementById('val-portrait-grayscale').innerText = this.value + '%';">
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Độ sáng Brightness (%):</label>
+                  <span id="val-portrait-brightness" style="font-weight: bold; color: #68350B;">${d.portrait_brightness}%</span>
+                </div>
+                <input type="range" id="input-portrait-brightness" class="form-range" min="50" max="150" value="${d.portrait_brightness}" oninput="syncHbField('portrait_brightness', Number(this.value)); document.getElementById('val-portrait-brightness').innerText = this.value + '%';">
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Độ tương phản Contrast (%):</label>
+                  <span id="val-portrait-contrast" style="font-weight: bold; color: #68350B;">${d.portrait_contrast}%</span>
+                </div>
+                <input type="range" id="input-portrait-contrast" class="form-range" min="50" max="150" value="${d.portrait_contrast}" oninput="syncHbField('portrait_contrast', Number(this.value)); document.getElementById('val-portrait-contrast').innerText = this.value + '%';">
+              </div>
+
+              <div class="form-group">
+                <label style="font-weight: 600; font-size: 13px;">Chế độ hòa trộn (Mix Blend Mode):</label>
+                <select id="input-portrait-blend-mode" class="form-control" style="margin-top: 6px;" onchange="syncHbField('portrait_blend_mode', this.value)">
+                  <option value="normal" ${d.portrait_blend_mode === 'normal' ? 'selected' : ''}>normal (Màu nguyên bản - Khuyên dùng)</option>
+                  <option value="multiply" ${d.portrait_blend_mode === 'multiply' ? 'selected' : ''}>multiply (Hòa trộn vào nền)</option>
+                  <option value="screen" ${d.portrait_blend_mode === 'screen' ? 'selected' : ''}>screen (Làm sáng)</option>
+                  <option value="overlay" ${d.portrait_blend_mode === 'overlay' ? 'selected' : ''}>overlay (Phủ lớp)</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="display: flex; align-items: center; gap: 20px; padding-top: 10px;">
+                <label style="font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+                  <input type="checkbox" id="input-portrait-flip" ${d.portrait_flip ? 'checked' : ''} onchange="syncHbField('portrait_flip', this.checked)">
+                  Lật ngang ảnh chân dung (Flip X)
+                </label>
+
+                <label style="font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+                  <input type="checkbox" id="input-portrait-mask" ${d.portrait_mask ? 'checked' : ''} onchange="syncHbField('portrait_mask', this.checked)">
+                  Làm mờ biên chân dung (Feather Mask)
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: TIÊU ĐỀ & VĂN BẢN -->
+          <div id="hb-tab-pane-3" class="hb-tab-pane" style="display: none;">
+            <div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
+              <div class="form-group">
+                <label style="font-weight: 600; font-size: 13px;">Dòng chức vụ / Tiêu đề phụ:</label>
+                <input type="text" class="form-control" value="${escapeHtml(d.subtitle || '')}" oninput="syncHbField('subtitle', this.value)" style="margin-top: 6px;">
+              </div>
+
+              <div class="form-group">
+                <label style="font-weight: 600; font-size: 13px;">Màu chữ chức vụ:</label>
+                <div style="display: flex; gap: 10px; align-items: center; margin-top: 6px;">
+                  <input type="color" value="${d.subtitle_color}" onchange="syncHbField('subtitle_color', this.value); document.getElementById('input-subtitle-color').value = this.value;" style="height: 38px; width: 50px; border-radius: 6px; border: 1px solid #ccc; cursor: pointer;">
+                  <input type="text" id="input-subtitle-color" class="form-control" value="${d.subtitle_color}" oninput="syncHbField('subtitle_color', this.value)">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Cỡ chữ chức vụ (px):</label>
+                  <span id="val-subtitle-size" style="font-weight: bold; color: #68350B;">${d.subtitle_size}px</span>
+                </div>
+                <input type="range" class="form-range" min="18" max="48" value="${d.subtitle_size}" oninput="syncHbField('subtitle_size', Number(this.value)); document.getElementById('val-subtitle-size').innerText = this.value + 'px';">
+              </div>
+            </div>
+
+            <div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
+              <div class="form-group">
+                <label style="font-weight: 600; font-size: 13px;">Tên Lãnh tụ / Tiêu đề chính:</label>
+                <input type="text" class="form-control" value="${escapeHtml(d.title || '')}" oninput="syncHbField('title', this.value)" style="margin-top: 6px; font-weight: bold;">
+              </div>
+
+              <div class="form-group">
+                <label style="font-weight: 600; font-size: 13px;">Màu chữ tên lãnh tụ:</label>
+                <div style="display: flex; gap: 10px; align-items: center; margin-top: 6px;">
+                  <input type="color" value="${d.title_color}" onchange="syncHbField('title_color', this.value); document.getElementById('input-title-color').value = this.value;" style="height: 38px; width: 50px; border-radius: 6px; border: 1px solid #ccc; cursor: pointer;">
+                  <input type="text" id="input-title-color" class="form-control" value="${d.title_color}" oninput="syncHbField('title_color', this.value)">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Cỡ chữ tên lãnh tụ (px):</label>
+                  <span id="val-title-size" style="font-weight: bold; color: #68350B;">${d.title_size}px</span>
+                </div>
+                <input type="range" class="form-range" min="26" max="64" value="${d.title_size}" oninput="syncHbField('title_size', Number(this.value)); document.getElementById('val-title-size').innerText = this.value + 'px';">
+              </div>
+            </div>
+
+            <div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+              <div class="form-group" style="padding-top: 8px;">
+                <label style="font-weight: 600; font-size: 13.5px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer;">
+                  <input type="checkbox" id="input-show-stars" ${d.show_stars ? 'checked' : ''} onchange="syncHbField('show_stars', this.checked)">
+                  Hiển thị 2 ngôi sao vàng bên cạnh tên
+                </label>
+                <div style="font-size: 12px; color: #7f8c8d; margin-top: 4px;">
+                  (Mặc định đã tắt để hoàn toàn đồng bộ với hình mẫu chuẩn)
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Dịch chuyển cụm chữ X (px):</label>
+                  <span id="val-text-x" style="font-weight: bold; color: #68350B;">${d.text_x}px</span>
+                </div>
+                <input type="range" class="form-range" min="-200" max="200" step="5" value="${d.text_x}" oninput="syncHbField('text_x', Number(this.value)); document.getElementById('val-text-x').innerText = this.value + 'px';">
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                  <label style="font-weight: 600; font-size: 13px;">Dịch chuyển cụm chữ Y (px):</label>
+                  <span id="val-text-y" style="font-weight: bold; color: #68350B;">${d.text_y}px</span>
+                </div>
+                <input type="range" class="form-range" min="-150" max="150" step="5" value="${d.text_y}" oninput="syncHbField('text_y', Number(this.value)); document.getElementById('val-text-y').innerText = this.value + 'px';">
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: MẪU CHUẨN & NÂNG CAO -->
+          <div id="hb-tab-pane-4" class="hb-tab-pane" style="display: none;">
+            <div style="background: #fff; border: 1px solid #ebdcd0; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+              <h4 style="font-size: 16px; font-weight: 700; color: #68350B; margin-top: 0;">
+                <i class="fas fa-magic"></i> Hình mẫu chuẩn tham chiếu
+              </h4>
+              <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                Tự động thiết lập đầy đủ tất cả thông số: Khung chữ nhật nền kem ấm (#F2DFCE), ảnh Bác giữ nguyên 100% màu sắc tự nhiên, font chữ trang nhã, và loại bỏ thanh trắng bên dưới theo đúng hình mẫu.
+              </p>
+              <button class="btn btn-primary" onclick="applyHbPreset('tolam')" style="font-weight: 600; padding: 10px 22px;">
+                <i class="fas fa-check-circle"></i> Khôi phục về Hình mẫu chuẩn
+              </button>
+            </div>
+
+            <div style="background: #faf8f5; border: 1px solid #e5ded5; border-radius: 12px; padding: 20px;">
+              <h4 style="font-size: 15px; font-weight: 700; color: #555; margin-top: 0; margin-bottom: 12px;">
+                <i class="fas fa-bars"></i> Thanh chữ trắng chân trang ("Vững bước dưới cờ Đảng")
+              </h4>
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label style="font-weight: 600; font-size: 13.5px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer;">
+                  <input type="checkbox" id="input-bottom-bar-enabled" ${d.bottom_bar_enabled ? 'checked' : ''} onchange="syncHbField('bottom_bar_enabled', this.checked)">
+                  Bật thanh chữ trắng ở góc dưới bên phải
+                </label>
+              </div>
+              <div style="font-size: 12.5px; color: #888;">
+                <em>* Lưu ý: Mặc định tính năng này được Tắt để giống với hình mẫu chuẩn. Nếu cần bạn có thể tích chọn để bật lại.</em>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 5: BÀI THƠ PÁC BÓ -->
+          <div id="hb-tab-pane-5" class="hb-tab-pane" style="display: none;">
+            <div style="background: #fdfaf7; border-left: 4px solid #68350B; padding: 14px 20px; border-radius: 6px; margin-bottom: 22px;">
+              <h4 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 700; color: #68350B;">
+                <i class="fas fa-feather-alt"></i> Section Bài Thơ: "Tức cảnh Pác Bó" (1941)
+              </h4>
+              <p style="margin: 0; font-size: 13px; color: #5a3818;">
+                Bài thơ bất hủ của Chủ tịch Hồ Chí Minh sáng tác vào tháng 2 năm 1941 tại hang Cốc Bó, Hà Quảng, Cao Bằng.
+              </p>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 22px;">
+              <label style="font-weight: 700; font-size: 13.5px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="checkbox" id="input-poem-enabled" ${d.poem_enabled !== false ? 'checked' : ''} onchange="syncHbField('poem_enabled', this.checked)">
+                Hiển thị Section bài thơ trên trang Chi bộ
+              </label>
+            </div>
+
+            <div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 22px;">
+              <div class="form-group">
+                <label style="font-weight: 600; font-size: 13px;">Tên bài thơ:</label>
+                <input type="text" class="form-control" value="${escapeHtml(d.poem_title || 'TỨC CẢNH PÁC BÓ')}" oninput="syncHbField('poem_title', this.value)" style="margin-top: 6px; font-weight: 700;">
+              </div>
+
+              <div class="form-group">
+                <label style="font-weight: 600; font-size: 13px;">Địa danh / Thời điểm sáng tác:</label>
+                <input type="text" class="form-control" value="${escapeHtml(d.poem_subtitle || 'Hang Cốc Bó, Pác Bó, Hà Quảng, Cao Bằng (Tháng 2 - 1941)')}" oninput="syncHbField('poem_subtitle', this.value)" style="margin-top: 6px; font-style: italic;">
+              </div>
+            </div>
+
+            <h5 style="font-size: 14px; font-weight: 700; color: #68350B; margin: 18px 0 12px 0;">Bốn câu thơ thất ngôn:</h5>
+            <div style="display: grid; gap: 12px; margin-bottom: 24px;">
+              <div class="form-group">
+                <label style="font-size: 12.5px; font-weight: 600; color: #555;">Câu 1:</label>
+                <input type="text" class="form-control" value="${escapeHtml(d.poem_line1 || '“Sáng ra bờ suối, tối vào hang,')}" oninput="syncHbField('poem_line1', this.value)">
+              </div>
+              <div class="form-group">
+                <label style="font-size: 12.5px; font-weight: 600; color: #555;">Câu 2:</label>
+                <input type="text" class="form-control" value="${escapeHtml(d.poem_line2 || 'Cháo bẹ rau măng vẫn sẵn sàng.')}" oninput="syncHbField('poem_line2', this.value)">
+              </div>
+              <div class="form-group">
+                <label style="font-size: 12.5px; font-weight: 600; color: #555;">Câu 3:</label>
+                <input type="text" class="form-control" value="${escapeHtml(d.poem_line3 || 'Bàn đá chông chênh dịch sử Đảng,')}" oninput="syncHbField('poem_line3', this.value)">
+              </div>
+              <div class="form-group">
+                <label style="font-size: 12.5px; font-weight: 600; color: #555;">Câu 4:</label>
+                <input type="text" class="form-control" value="${escapeHtml(d.poem_line4 || 'Cuộc đời cách mạng thật là sang.”')}" oninput="syncHbField('poem_line4', this.value)" style="color: #9A2617; font-weight: 600;">
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+              <label style="font-weight: 600; font-size: 13px;">Ý nghĩa lịch sử / Lời bình:</label>
+              <textarea class="form-control" rows="3" oninput="syncHbField('poem_note', this.value)" style="margin-top: 6px; font-size: 13.5px; line-height: 1.5;">${escapeHtml(d.poem_note || 'Mùa xuân năm 1941, sau 30 năm bôn ba tìm đường cứu nước, Bác Hồ trở về Tổ quốc trực tiếp lãnh đạo cách mạng Việt Nam. Giữa núi rừng Pác Bó muôn trùng gian lao, bài thơ thể hiện khí phách lạc quan và phong thái ung dung, tự tại của Người.')}</textarea>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  `;
+
+  renderContent(html);
+  initHbInteractiveCanvas();
+}
+
+function switchHbTab(tabIndex) {
+  for (let i = 1; i <= 5; i++) {
+    const pane = document.getElementById(`hb-tab-pane-${i}`);
+    const btn = document.getElementById(`tab-btn-${i}`);
+    if (pane && btn) {
+      if (i === tabIndex) {
+        pane.style.display = 'block';
+        btn.classList.add('active');
+        btn.style.color = '#68350B';
+        btn.style.borderBottom = '3px solid #68350B';
+      } else {
+        pane.style.display = 'none';
+        btn.classList.remove('active');
+        btn.style.color = '#7f8c8d';
+        btn.style.borderBottom = '3px solid transparent';
+      }
+    }
+  }
+}
+
+function setHbDragTarget(target) {
+  hbDragTarget = target;
+  const btnP = document.getElementById('btn-drag-portrait');
+  const btnD = document.getElementById('btn-drag-drum');
+  const btnM = document.getElementById('btn-drag-master');
+  const drumBox = document.getElementById('preview-hb-drum-box');
+  const container = document.getElementById('preview-hb-main-container');
+  
+  [btnP, btnD, btnM].forEach(b => {
+    if (b) {
+      b.style.background = '#fff';
+      b.style.color = '#555';
+    }
+  });
+
+  if (target === 'portrait' && btnP) {
+    btnP.style.background = '#68350B';
+    btnP.style.color = '#fff';
+    if (drumBox) drumBox.style.cursor = 'default';
+    if (container) container.style.cursor = 'default';
+  } else if (target === 'drum' && btnD) {
+    btnD.style.background = '#68350B';
+    btnD.style.color = '#fff';
+    if (drumBox) drumBox.style.cursor = 'crosshair';
+    if (container) container.style.cursor = 'default';
+  } else if (target === 'master' && btnM) {
+    btnM.style.background = '#68350B';
+    btnM.style.color = '#fff';
+    if (drumBox) drumBox.style.cursor = 'ew-resize';
+    if (container) container.style.cursor = 'ew-resize';
+  }
+}
+
+function setPortraitColorMode(mode) {
+  if (mode === 'natural') {
+    syncHbField('portrait_grayscale', 0);
+    syncHbField('portrait_blend_mode', 'normal');
+    syncHbField('portrait_contrast', 100);
+    syncHbField('portrait_brightness', 100);
+    syncHbField('portrait_mask', false);
+    showToast("Đã chuyển sang chế độ Màu Gốc Tự Nhiên!", "success");
+  } else if (mode === 'bw') {
+    syncHbField('portrait_grayscale', 100);
+    syncHbField('portrait_blend_mode', 'normal');
+    syncHbField('portrait_contrast', 115);
+    syncHbField('portrait_brightness', 100);
+    showToast("Đã chuyển sang Đen Trắng Cổ Điển!", "info");
+  } else if (mode === 'multiply') {
+    syncHbField('portrait_grayscale', 0);
+    syncHbField('portrait_blend_mode', 'multiply');
+    syncHbField('portrait_contrast', 105);
+    syncHbField('portrait_brightness', 105);
+    showToast("Đã chuyển sang Hòa Trộn Multiply!", "info");
+  }
+
+  // Cập nhật lại các slider trong UI
+  const gSlider = document.getElementById('input-portrait-grayscale');
+  const bSlider = document.getElementById('input-portrait-brightness');
+  const cSlider = document.getElementById('input-portrait-contrast');
+  const mSelect = document.getElementById('input-portrait-blend-mode');
+  const maskCheck = document.getElementById('input-portrait-mask');
+
+  if (gSlider) { gSlider.value = currentHbData.portrait_grayscale; document.getElementById('val-portrait-grayscale').innerText = currentHbData.portrait_grayscale + '%'; }
+  if (bSlider) { bSlider.value = currentHbData.portrait_brightness; document.getElementById('val-portrait-brightness').innerText = currentHbData.portrait_brightness + '%'; }
+  if (cSlider) { cSlider.value = currentHbData.portrait_contrast; document.getElementById('val-portrait-contrast').innerText = currentHbData.portrait_contrast + '%'; }
+  if (mSelect) mSelect.value = currentHbData.portrait_blend_mode;
+  if (maskCheck) maskCheck.checked = currentHbData.portrait_mask;
+}
+
+function syncHbField(key, val) {
+  currentHbData[key] = val;
+  updateHbPreviewDOM();
+}
+
+function stepHbScale(delta) {
+  const current = currentHbData.banner_scale || 100;
+  const next = Math.max(60, Math.min(150, current + delta));
+  syncHbField('banner_scale', next);
+  const inputMain = document.getElementById('input-banner-scale');
+  const labelMain = document.getElementById('val-banner-scale');
+  const inputTab = document.getElementById('input-drum-box-scale');
+  const labelTab = document.getElementById('val-drum-box-scale');
+  if (inputMain) inputMain.value = next;
+  if (labelMain) labelMain.innerText = next + '%';
+  if (inputTab) inputTab.value = next;
+  if (labelTab) labelTab.innerText = next + '%';
+}
+
+function updateHbPreviewDOM() {
+  const d = currentHbData;
+  const wrapper = document.getElementById('preview-hb-wrapper');
+  const container = document.getElementById('preview-hb-main-container');
+  const drumBox = document.getElementById('preview-hb-drum-box');
+  const drum = document.getElementById('preview-hb-drum');
+  const subtitle = document.getElementById('preview-hb-subtitle');
+  const title = document.getElementById('preview-hb-title');
+  const titleWrapper = document.getElementById('preview-hb-title-wrapper');
+  const starL = document.getElementById('preview-hb-star-left');
+  const starR = document.getElementById('preview-hb-star-right');
+  const titleBlock = document.getElementById('preview-hb-title-block');
+  const portraitContainer = document.getElementById('preview-hb-portrait-container');
+  const portrait = document.getElementById('preview-hb-portrait');
+  const bottomBar = document.getElementById('preview-hb-bottom-bar');
+
+  const scale = (d.banner_scale !== undefined ? Number(d.banner_scale) : 100) / 100;
+  const baseH = Math.max(d.drum_box_height, d.portrait_max_height);
+
+  if (wrapper) {
+    wrapper.style.minHeight = Math.round(baseH * scale) + 'px';
+  }
+
+  if (container) {
+    container.style.minHeight = baseH + 'px';
+    container.style.left = (d.banner_offset_x || 0) + 'px';
+    container.style.transform = `scale(${scale})`;
+    container.style.transformOrigin = 'bottom center';
+  }
+
+  if (drumBox) {
+    drumBox.style.backgroundColor = d.drum_box_bg;
+    drumBox.style.borderRadius = d.drum_box_radius + 'px';
+    drumBox.style.minHeight = d.drum_box_height + 'px';
+    drumBox.style.marginLeft = d.drum_box_margin_left + 'px';
+  }
+
+  if (drum) {
+    drum.style.top = d.drum_y + '%';
+    drum.style.left = d.drum_x + '%';
+    drum.style.width = d.drum_size + 'px';
+    drum.style.height = d.drum_size + 'px';
+    drum.style.backgroundImage = `url('${d.drum_image}')`;
+    drum.style.opacity = d.drum_opacity / 100;
+    drum.style.transform = `translate(-50%, -50%) rotate(${d.drum_rotate}deg)`;
+    drum.style.filter = `sepia(${d.drum_sepia}%) saturate(${d.drum_saturate}%) blur(${d.drum_blur}px)`;
+    drum.style.mixBlendMode = d.drum_blend_mode;
+  }
+
+  if (subtitle) {
+    subtitle.innerText = d.subtitle || '';
+    subtitle.style.fontSize = d.subtitle_size + 'px';
+    subtitle.style.color = d.subtitle_color;
+  }
+
+  if (title) {
+    title.innerText = d.title || '';
+    title.style.color = d.title_color;
+  }
+
+  if (titleWrapper) {
+    titleWrapper.style.fontSize = d.title_size + 'px';
+  }
+
+  if (starL && starR) {
+    starL.style.display = d.show_stars ? 'inline' : 'none';
+    starR.style.display = d.show_stars ? 'inline' : 'none';
+    starL.style.color = d.star_color;
+    starR.style.color = d.star_color;
+  }
+
+  if (titleBlock) {
+    titleBlock.style.transform = `translate(${d.text_x}px, ${d.text_y}px)`;
+  }
+
+  if (portraitContainer) {
+    portraitContainer.style.transform = `translate(${d.portrait_x}px, ${d.portrait_y}px)`;
+  }
+
+  if (portrait) {
+    portrait.src = d.portrait_image;
+    portrait.style.maxHeight = d.portrait_max_height + 'px';
+    portrait.style.mixBlendMode = d.portrait_blend_mode;
+    portrait.style.opacity = d.portrait_opacity / 100;
+    portrait.style.filter = `contrast(${d.portrait_contrast}%) brightness(${d.portrait_brightness}%) grayscale(${d.portrait_grayscale}%) blur(${d.portrait_blur}px)`;
+    portrait.style.webkitMaskImage = d.portrait_mask ? 'radial-gradient(ellipse 90% 92% at 50% 50%, black 65%, transparent 100%)' : 'none';
+    portrait.style.maskImage = d.portrait_mask ? 'radial-gradient(ellipse 90% 92% at 50% 50%, black 65%, transparent 100%)' : 'none';
+    portrait.style.transform = `scale(${d.portrait_scale / 100}) ${d.portrait_flip ? 'scaleX(-1)' : ''}`;
+  }
+
+  if (bottomBar) {
+    bottomBar.style.display = d.bottom_bar_enabled ? 'block' : 'none';
+  }
+}
+
+function initHbInteractiveCanvas() {
+  const portraitEl = document.getElementById('preview-hb-portrait-container');
+  const drumBox = document.getElementById('preview-hb-drum-box');
+  
+  if (!portraitEl) return;
+
+  // 1. Kéo thả Ảnh Bác (Section 2)
+  let isDraggingPortrait = false;
+  let startX = 0, startY = 0;
+  let initPortX = 0, initPortY = 0;
+
+  portraitEl.addEventListener('mousedown', (e) => {
+    isDraggingPortrait = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    initPortX = currentHbData.portrait_x;
+    initPortY = currentHbData.portrait_y;
+    portraitEl.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (isDraggingPortrait) {
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      const newX = Math.round(initPortX + dx);
+      const newY = Math.round(initPortY + dy);
+      
+      currentHbData.portrait_x = newX;
+      currentHbData.portrait_y = newY;
+      
+      portraitEl.style.transform = `translate(${newX}px, ${newY}px)`;
+      
+      const sliderX = document.getElementById('input-portrait-x');
+      const sliderY = document.getElementById('input-portrait-y');
+      const valX = document.getElementById('val-portrait-x');
+      const valY = document.getElementById('val-portrait-y');
+      
+      if (sliderX) sliderX.value = newX;
+      if (sliderY) sliderY.value = newY;
+      if (valX) valX.innerText = newX + 'px';
+      if (valY) valY.innerText = newY + 'px';
+    }
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (isDraggingPortrait) {
+      isDraggingPortrait = false;
+      portraitEl.style.cursor = 'grab';
+    }
+  });
+
+  // 2. Kéo thả Trống Đồng (Section 1)
+  let isDraggingDrum = false;
+
+  drumBox.addEventListener('mousedown', (e) => {
+    if (hbDragTarget !== 'drum') return;
+    if (e.target.closest('#preview-hb-portrait-container')) return;
+    isDraggingDrum = true;
+    updateDrumPosFromEvent(e);
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (isDraggingDrum && hbDragTarget === 'drum') {
+      updateDrumPosFromEvent(e);
+    }
+  });
+
+  window.addEventListener('mouseup', () => {
+    isDraggingDrum = false;
+  });
+
+  // 3. Kéo thả Section Mẹ (Master Section)
+  let isDraggingMaster = false;
+  let startMasterX = 0;
+  let initOffsetX = 0;
+
+  const mainContainerEl = document.getElementById('preview-hb-main-container');
+  if (mainContainerEl) {
+    mainContainerEl.addEventListener('mousedown', (e) => {
+      if (hbDragTarget !== 'master') return;
+      isDraggingMaster = true;
+      startMasterX = e.clientX;
+      initOffsetX = currentHbData.banner_offset_x || 0;
+      mainContainerEl.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+  }
+
+  window.addEventListener('mousemove', (e) => {
+    if (isDraggingMaster && hbDragTarget === 'master') {
+      const dx = (e.clientX - startMasterX) / ((currentHbData.banner_scale || 100) / 100);
+      const next = Math.round(initOffsetX + dx);
+      syncHbField('banner_offset_x', next);
+      
+      const inputMain = document.getElementById('input-banner-offset-x');
+      const labelMain = document.getElementById('val-banner-offset-x');
+      const inputTab = document.getElementById('input-drum-box-offset-x');
+      const labelTab = document.getElementById('val-drum-box-offset-x');
+
+      if (inputMain) inputMain.value = next;
+      if (labelMain) labelMain.innerText = (next > 0 ? '+' : '') + next + 'px';
+      if (inputTab) inputTab.value = next;
+      if (labelTab) labelTab.innerText = (next > 0 ? '+' : '') + next + 'px';
+    }
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (isDraggingMaster) {
+      isDraggingMaster = false;
+      if (mainContainerEl) mainContainerEl.style.cursor = hbDragTarget === 'master' ? 'ew-resize' : 'default';
+    }
+  });
+
+  function updateDrumPosFromEvent(e) {
+    const rect = drumBox.getBoundingClientRect();
+    const xPct = Math.round(((e.clientX - rect.left) / rect.width) * 100);
+    const yPct = Math.round(((e.clientY - rect.top) / rect.height) * 100);
+    
+    const clampedX = Math.max(0, Math.min(100, xPct));
+    const clampedY = Math.max(0, Math.min(100, yPct));
+    
+    currentHbData.drum_x = clampedX;
+    currentHbData.drum_y = clampedY;
+    
+    const drum = document.getElementById('preview-hb-drum');
+    if (drum) {
+      drum.style.left = clampedX + '%';
+      drum.style.top = clampedY + '%';
+    }
+
+    const sliderX = document.getElementById('input-drum-x');
+    const sliderY = document.getElementById('input-drum-y');
+    const valX = document.getElementById('val-drum-x');
+    const valY = document.getElementById('val-drum-y');
+    
+    if (sliderX) sliderX.value = clampedX;
+    if (sliderY) sliderY.value = clampedY;
+    if (valX) valX.innerText = clampedX + '%';
+    if (valY) valY.innerText = clampedY + '%';
+  }
+}
+
+function autoCenterMasterSection() {
+  const wrapper = document.getElementById('preview-hb-wrapper');
+  const container = document.getElementById('preview-hb-main-container');
+  const drumBox = document.getElementById('preview-hb-drum-box');
+  const portrait = document.getElementById('preview-hb-portrait');
+  const portraitContainer = document.getElementById('preview-hb-portrait-container');
+
+  if (!wrapper || !container || !drumBox) {
+    showToast("Không tìm thấy khung xem trước để căn giữa!", "error");
+    return;
+  }
+
+  // 1. Tạm thời reset left về 0 để đo toạ độ thực của các layout con
+  const prevLeft = container.style.left;
+  container.style.left = '0px';
+
+  // Lấy toạ độ các phần tử
+  const wrapperRect = wrapper.getBoundingClientRect();
+  const drumRect = drumBox.getBoundingClientRect();
+  
+  // Toạ độ ảnh Bác
+  let portRect = null;
+  if (portrait && portrait.getBoundingClientRect().width > 0) {
+    portRect = portrait.getBoundingClientRect();
+  } else if (portraitContainer) {
+    portRect = portraitContainer.getBoundingClientRect();
+  }
+
+  // Khôi phục left ban đầu
+  container.style.left = prevLeft;
+
+  let minLeft = drumRect.left;
+  let maxRight = drumRect.right;
+
+  if (portRect && portRect.width > 0) {
+    minLeft = Math.min(minLeft, portRect.left);
+    maxRight = Math.max(maxRight, portRect.right);
+  }
+
+  const currentScale = (currentHbData.banner_scale || 100) / 100;
+  const contentCenter = (minLeft + maxRight) / 2;
+  const wrapperCenter = (wrapperRect.left + wrapperRect.right) / 2;
+
+  // Tính khoảng cách cần dịch chuyển về giữa trang
+  const delta = (wrapperCenter - contentCenter) / (currentScale || 1);
+  const newOffset = Math.round(delta);
+
+  syncHbField('banner_offset_x', newOffset);
+
+  const inputMain = document.getElementById('input-banner-offset-x');
+  const labelMain = document.getElementById('val-banner-offset-x');
+  const inputTab = document.getElementById('input-drum-box-offset-x');
+  const labelTab = document.getElementById('val-drum-box-offset-x');
+
+  if (inputMain) inputMain.value = newOffset;
+  if (labelMain) labelMain.innerText = (newOffset > 0 ? '+' : '') + newOffset + 'px';
+  if (inputTab) inputTab.value = newOffset;
+  if (labelTab) labelTab.innerText = (newOffset > 0 ? '+' : '') + newOffset + 'px';
+
+  showToast(`Đã căn giữa Section Mẹ thành công (${newOffset > 0 ? '+' : ''}${newOffset}px)! Bố cục con bên trong được giữ nguyên 100%.`, "success");
+}
+
+function stepHbOffsetX(delta) {
+  const current = currentHbData.banner_offset_x || 0;
+  const next = Math.max(-300, Math.min(300, current + delta));
+  syncHbField('banner_offset_x', next);
+  
+  const inputMain = document.getElementById('input-banner-offset-x');
+  const labelMain = document.getElementById('val-banner-offset-x');
+  const inputTab = document.getElementById('input-drum-box-offset-x');
+  const labelTab = document.getElementById('val-drum-box-offset-x');
+
+  if (inputMain) inputMain.value = next;
+  if (labelMain) labelMain.innerText = (next > 0 ? '+' : '') + next + 'px';
+  if (inputTab) inputTab.value = next;
+  if (labelTab) labelTab.innerText = (next > 0 ? '+' : '') + next + 'px';
+}
+
+function resetHbPositions() {
+  currentHbData.portrait_x = 0;
+  currentHbData.portrait_y = 0;
+  currentHbData.drum_x = 47;
+  currentHbData.drum_y = 71;
+  currentHbData.text_x = 0;
+  currentHbData.text_y = 0;
+  currentHbData.banner_offset_x = 0;
+  renderTuTuongUI();
+  showToast("Đã đưa vị trí về mặc định chuẩn!", "info");
+}
+
+function applyHbPreset(preset) {
+  if (preset === 'tolam') {
+    currentHbData = {
+      ...DEFAULT_HB_CONFIG,
+      banner_scale: 100,
+      banner_offset_x: 0,
+      drum_box_bg: "#F2DFCE",
+      drum_box_radius: 16,
+      drum_box_height: 410,
+      drum_box_margin_left: 140,
+      drum_image: "/assets/img/background-trong-dong-png_095238288.png",
+      drum_x: 47,
+      drum_y: 71,
+      drum_size: 560,
+      drum_opacity: 32,
+      portrait_image: "/assets/img/BacHo.png",
+      portrait_x: 0,
+      portrait_y: 0,
+      portrait_scale: 100,
+      portrait_max_height: 470,
+      portrait_grayscale: 0,
+      portrait_blend_mode: "normal",
+      portrait_contrast: 100,
+      portrait_brightness: 100,
+      portrait_mask: false,
+      portrait_flip: false,
+      subtitle: "Chủ tịch",
+      subtitle_size: 32,
+      subtitle_color: "#3B291A",
+      title: "HỒ CHÍ MINH",
+      title_size: 46,
+      title_color: "#68350B",
+      show_stars: false,
+      bottom_bar_enabled: false
+    };
+    renderTuTuongUI();
+    showToast("Đã áp dụng Hình mẫu chuẩn!", "success");
+  }
+}
+
+async function uploadHbPortrait(input) {
+  if (!input.files || input.files.length === 0) return;
+  const file = input.files[0];
+  const formData = new FormData();
+  formData.append('image', file);
+
+  showLoading();
+  try {
+    const res = await fetch(`${API}/upload`, {
+      method: 'POST',
+      body: formData
+    }).then(r => r.json());
+
+    if (res.success) {
+      syncHbField('portrait_image', res.path);
+      const inputEl = document.getElementById('input-portrait-image');
+      if (inputEl) inputEl.value = res.path;
+      showToast("Tải ảnh Bác lên thành công!", "success");
+    } else {
+      showToast("Lỗi tải ảnh: " + (res.error || "Unknown"), "error");
+    }
+  } catch (err) {
+    showToast("Lỗi mạng khi tải ảnh Bác", "error");
+  } finally {
+    hideLoading();
+  }
+}
+
+async function uploadHbDrum(input) {
+  if (!input.files || input.files.length === 0) return;
+  const file = input.files[0];
+  const formData = new FormData();
+  formData.append('image', file);
+
+  showLoading();
+  try {
+    const res = await fetch(`${API}/upload`, {
+      method: 'POST',
+      body: formData
+    }).then(r => r.json());
+
+    if (res.success) {
+      syncHbField('drum_image', res.path);
+      const inputEl = document.getElementById('input-drum-image');
+      if (inputEl) inputEl.value = res.path;
+      showToast("Tải ảnh Trống Đồng lên thành công!", "success");
+    } else {
+      showToast("Lỗi tải ảnh: " + (res.error || "Unknown"), "error");
+    }
+  } catch (err) {
+    showToast("Lỗi mạng khi tải ảnh Trống Đồng", "error");
+  } finally {
+    hideLoading();
+  }
+}
+
+async function saveTuTuongSettings() {
+  showLoading();
+  try {
+    const res = await fetch(`${API}/tu-tuong`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hero_banner: currentHbData })
+    }).then(r => r.json());
+
+    if (res.success) {
+      showToast(res.message || "Đã lưu cài đặt Banner thành công!", "success");
+    } else {
+      showToast("Lỗi khi lưu: " + (res.error || "Unknown"), "error");
+    }
+  } catch (err) {
+    showToast("Lỗi kết nối máy chủ khi lưu: " + err.message, "error");
+  } finally {
+    hideLoading();
+  }
+}
+
 
 

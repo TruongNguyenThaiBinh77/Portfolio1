@@ -6,7 +6,8 @@
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "start:admin": "npm run start:admin --prefix .."
   },
   "dependencies": {
     "bibtex-parse-js": "^0.0.24",

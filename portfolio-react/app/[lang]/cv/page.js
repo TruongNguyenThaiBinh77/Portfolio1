@@ -207,23 +207,28 @@ export default async function CV({ params }) {
         }
       `}} />
       <div className="post">
-        <header className="post-header mb-3 mb-md-4">
-          <h1
-            className="post-title cv-page-title"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexWrap: 'wrap',
-              gap: '12px',
-              fontWeight: pageTitleBold ? '700' : '400',
-              color: pageTitleColor || 'inherit',
-            }}
-          >
-            <span style={{ color: pageTitleColor || 'inherit' }}>{fm.title || (lang === 'vi' ? 'Sơ yếu lý lịch' : 'Curriculum Vitae')}</span>
-            {fm.cv_pdf && <PrintButton />}
-          </h1>
-          {fm.description && <p className="desc" style={{ color: 'var(--global-text-color-light)', fontSize: '0.95rem' }}>{fm.description}</p>}
+        <header className="post-header mb-4">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+            <h1
+              className="title-nexa-rust star-title cv-page-title"
+              style={{
+                fontSize: 'clamp(32px, 4.5vw, 54px)',
+                lineHeight: '1.25',
+                marginBottom: '12px',
+              }}
+            >
+              <span className="star-icon">★</span>
+              <span>{fm.title || (lang === 'vi' ? 'HỒ SƠ' : 'Curriculum Vitae')}</span>
+              <span className="star-icon">★</span>
+            </h1>
+            {fm.cv_pdf && (
+              <div style={{ position: 'absolute', right: 0 }}>
+                <PrintButton />
+              </div>
+            )}
+          </div>
+          {fm.description && <p className="desc text-center mt-2" style={{ color: 'var(--global-text-color-light)', fontSize: '0.95rem' }}>{fm.description}</p>}
+          <div style={{ width: '60px', height: '4px', backgroundColor: '#6f3706', margin: '14px auto', borderRadius: '2px' }}></div>
         </header>
 
         <div className="d-flex flex-column flex-md-row cv-main-layout" style={{ gap: '28px', alignItems: 'flex-start' }}>
@@ -236,12 +241,13 @@ export default async function CV({ params }) {
               {/* General Information */}
               <div className="card mt-2 mt-md-3 p-3 cv-card-item" id="general-info" style={{ scrollMarginTop: '105px' }}>
                 <h3
-                  className="card-title"
+                  className="title-nexa-rust card-title"
                   style={{
-                    color: generalTitleColor || config.section_titles_color || 'inherit',
-                    fontWeight: generalTitleBold ? '700' : '400',
+                    color: '#6f3706',
                     fontSize: '1.45rem',
                     marginBottom: '1rem',
+                    letterSpacing: '1px',
+                    textTransform: 'uppercase',
                   }}
                 >
                   {generalTitle}
@@ -291,12 +297,13 @@ export default async function CV({ params }) {
               {education.length > 0 && (
                 <div className="card mt-4 p-3 cv-card-item" id="education" style={{ scrollMarginTop: '105px' }}>
                   <h3
-                    className="card-title"
+                    className="title-nexa-rust card-title"
                     style={{
-                      color: educationTitleColor || config.section_titles_color || 'inherit',
-                      fontWeight: educationTitleBold ? '700' : '400',
+                      color: '#6f3706',
                       fontSize: '1.45rem',
                       marginBottom: '1rem',
+                      letterSpacing: '1px',
+                      textTransform: 'uppercase',
                     }}
                   >
                     {educationTitle}
@@ -383,12 +390,13 @@ export default async function CV({ params }) {
               {experience.length > 0 && (
                 <div className="card mt-4 p-3 cv-card-item" id="experience" style={{ scrollMarginTop: '105px' }}>
                   <h3
-                    className="card-title"
+                    className="title-nexa-rust card-title"
                     style={{
-                      color: experienceTitleColor || config.section_titles_color || 'inherit',
-                      fontWeight: experienceTitleBold ? '700' : '400',
+                      color: '#6f3706',
                       fontSize: '1.45rem',
                       marginBottom: '1rem',
+                      letterSpacing: '1px',
+                      textTransform: 'uppercase',
                     }}
                   >
                     {experienceTitle}
@@ -467,12 +475,13 @@ export default async function CV({ params }) {
               {honors.length > 0 && (
                 <div className="card mt-4 p-3 cv-card-item" id="honors-awards" style={{ scrollMarginTop: '105px' }}>
                   <h3
-                    className="card-title"
+                    className="title-nexa-rust card-title"
                     style={{
-                      color: honorsTitleColor || config.section_titles_color || 'inherit',
-                      fontWeight: honorsTitleBold ? '700' : '400',
+                      color: '#6f3706',
                       fontSize: '1.45rem',
                       marginBottom: '1rem',
+                      letterSpacing: '1px',
+                      textTransform: 'uppercase',
                     }}
                   >
                     {honorsTitle}
@@ -524,12 +533,13 @@ export default async function CV({ params }) {
               {skills.length > 0 && (
                 <div className="card mt-4 p-3 cv-card-item" id="skills" style={{ scrollMarginTop: '105px' }}>
                   <h3
-                    className="card-title"
+                    className="title-nexa-rust card-title"
                     style={{
-                      color: skillsTitleColor || config.section_titles_color || 'inherit',
-                      fontWeight: skillsTitleBold ? '700' : '400',
+                      color: '#6f3706',
                       fontSize: '1.45rem',
                       marginBottom: '1rem',
+                      letterSpacing: '1px',
+                      textTransform: 'uppercase',
                     }}
                   >
                     {skillsTitle}

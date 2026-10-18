@@ -904,3 +904,181 @@ label {
   margin-top: 0;
   color: var(--text-color);
 }
+
+/* ============================================================================
+   Tu Tuong Banner Editor & Live Preview Canvas
+   ============================================================================ */
+
+@font-face {
+  font-family: 'SVN-Nexa-Rust-Slab-Black-Shadow';
+  src: url('/assets/fonts/SVN-Nexa-Rust-Slab-Black-Shadow.ttf') format('truetype'),
+       local('SVN-Nexa-Rust-Slab-Black-Shadow'),
+       local('SVN Nexa Rust Slab Black Shadow'),
+       local('Nexa Rust Slab Black Shadow');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.title-nexa-rust, 
+.title-nexa-rust span:not(.star-icon) {
+  font-family: 'SVN-Nexa-Rust-Slab-Black-Shadow', 'Alfa Slab One', 'Cinzel', 'Georgia', serif !important;
+  color: #6f3706;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.hb-preview-wrapper {
+  background: #13131c;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  margin-bottom: 25px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+
+.hb-preview-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hb-preview-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  padding: 6px 14px;
+  background: rgba(124, 92, 252, 0.12);
+  color: var(--accent-light);
+  border: 1px solid rgba(124, 92, 252, 0.25);
+  border-radius: 20px;
+}
+
+.hb-coords-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.hb-stage-container {
+  width: 100%;
+  overflow-x: auto;
+  padding: 10px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.hb-stage {
+  width: 100%;
+  max-width: 980px;
+  position: relative;
+  border-radius: 16px;
+  user-select: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  transition: min-height 0.15s ease, background-color 0.15s ease;
+}
+
+.hb-drag-target {
+  position: absolute;
+  cursor: grab;
+  transition: outline 0.15s ease;
+  z-index: 5;
+}
+
+.hb-drag-target:hover {
+  outline: 2px dashed rgba(234, 179, 8, 0.85);
+  outline-offset: 4px;
+}
+
+.hb-drag-target.dragging {
+  cursor: grabbing !important;
+  outline: 2px solid #eab308 !important;
+  outline-offset: 4px;
+}
+
+.hb-portrait-target {
+  cursor: grab;
+  transition: outline 0.15s ease;
+}
+
+.hb-portrait-target:hover {
+  outline: 2px dashed rgba(59, 130, 246, 0.85);
+  outline-offset: 4px;
+}
+
+.hb-portrait-target.dragging {
+  cursor: grabbing !important;
+  outline: 2px solid #3b82f6 !important;
+  outline-offset: 4px;
+}
+
+.hb-tabs {
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 22px;
+  overflow-x: auto;
+}
+
+.hb-tab-btn {
+  padding: 11px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+  background: none;
+}
+
+.hb-tab-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.hb-tab-btn.active {
+  color: var(--accent-light);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+  background: rgba(124, 92, 252, 0.08);
+}
+
+.hb-preset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  transition: var(--transition-fast);
+  cursor: pointer;
+}
+
+.hb-preset-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent);
+  color: #fff;
+}

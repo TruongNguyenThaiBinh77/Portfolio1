@@ -1,6 +1,6 @@
 theme: al_folio_core
 title: blank
-global_bg_color: "#ffffff"
+global_bg_color: "#FFF1E5"
 global_bg_image: ""
 first_name: Trương Nguyễn
 middle_name: Thái
@@ -510,7 +510,7 @@ footer_text: |-
                img.src = '{{ site.baseurl }}/assets/img/MacLenin.jpg';
                img.style.width = '56px';
                img.style.height = '32px';
-               img.style.backgroundColor = '#ffffff';
+               img.style.backgroundColor = '#000000';
                img.style.padding = '5px'; img.style.borderRadius = '5px';
                img.style.marginRight = '15px';
                img.style.verticalAlign = 'middle';
@@ -529,46 +529,59 @@ middle_name_bold: true
 last_name_bold: true
 header_logo: MacLenin.jpg
 header_logo_size: 56px
-header_logo_bg: "#ffffff"
+header_logo_bg: "#000000"
 header_logo_height: 32px
 navbar_scale: 100
 navbar_padding_y: 3px
 navbar_font_size: 13.5px
 navbar_brand_size: 15px
-navbar_bg_color: "#FEEAEB"
+header_top: 20px
+header_margin_x: auto
+header_width: min(92vw, 960px)
+header_max_width: 960px
+header_border_radius: 12px
+header_shadow: true
+header_border_color: rgba(255, 255, 255, 0.3)
+navbar_bg_color: "#D2867C"
+top_banner_bg_color: "#AE0100"
+top_banner_height: 140px
+top_banner_title: ĐẠI HỘI ĐẠI BIỂU TOÀN QUỐC LẦN THỨ XIV CỦA ĐẢNG
+top_banner_enabled: true
 global_bg_image_size: "36"
 nav_names:
   about: Về tôi
   publications: Ấn phẩm
   teachings: Thành tích
-  cv: Sơ yếu lý lịch
+  cv: Hồ sơ
   repositories: Lưu trữ
+  tu_tuong: Chi bộ
 nav_names_en:
   about: About
   publications: Publications
   teachings: Achievements
   cv: Curriculum Vitae
   repositories: Repositories
-navbar_bg_image: e4b318059a7824c886901e16d341eb5f.png
+  tu_tuong: Party Cell
+navbar_bg_image: background-trong-dong-png_095238288.png
 navbar_bg_image_size: "56"
 email: truongnguyenthaibinh1050@gmail.com
 global_bg_hue: "0"
 global_bg_opacity: "100"
-global_bg_overlay: "#ffffff"
-global_bg_overlay_opacity: "60"
+global_bg_overlay: ""
+global_bg_overlay_opacity: "0"
 navbar_bg_hue: "0"
-navbar_bg_opacity: "77"
-navbar_bg_overlay: "#ffffff"
-navbar_bg_overlay_opacity: "78"
-navbar_text_color: ""
-navbar_active_text_color: "#D92D20"
-global_hover_color: "#999405"
-body_bg_image: bgF.jpg
+navbar_bg_opacity: "15"
+navbar_bg_overlay: ""
+navbar_bg_overlay_opacity: "0"
+navbar_text_color: "#3B0806"
+navbar_active_text_color: "#f4c734"
+global_hover_color: "#7A0808"
+body_bg_image: ""
 body_bg_image_size: "46"
 body_bg_hue: "0"
-body_bg_opacity: "51"
-body_bg_overlay: "#ffffff"
-body_bg_overlay_opacity: "70"
+body_bg_opacity: "0"
+body_bg_overlay: ""
+body_bg_overlay_opacity: "0"
 title_en: ""
 blog_name_en: ""
 blog_description_en: ""

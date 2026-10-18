@@ -1,7 +1,7 @@
 ---
 layout: cv
 permalink: /cv/
-title: Sơ yếu lý lịch
+title: Hồ sơ
 title_en: Curriculum Vitae
 nav: true
 nav_order: 2
