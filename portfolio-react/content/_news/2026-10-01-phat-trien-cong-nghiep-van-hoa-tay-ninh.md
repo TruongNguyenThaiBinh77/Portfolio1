@@ -29,7 +29,7 @@ journal_border_color: '#7dd3fc'
 sidebox_text: TẠP CHÍ
 sidebox_bg_color: '#1e3a8a'
 sidebox_text_color: '#ffffff'
-sidebox_image: TCTN.jpg
+sidebox_image: TCTN.webp
 sidebox_width: 95
 metric_badges:
   - label: IF

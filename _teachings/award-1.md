@@ -7,7 +7,7 @@ organization: Trường Đại học Công nghệ Thông tin (UIT)
 organization_en: University of Information Technology (UIT)
 description: Đạt giải Nhất trong cuộc thi lập trình phát triển giải pháp AI thông minh hỗ trợ y tế cộng đồng.
 description_en: First prize in programming contest developing smart AI solution for community healthcare.
-certificate: /assets/img/1.jpg
+certificate: /assets/img/1.webp
 show_certificate: true
 content_en: |-
   The "AI Health Assistant" project surpassed 50+ teams to win the Championship. The system uses Deep Learning models to analyze initial symptoms and suggest the nearest health station, integrating a 24/7 interactive chatbot.

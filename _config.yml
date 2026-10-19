@@ -10,7 +10,7 @@ middle_name_en: Thai
 last_name_en: Binh
 keywords: jekyll, jekyll-theme, academic-website, portfolio-website
 lang: vi
-icon: logo-flag_6305d_4eea1.png
+icon: logo-flag_6305d_4eea1.webp
 url: https://alshedivat.github.io
 baseurl: /al-folio
 last_updated: false
@@ -507,7 +507,7 @@ footer_text: |-
          document.addEventListener("DOMContentLoaded", function() {
                const container = document.querySelector('.navbar .container');
                const img = document.createElement('img');
-               img.src = '{{ site.baseurl }}/assets/img/MacLenin.jpg';
+               img.src = '{{ site.baseurl }}/assets/img/MacLenin.webp';
                img.style.width = '56px';
                img.style.height = '32px';
                img.style.backgroundColor = '#d33131';
@@ -527,7 +527,7 @@ footer_text: |-
 first_name_bold: true
 middle_name_bold: true
 last_name_bold: true
-header_logo: MacLenin.jpg
+header_logo: MacLenin.webp
 header_logo_size: 56px
 header_logo_bg: "#d33131"
 header_logo_height: 32px
@@ -562,7 +562,7 @@ nav_names_en:
   cv: Curriculum Vitae
   repositories: Repositories
   tu_tuong: Party Cell
-navbar_bg_image: background-trong-dong-png_095238288.png
+navbar_bg_image: background-trong-dong-png_095238288.webp
 navbar_bg_image_size: "56"
 email: truongnguyenthaibinh1050@gmail.com
 global_bg_hue: "0"

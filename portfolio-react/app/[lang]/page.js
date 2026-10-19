@@ -374,8 +374,8 @@ export default async function Home({ params }) {
                                           width: '13px',
                                           height: '13px',
                                           backgroundColor: 'currentColor',
-                                          maskImage: 'url(/assets/img/journal-icon.png)',
-                                          WebkitMaskImage: 'url(/assets/img/journal-icon.png)',
+                                          maskImage: 'url(/assets/img/journal-icon.webp)',
+                                          WebkitMaskImage: 'url(/assets/img/journal-icon.webp)',
                                           maskSize: 'contain',
                                           WebkitMaskSize: 'contain',
                                           maskRepeat: 'no-repeat',
@@ -600,7 +600,7 @@ export default async function Home({ params }) {
                           rel="noopener noreferrer"
                         >
                           <img
-                            src="/assets/img/gmail-icon.png"
+                            src="/assets/img/gmail-icon.webp"
                             alt="Gmail"
                             style={{
                               width: '1.15em',
@@ -636,7 +636,7 @@ export default async function Home({ params }) {
                           rel="noopener noreferrer"
                         >
                           <img
-                            src="/assets/img/scholar-icon.png"
+                            src="/assets/img/scholar-icon.webp"
                             alt="Google Scholar"
                             style={{
                               width: '1.15em',

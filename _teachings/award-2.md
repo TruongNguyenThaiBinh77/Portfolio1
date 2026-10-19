@@ -7,7 +7,7 @@ organization: Quỹ Học bổng Odon Vallet
 organization_en: Odon Vallet Scholarship Fund
 description: Một trong 10 sinh viên xuất sắc nhất toàn trường nhận học bổng tài trợ cho các nghiên cứu khoa học nổi bật.
 description_en: One of 10 outstanding university students receiving scholarships for exceptional scientific research.
-certificate: /assets/img/2.jpg
+certificate: /assets/img/2.webp
 show_certificate: true
 content_en: |-
   The scholarship was awarded based on scientific research achievements (publishing 2 international papers) and an outstanding GPA of 3.9/4.0 in the 2022-2023 academic year.

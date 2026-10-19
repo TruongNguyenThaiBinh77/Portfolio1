@@ -4604,7 +4604,7 @@ async function loadNews() {
         <div class="dynamic-item-header" style="align-items: flex-start; margin-bottom: 6px;">
           <div style="flex: 1; padding-right: 12px;">
             <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;">
-              ${fm.journal ? `<span class="badge badge-danger" style="padding: 2px 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;"><span style="display: inline-block; width: 11px; height: 11px; background-color: currentColor; mask-image: url(/assets/img/journal-icon.png); -webkit-mask-image: url(/assets/img/journal-icon.png); mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;"></span> ${escHtml(fm.journal)}</span>` : ''}
+              ${fm.journal ? `<span class="badge badge-danger" style="padding: 2px 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;"><span style="display: inline-block; width: 11px; height: 11px; background-color: currentColor; mask-image: url(/assets/img/journal-icon.webp); -webkit-mask-image: url(/assets/img/journal-icon.webp); mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;"></span> ${escHtml(fm.journal)}</span>` : ''}
               ${hasExternal ? `<span class="badge badge-primary" style="padding: 2px 8px; font-size: 11px;"><i class="fas fa-external-link-alt"></i> Link online</span>` : ''}
               ${hasPdf ? `<span class="badge badge-warning" style="padding: 2px 8px; font-size: 11px;"><i class="fas fa-file-pdf"></i> Có file PDF</span>` : ''}
             </div>
@@ -4730,7 +4730,7 @@ function createNews() {
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
               <span style="font-weight: 600;"><i class="fas fa-palette text-warning"></i> Màu sắc huy hiệu Tạp chí (Journal Badge Style)</span>
               <span id="news-badge-preview" style="font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 12px; display: inline-flex; align-items: center; gap: 5px; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;">
-                <span style="display: inline-block; width: 11px; height: 11px; background-color: currentColor; mask-image: url(/assets/img/journal-icon.png); -webkit-mask-image: url(/assets/img/journal-icon.png); mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;"></span> <span id="news-badge-preview-text">Tên tạp chí xem trước</span>
+                <span style="display: inline-block; width: 11px; height: 11px; background-color: currentColor; mask-image: url(/assets/img/journal-icon.webp); -webkit-mask-image: url(/assets/img/journal-icon.webp); mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;"></span> <span id="news-badge-preview-text">Tên tạp chí xem trước</span>
               </span>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 10px;">
@@ -4873,7 +4873,7 @@ function createNews() {
                     <i class="fas fa-image text-success"></i> 2. Hình chữ nhật to (Ảnh minh họa / Bìa / Sơ đồ)
                   </div>
                   <div style="display: flex; gap: 8px; align-items: center;">
-                    <input type="text" class="form-control" id="news-sidebox-image" value="/assets/img/TCQLNC.jpg" placeholder="TCQLNC.jpg hoặc /assets/img/ten-anh.jpg" style="flex: 1;" oninput="updateNewsSideboxPreview()" />
+                    <input type="text" class="form-control" id="news-sidebox-image" value="/assets/img/TCQLNC.webp" placeholder="TCQLNC.webp hoặc /assets/img/ten-anh.jpg" style="flex: 1;" oninput="updateNewsSideboxPreview()" />
                     <button type="button" class="btn btn-secondary" onclick="document.getElementById('news-sidebox-image-file').click()" style="white-space:nowrap;">
                       <i class="fas fa-upload"></i> Tải ảnh lên
                     </button>
@@ -4900,7 +4900,7 @@ function createNews() {
                     </div>
                     <!-- Hình chữ nhật to preview -->
                     <div id="sidebox-live-big" style="width: 100%; border-radius: 6px; overflow: hidden; border: 1px solid #cbd5e1; background-color: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.1); padding: 4px; display: flex; align-items: center; justify-content: center; min-height: 90px;">
-                      <img id="sidebox-live-img" src="/assets/img/TCQLNC.jpg" alt="Preview" style="width: 100%; height: auto; max-height: 130px; object-fit: contain; border-radius: 4px; display: block;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                      <img id="sidebox-live-img" src="/assets/img/TCQLNC.webp" alt="Preview" style="width: 100%; height: auto; max-height: 130px; object-fit: contain; border-radius: 4px; display: block;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
                       <span style="display: none; font-size: 11px; color: #94a3b8; padding: 10px;">Chưa có ảnh</span>
                     </div>
                   </div>
@@ -5162,7 +5162,7 @@ async function editNews(slug) {
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
               <span style="font-weight: 600;"><i class="fas fa-palette text-warning"></i> Màu sắc huy hiệu Tạp chí (Journal Badge Style)</span>
               <span id="news-badge-preview" style="font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 12px; display: inline-flex; align-items: center; gap: 5px; background: ${jBg}; color: ${jColor}; border: 1px solid ${jBorder};">
-                <span style="display: inline-block; width: 11px; height: 11px; background-color: currentColor; mask-image: url(/assets/img/journal-icon.png); -webkit-mask-image: url(/assets/img/journal-icon.png); mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;"></span> <span id="news-badge-preview-text">${escHtml(fm.journal || "Tên tạp chí xem trước")}</span>
+                <span style="display: inline-block; width: 11px; height: 11px; background-color: currentColor; mask-image: url(/assets/img/journal-icon.webp); -webkit-mask-image: url(/assets/img/journal-icon.webp); mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;"></span> <span id="news-badge-preview-text">${escHtml(fm.journal || "Tên tạp chí xem trước")}</span>
               </span>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 10px;">
@@ -5317,7 +5317,7 @@ async function editNews(slug) {
                     <i class="fas fa-image text-success"></i> 2. Hình chữ nhật to (Ảnh minh họa / Bìa / Sơ đồ)
                   </div>
                   <div style="display: flex; gap: 8px; align-items: center;">
-                    <input type="text" class="form-control" id="news-sidebox-image" value="${escHtml(fm.sidebox_image || fm.preview || (slug.includes('quan-ly-nha-nuoc') ? 'TCQLNC.jpg' : (slug.includes('cong-nghiep-van-hoa') ? 'TCTN.jpg' : '')))}" placeholder="TCQLNC.jpg hoặc /assets/img/ten-anh.jpg" style="flex: 1;" oninput="updateNewsSideboxPreview()" />
+                    <input type="text" class="form-control" id="news-sidebox-image" value="${escHtml(fm.sidebox_image || fm.preview || (slug.includes('quan-ly-nha-nuoc') ? 'TCQLNC.webp' : (slug.includes('cong-nghiep-van-hoa') ? 'TCTN.webp' : '')))}" placeholder="TCQLNC.webp hoặc /assets/img/ten-anh.jpg" style="flex: 1;" oninput="updateNewsSideboxPreview()" />
                     <button type="button" class="btn btn-secondary" onclick="document.getElementById('news-sidebox-image-file').click()" style="white-space:nowrap;">
                       <i class="fas fa-upload"></i> Tải ảnh lên
                     </button>
@@ -5345,7 +5345,7 @@ async function editNews(slug) {
                     <!-- Hình chữ nhật to preview -->
                     <div id="sidebox-live-big" style="width: 100%; border-radius: 6px; overflow: hidden; border: 1px solid #cbd5e1; background-color: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.1); padding: 4px; display: flex; align-items: center; justify-content: center; min-height: 90px;">
                       <img id="sidebox-live-img" src="${(() => {
-                        const img = fm.sidebox_image || fm.preview || (slug.includes('quan-ly-nha-nuoc') ? 'TCQLNC.jpg' : (slug.includes('cong-nghiep-van-hoa') ? 'TCTN.jpg' : ''));
+                        const img = fm.sidebox_image || fm.preview || (slug.includes('quan-ly-nha-nuoc') ? 'TCQLNC.webp' : (slug.includes('cong-nghiep-van-hoa') ? 'TCTN.webp' : ''));
                         if (img.startsWith('http') || img.startsWith('/')) return img;
                         return `/assets/img/${img}`;
                       })()}" alt="Preview" style="width: 100%; height: auto; max-height: 130px; object-fit: contain; border-radius: 4px; display: block;" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
@@ -8672,7 +8672,7 @@ function updateMarqueeAdminPreview() {
       >
         ${[...seq, ...seq, ...seq].map((it, idx) => `
           <div style="position: relative; display: inline-flex; height: 100%; flex-shrink: 0; overflow: hidden; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-            <img src="${escapeHtml(it.image)}" alt="" draggable="false" style="height: 100%; width: auto; display: block; object-fit: cover; pointer-events: none;" onerror="this.src='/assets/img/timeline_1996.png'">
+            <img src="${escapeHtml(it.image)}" alt="" draggable="false" style="height: 100%; width: auto; display: block; object-fit: cover; pointer-events: none;" onerror="this.src='/assets/img/timeline_1996.webp'">
             ${showLabels && (it.name || it.year) ? `
               <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 18px 6px 4px 6px; background: linear-gradient(to top, rgba(255,241,229,0.96) 0%, rgba(255,241,229,0.7) 60%, transparent 100%); text-align: center; pointer-events: none;">
                 ${it.name ? `<div style="font-family: Georgia, serif; font-weight: 700; font-size: 12.5px; color: #3B291A; line-height: 1.15; margin-bottom: 2px; text-shadow: 0 1px 2px #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(it.name)}</div>` : ''}
@@ -8826,7 +8826,7 @@ function renderMarqueeItemsList() {
   });
 
   const needingPhotoInItems = d.marquee_items.filter(it => {
-    return !it.image || it.image.includes('timeline_1996.png') || it.image.includes('template_error.png');
+    return !it.image || it.image.includes('timeline_1996.webp') || it.image.includes('template_error.webp');
   });
 
   // 2. Render Dedicated Shelf for Missing Leaders
@@ -8937,7 +8937,7 @@ function renderMarqueeItemsList() {
   }
 
   container.innerHTML = d.marquee_items.map((it, idx) => {
-    const hasRealImage = it.image && !it.image.includes('timeline_1996.png') && !it.image.includes('template_error.png');
+    const hasRealImage = it.image && !it.image.includes('timeline_1996.webp') && !it.image.includes('template_error.webp');
 
     return `
     <div class="card" style="border: 1px solid ${hasRealImage ? 'var(--border)' : 'rgba(245, 158, 11, 0.4)'}; background: var(--bg-card); margin-bottom: 14px; border-radius: 12px; overflow: hidden;">
@@ -8996,7 +8996,7 @@ function renderMarqueeItemsList() {
             style="width: 80px; height: 80px; border-radius: 8px; overflow: hidden; background: var(--bg-input); border: 1.5px solid ${hasRealImage ? 'var(--border)' : '#fbbf24'}; flex-shrink: 0; cursor: pointer; position: relative;"
             title="Bấm để tải ảnh chân dung mới từ máy tính"
           >
-            <img src="${escapeHtml(it.image)}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/assets/img/timeline_1996.png'">
+            <img src="${escapeHtml(it.image)}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/assets/img/timeline_1996.webp'">
             ${!hasRealImage ? `
               <div style="position: absolute; inset: 0; background: rgba(245, 158, 11, 0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #1c1917;">
                 <i class="fas fa-camera" style="font-size: 16px; margin-bottom: 2px;"></i>
@@ -9080,7 +9080,7 @@ function applyLeaderPresetToItem(idx, leaderId) {
   item.url = leader.url;
   item.target = '_blank';
 
-  if ((!item.image || item.image.includes('timeline_1996.png')) && leader.defaultImage) {
+  if ((!item.image || item.image.includes('timeline_1996.webp')) && leader.defaultImage) {
     item.image = leader.defaultImage;
   }
 
@@ -9099,7 +9099,7 @@ function addLeaderFromDatabase(leaderId) {
   const nextId = currentHbData.marquee_items.length + 1;
   currentHbData.marquee_items.push({
     id: nextId,
-    image: leader.defaultImage || '/assets/img/timeline_1996.png',
+    image: leader.defaultImage || '/assets/img/timeline_1996.webp',
     name: leader.name,
     year: leader.year,
     title: leader.title,
@@ -9130,7 +9130,7 @@ function addAllMissingLeadersToMarquee() {
     if (!byName && !byUrl) {
       currentHbData.marquee_items.push({
         id: currentHbData.marquee_items.length + 1,
-        image: l.defaultImage || '/assets/img/timeline_1996.png',
+        image: l.defaultImage || '/assets/img/timeline_1996.webp',
         name: l.name,
         year: l.year,
         title: l.title,
@@ -9158,7 +9158,7 @@ function addMarqueeItem() {
   const nextId = currentHbData.marquee_items.length + 1;
   currentHbData.marquee_items.push({
     id: nextId,
-    image: '/assets/img/timeline_1996.png',
+    image: '/assets/img/timeline_1996.webp',
     year: '2026',
     title: 'Mốc sự kiện mới',
     url: '',
@@ -9279,7 +9279,7 @@ function applyMarqueePreset(type) {
     if (!confirm("Chuyển dải ảnh sang trọn bộ 21 Lãnh tụ ĐCSVN (gồm 12 vị có sẵn WebP + 9 vị hiển thị sẵn card để bạn tải ảnh lên)?")) return;
     currentHbData.marquee_items = LEADERS_DATABASE_20.map((l, i) => ({
       id: i + 1,
-      image: l.defaultImage || '/assets/img/timeline_1996.png',
+      image: l.defaultImage || '/assets/img/timeline_1996.webp',
       name: l.name,
       year: l.year,
       title: l.title,
@@ -9303,7 +9303,7 @@ function applyMarqueePreset(type) {
       ? currentHbData.marquee_items
       : LEADERS_DATABASE_20.map((l, i) => ({
           id: i + 1,
-          image: l.defaultImage || '/assets/img/timeline_1996.png',
+          image: l.defaultImage || '/assets/img/timeline_1996.webp',
           name: l.name,
           year: l.year,
           title: l.title,
@@ -9756,12 +9756,12 @@ function applyHbPreset(preset) {
       drum_box_radius: 16,
       drum_box_height: 410,
       drum_box_margin_left: 140,
-      drum_image: "/assets/img/background-trong-dong-png_095238288.png",
+      drum_image: "/assets/img/background-trong-dong-png_095238288.webp",
       drum_x: 47,
       drum_y: 71,
       drum_size: 560,
       drum_opacity: 32,
-      portrait_image: "/assets/img/BacHo.png",
+      portrait_image: "/assets/img/BacHo.webp",
       portrait_x: 0,
       portrait_y: 0,
       portrait_scale: 100,

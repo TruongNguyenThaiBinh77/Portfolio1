@@ -30,7 +30,7 @@ journal_border_color: '#fcd34d'
 sidebox_text: APIN
 sidebox_bg_color: '#800000'
 sidebox_text_color: '#ffffff'
-sidebox_image: TCQLNC.jpg
+sidebox_image: TCQLNC.webp
 sidebox_width: 95
 metric_badges:
   - label: IF

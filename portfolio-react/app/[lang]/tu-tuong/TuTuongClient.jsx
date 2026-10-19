@@ -322,7 +322,7 @@ export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
   const bannerOffsetX = hb.banner_offset_x !== undefined ? Number(hb.banner_offset_x) : 0;
 
   // Trống đồng
-  const drumImg = hb.drum_image || '/assets/img/background-trong-dong-png_095238288.png';
+  const drumImg = hb.drum_image || '/assets/img/background-trong-dong-png_095238288.webp';
   const drumX = hb.drum_x !== undefined ? hb.drum_x : 65;
   const drumY = hb.drum_y !== undefined ? hb.drum_y : 50;
   const drumSize = hb.drum_size !== undefined ? hb.drum_size : 580;
