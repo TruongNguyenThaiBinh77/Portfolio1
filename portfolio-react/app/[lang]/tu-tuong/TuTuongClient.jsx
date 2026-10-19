@@ -2,6 +2,310 @@
 
 import React from 'react';
 
+function DraggableTimelineMarquee({
+  marqueeHeight,
+  marqueeGap,
+  marqueeSpeed,
+  marqueePauseHover,
+  marqueePaused,
+  marqueeShowLabels,
+  marqueeLabelColor,
+  baseSequence
+}) {
+  const containerRef = React.useRef(null);
+  const trackRef = React.useRef(null);
+  const [isGrabbing, setIsGrabbing] = React.useState(false);
+
+  const isDraggingRef = React.useRef(false);
+  const hasMovedRef = React.useRef(false);
+  const startXRef = React.useRef(0);
+  const startYRef = React.useRef(0);
+  const scrollStartRef = React.useRef(0);
+  const isHoveredRef = React.useRef(false);
+  const animIdRef = React.useRef(null);
+
+  // Triple sequence for seamless bidirectional infinite scrolling
+  const triSequence = React.useMemo(() => {
+    let seq = baseSequence || [];
+    if (seq.length > 0 && seq.length < 8) {
+      seq = [...seq, ...seq];
+    }
+    return [...seq, ...seq, ...seq];
+  }, [baseSequence]);
+
+  React.useEffect(() => {
+    const container = containerRef.current;
+    const track = trackRef.current;
+    if (!container || !track) return;
+
+    // Initialize position to the middle third
+    const centerScroll = () => {
+      const oneThird = track.scrollWidth / 3;
+      if (oneThird > 0 && (container.scrollLeft === 0 || container.scrollLeft < oneThird / 2)) {
+        container.scrollLeft = oneThird;
+      }
+    };
+
+    const t1 = setTimeout(centerScroll, 120);
+    const t2 = setTimeout(centerScroll, 600);
+
+    let lastTime = performance.now();
+
+    const loop = (time) => {
+      const dt = (time - lastTime) / 1000;
+      lastTime = time;
+
+      const oneThird = track.scrollWidth / 3;
+      if (oneThird > 0) {
+        // Auto-wrap and auto-scroll ONLY when not actively dragging
+        if (!isDraggingRef.current) {
+          if (container.scrollLeft >= 2 * oneThird) {
+            container.scrollLeft -= oneThird;
+          } else if (container.scrollLeft <= oneThird / 2) {
+            container.scrollLeft += oneThird;
+          }
+
+          const canScroll = !marqueePaused && (!marqueePauseHover || !isHoveredRef.current);
+          if (canScroll) {
+            const pxPerSec = marqueeSpeed > 0 ? (oneThird / marqueeSpeed) : 35;
+            container.scrollLeft += pxPerSec * dt;
+          }
+        }
+      }
+
+      animIdRef.current = requestAnimationFrame(loop);
+    };
+
+    animIdRef.current = requestAnimationFrame(loop);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      if (animIdRef.current) cancelAnimationFrame(animIdRef.current);
+    };
+  }, [marqueeSpeed, marqueePauseHover, marqueePaused, triSequence]);
+
+  // Pointer event handlers (Desktop Mouse & Mobile Touch)
+  const handlePointerDown = (e) => {
+    const container = containerRef.current;
+    if (!container) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+    isDraggingRef.current = true;
+    hasMovedRef.current = false;
+    startXRef.current = e.clientX;
+    startYRef.current = e.clientY;
+    scrollStartRef.current = container.scrollLeft;
+    setIsGrabbing(true);
+
+    try {
+      container.setPointerCapture(e.pointerId);
+    } catch (_) {}
+  };
+
+  const handlePointerMove = (e) => {
+    if (!isDraggingRef.current) return;
+    const container = containerRef.current;
+    const track = trackRef.current;
+    if (!container || !track) return;
+
+    const dx = e.clientX - startXRef.current;
+    const dy = e.clientY - (startYRef.current || e.clientY);
+
+    // If on touch and moving vertically more than horizontally initially, allow page scroll
+    if (e.pointerType === 'touch' && !hasMovedRef.current) {
+      if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 7) {
+        isDraggingRef.current = false;
+        setIsGrabbing(false);
+        try {
+          if (container.hasPointerCapture(e.pointerId)) {
+            container.releasePointerCapture(e.pointerId);
+          }
+        } catch (_) {}
+        return;
+      }
+    }
+
+    if (Math.abs(dx) > 3) {
+      hasMovedRef.current = true;
+    }
+
+    container.scrollLeft = scrollStartRef.current - dx;
+
+    // Wrap check during drag
+    const oneThird = track.scrollWidth / 3;
+    if (oneThird > 0) {
+      if (container.scrollLeft >= 2 * oneThird) {
+        container.scrollLeft -= oneThird;
+        scrollStartRef.current -= oneThird;
+      } else if (container.scrollLeft <= oneThird / 2) {
+        container.scrollLeft += oneThird;
+        scrollStartRef.current += oneThird;
+      }
+    }
+  };
+
+  const handlePointerUp = (e) => {
+    isDraggingRef.current = false;
+    setIsGrabbing(false);
+    try {
+      if (containerRef.current?.hasPointerCapture(e.pointerId)) {
+        containerRef.current.releasePointerCapture(e.pointerId);
+      }
+    } catch (_) {}
+    setTimeout(() => {
+      hasMovedRef.current = false;
+    }, 60);
+  };
+
+  const handlePointerCancel = (e) => {
+    isDraggingRef.current = false;
+    setIsGrabbing(false);
+    try {
+      if (containerRef.current?.hasPointerCapture(e.pointerId)) {
+        containerRef.current.releasePointerCapture(e.pointerId);
+      }
+    } catch (_) {}
+    setTimeout(() => {
+      hasMovedRef.current = false;
+    }, 60);
+  };
+
+  const handleDragStart = (e) => {
+    e.preventDefault();
+    return false;
+  };
+
+  const handleLinkClick = (e) => {
+    if (hasMovedRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className={`timeline-marquee-container ${isGrabbing ? 'is-grabbing' : ''}`}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
+      onDragStart={handleDragStart}
+      onMouseEnter={() => { isHoveredRef.current = true; }}
+      onMouseLeave={() => { isHoveredRef.current = false; }}
+      style={{
+        width: '100%',
+        overflowX: 'scroll',
+        overflowY: 'hidden',
+        position: 'relative',
+        height: `${marqueeHeight}px`,
+        maskImage: 'linear-gradient(to right, transparent 0%, black 28px, black calc(100% - 28px), transparent 100%)',
+        WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 28px, black calc(100% - 28px), transparent 100%)',
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
+        touchAction: 'pan-y',
+        cursor: isGrabbing ? 'grabbing' : 'grab',
+        userSelect: 'none',
+        WebkitUserSelect: 'none',
+      }}
+    >
+      <div
+        ref={trackRef}
+        className="timeline-marquee-track"
+        onDragStart={handleDragStart}
+        style={{
+          display: 'flex',
+          width: 'max-content',
+          height: '100%',
+          gap: `${marqueeGap}px`,
+        }}
+      >
+        {triSequence.map((item, idx) => {
+          const hasUrl = Boolean(item.url && String(item.url).trim() && String(item.url).trim() !== '#');
+          const itemContent = (
+            <>
+              <img
+                src={item.image}
+                alt={item.title || item.year || `Timeline image ${idx + 1}`}
+                title={item.title ? `${item.title}${hasUrl ? ' (Nhấp để mở liên kết)' : ''}` : (item.year || '')}
+                draggable="false"
+                onDragStart={handleDragStart}
+                style={{
+                  height: '100%',
+                  width: 'auto',
+                  display: 'block',
+                  objectFit: 'cover',
+                  userSelect: 'none',
+                  WebkitUserDrag: 'none',
+                  pointerEvents: 'none',
+                }}
+              />
+              {marqueeShowLabels && (item.name || item.year) && (
+                <div className="timeline-marquee-label-overlay" style={{ pointerEvents: 'none' }}>
+                  {item.name && (
+                    <div className="timeline-marquee-name" style={{
+                      fontFamily: '"Playfair Display", "Roboto Slab", Georgia, serif',
+                      fontWeight: '700',
+                      fontSize: '14px',
+                      color: '#3B291A',
+                      lineHeight: '1.2',
+                      marginBottom: item.year ? '2px' : '0',
+                      textShadow: '0 1px 2px rgba(255, 255, 255, 0.95), 0 0 6px rgba(255, 255, 255, 0.9)',
+                      whiteSpace: 'nowrap',
+                    }}>
+                      {item.name}
+                    </div>
+                  )}
+                  {item.year && (
+                    <span className="timeline-marquee-year" style={{ color: marqueeLabelColor }}>
+                      {item.year}
+                    </span>
+                  )}
+                </div>
+              )}
+              {hasUrl && (
+                <div className="timeline-marquee-link-badge" title="Mở liên kết" style={{ pointerEvents: 'none' }}>
+                  <i className="fa-solid fa-arrow-up-right-from-square"></i>
+                </div>
+              )}
+            </>
+          );
+
+          return hasUrl ? (
+            <a
+              key={`marquee-${idx}`}
+              href={item.url}
+              target={item.target || '_blank'}
+              rel="noopener noreferrer"
+              className="timeline-marquee-item is-link"
+              title={item.title ? `${item.title} — Nhấp để mở liên kết` : 'Nhấp để mở liên kết'}
+              style={{ height: '100%' }}
+              draggable="false"
+              onDragStart={handleDragStart}
+              onClick={handleLinkClick}
+            >
+              {itemContent}
+            </a>
+          ) : (
+            <div
+              key={`marquee-${idx}`}
+              className="timeline-marquee-item"
+              title={item.title || item.year || ''}
+              style={{ height: '100%' }}
+              draggable="false"
+              onDragStart={handleDragStart}
+            >
+              {itemContent}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
   const isVi = lang === 'vi';
 
@@ -94,6 +398,54 @@ export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
     ? (hb.gocao_history_note || 'Trước đây là Khu phố Gò Cao, thị trấn Hậu Nghĩa, huyện Đức Hòa, tỉnh Long An')
     : (hb.gocao_history_note_en || 'Formerly Go Cao Quarter, Hau Nghia Town, Duc Hoa District, Long An Province');
 
+  // Section: Dải ảnh tự chạy mốc thời gian / Đại hội Đảng (Full-width Marquee)
+  const marqueeEnabled = hb.marquee_enabled !== false;
+  const marqueeBadge = isVi 
+    ? (hb.marquee_badge !== undefined ? hb.marquee_badge : 'Phong trào cộng sản, công nhân quốc tế')
+    : (hb.marquee_badge_en || hb.marquee_badge || 'International Communist and Workers\' Movement');
+  const marqueeTitle = isVi 
+    ? (hb.marquee_title !== undefined ? hb.marquee_title : 'Các lãnh tụ và các nhà lãnh đạo nổi tiếng') 
+    : (hb.marquee_title_en || hb.marquee_title || 'Prominent Leaders and Figures');
+  const marqueeSubtitle = isVi ? (hb.marquee_subtitle || '') : (hb.marquee_subtitle_en || hb.marquee_subtitle || '');
+  const marqueeSourceText = isVi
+    ? (hb.marquee_source_text !== undefined ? hb.marquee_source_text : 'Nguồn từ Tư liệu Văn kiện của Đảng')
+    : (hb.marquee_source_text_en || hb.marquee_source_text || 'Source: Documents & Archives of the Party');
+  const marqueeSourceUrl = hb.marquee_source_url !== undefined
+    ? hb.marquee_source_url
+    : 'https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng';
+  const marqueeHeight = hb.marquee_height !== undefined ? Number(hb.marquee_height) : 215;
+  const marqueeSpeed = hb.marquee_speed !== undefined ? Number(hb.marquee_speed) : 35;
+  const marqueePauseHover = hb.marquee_pause_hover !== false;
+  const marqueePaused = Boolean(hb.marquee_paused === true || hb.marquee_auto_scroll === false);
+  const marqueeGap = hb.marquee_gap !== undefined ? Number(hb.marquee_gap) : 0;
+  const marqueeShowLabels = hb.marquee_show_labels === true;
+  const marqueeLabelColor = hb.marquee_label_color || '#8B0000';
+
+  const defaultTimelineItems = [
+    { id: 1, image: '/assets/img/charles_fourier.webp', name: 'Charles Fourier', year: '1772 – 1837', title: 'Charles Fourier (1772 – 1837)', url: 'https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/charles-fourier-1772-1837-3059?categoryId=104000084', target: '_blank' },
+    { id: 2, image: '/assets/img/paul_lafargue.webp', name: 'Paul Lafargue', year: '1842 – 1911', title: 'Paul Lafargue (1842 – 1911)', url: '', target: '_blank' },
+    { id: 3, image: '/assets/img/georgi_dimitrov.webp', name: 'Ghêoocghi Đimitơrôp', year: '1882 – 1949', title: 'Ghêoocghi Đimitơrôp (1882 – 1949)', url: 'https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/gheoocghi-dimitorop-1882-1949-3056?categoryId=104000084', target: '_blank' },
+    { id: 4, image: '/assets/img/fidel_castro.webp', name: 'Fidel Castro', year: '1926 – 2016', title: 'Fidel Castro (1926 – 2016)', url: 'https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/fidel-castro-1926-2016-108?categoryId=104000084', target: '_blank' },
+    { id: 5, image: '/assets/img/erich_honecker.webp', name: 'Erich Honecker', year: '1912 – 1994', title: 'Erich Honecker (1912 – 1994)', url: 'https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/erich-honecker-1912-1994-3055?categoryId=104000084', target: '_blank' },
+    { id: 6, image: '/assets/img/hugo_chavez.webp', name: 'Hugo Chavez', year: '1954 – 2013', title: 'Hugo Chavez (1954 – 2013)', url: 'https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/hugo-chavez-1954-2013-3077?categoryId=104000084', target: '_blank' },
+    { id: 7, image: '/assets/img/vladimir_lenin.webp', name: 'V. I. Lênin', year: '1870 – 1924', title: 'V. I. Lênin (1870 – 1924)', url: 'https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/v-i-lenin-1870-1924-3173?categoryId=104000084', target: '_blank' },
+    { id: 8, image: '/assets/img/mao_zedong.webp', name: 'Mao Trạch Đông', year: '1893 – 1976', title: 'Mao Trạch Đông (1893 – 1976)', url: 'https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/mao-trach-dong-1893-1976-3051?categoryId=104000084', target: '_blank' },
+    { id: 9, image: '/assets/img/robert_owen.webp', name: 'Robert Owen', year: '1771 – 1858', title: 'Robert Owen (1771 – 1858)', url: 'https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/robert-owen-1771-1858-3061?categoryId=104000084', target: '_blank' },
+    { id: 10, image: '/assets/img/saint_simon.webp', name: 'Saint Simon', year: '1760 – 1825', title: 'Saint Simon (1760 – 1825)', url: 'https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/saint-simon-1760-1825-3060?categoryId=104000084', target: '_blank' },
+    { id: 11, image: '/assets/img/joseph_stalin.webp', name: 'V.I. Xtalin', year: '1879 – 1953', title: 'V.I. Xtalin (1879 – 1953)', url: 'https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/v-i-xtalin-1879-1953-112?categoryId=104000084', target: '_blank' },
+    { id: 12, image: '/assets/img/friedrich_engels.webp', name: 'Phriđơrich Ăngghen', year: '1820 – 1895', title: 'Phriđơrich Ăngghen (1820 – 1895)', url: 'https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/phridorich-angghen-1820-1895-3157?categoryId=104000084', target: '_blank' }
+  ];
+
+  const marqueeItems = (Array.isArray(hb.marquee_items) && hb.marquee_items.length > 0)
+    ? hb.marquee_items
+    : defaultTimelineItems;
+
+  // Đảm bảo chuỗi ảnh đủ dài để chạy tuần hoàn vô tận mượt mà
+  let baseSequence = marqueeItems;
+  if (baseSequence.length > 0 && baseSequence.length < 8) {
+    baseSequence = [...baseSequence, ...baseSequence];
+  }
+
   return (
     <div className="chibo-page" style={{ 
       minHeight: '85vh', 
@@ -104,7 +456,105 @@ export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
     }}>
       {/* Mobile Responsive Style Block */}
       <style>{`
+        .timeline-marquee-container {
+          overflow-x: scroll !important;
+          overflow-y: hidden !important;
+          scrollbar-width: none !important;
+          -ms-overflow-style: none !important;
+          cursor: grab;
+          touch-action: pan-y;
+          -webkit-overflow-scrolling: touch;
+          user-select: none;
+          -webkit-user-select: none;
+        }
+        .timeline-marquee-container::-webkit-scrollbar {
+          display: none !important;
+          width: 0 !important;
+          height: 0 !important;
+        }
+        .timeline-marquee-container.is-grabbing {
+          cursor: grabbing !important;
+        }
+        .timeline-marquee-container.is-grabbing * {
+          cursor: grabbing !important;
+          pointer-events: none !important;
+          user-select: none !important;
+          -webkit-user-select: none !important;
+        }
+        .timeline-marquee-item,
+        .timeline-marquee-item * {
+          -webkit-user-drag: none !important;
+          user-select: none !important;
+          -webkit-user-select: none !important;
+        }
+        .timeline-marquee-item img {
+          pointer-events: none;
+        }
+        .timeline-marquee-item {
+          position: relative;
+          display: inline-flex;
+          height: 100%;
+          flex-shrink: 0;
+          text-decoration: none;
+          overflow: hidden;
+          user-select: none;
+          transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1), filter 0.25s ease, box-shadow 0.25s ease;
+        }
+        .timeline-marquee-item.is-link {
+          cursor: pointer;
+        }
+        .timeline-marquee-item:hover {
+          transform: translateY(-2px) scale(1.02);
+          z-index: 10;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+          filter: brightness(1.05);
+        }
+        .timeline-marquee-label-overlay {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          padding: 20px 8px 4px 8px;
+          background: linear-gradient(to top, rgba(255, 241, 229, 0.95) 0%, rgba(255, 241, 229, 0.6) 45%, transparent 100%);
+          text-align: center;
+          pointer-events: none;
+        }
+        .timeline-marquee-year {
+          font-family: 'Playfair Display', "Roboto Slab", Georgia, serif;
+          font-weight: 800;
+          font-size: clamp(20px, 2.3vw, 28px);
+          letter-spacing: 1px;
+          line-height: 1;
+          text-shadow: 0 1px 2px rgba(255, 255, 255, 0.95), 0 0 6px rgba(255, 255, 255, 0.85);
+        }
+        .timeline-marquee-link-badge {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          width: 26px;
+          height: 26px;
+          border-radius: 50%;
+          background: rgba(0, 0, 0, 0.65);
+          color: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 11px;
+          opacity: 0;
+          transform: scale(0.8);
+          transition: all 0.2s ease;
+          pointer-events: none;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        .timeline-marquee-item:hover .timeline-marquee-link-badge {
+          opacity: 1;
+          transform: scale(1);
+        }
         @media (max-width: 768px) {
+          .timeline-marquee-section {
+            margin-top: 10px !important;
+            margin-bottom: 25px !important;
+          }
           .chibo-page {
             overflow-x: hidden !important;
           }
@@ -688,6 +1138,138 @@ export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
             </div>
           </section>
         )}
+
+      </div>
+
+      {/* ========================================================
+          SECTION: DẢI ẢNH TỰ CHẠY TOÀN CHIỀU NGANG (FULL-WIDTH MARQUEE TIMELINE)
+          Chuỗi hình ảnh tự chạy mượt mà theo hình mẫu
+          Khi click vào ảnh sẽ chuyển đến đường dẫn liên kết
+          ======================================================== */}
+      {marqueeEnabled && (
+        <section 
+          className="timeline-marquee-section"
+          style={{
+            width: '100%',
+            overflow: 'hidden',
+            padding: '24px 0 28px 0',
+            marginTop: '10px',
+            marginBottom: '35px',
+            position: 'relative',
+            backgroundColor: 'transparent',
+          }}
+        >
+          {/* Header Section: 2 dòng chữ theo yêu cầu & nguồn Tư liệu Văn kiện Đảng */}
+          {(marqueeBadge || marqueeTitle) && (
+            <div style={{ 
+              textAlign: 'center', 
+              marginBottom: '20px', 
+              padding: '0 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '6px'
+            }}>
+              {/* Dòng 1: Phong trào cộng sản, công nhân quốc tế */}
+              {marqueeBadge && (
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: 'rgba(192, 57, 43, 0.08)',
+                  border: '1px solid rgba(192, 57, 43, 0.24)',
+                  color: '#A93226',
+                  padding: '4px 16px',
+                  borderRadius: '20px',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  letterSpacing: '0.8px',
+                  textTransform: 'uppercase',
+                  boxShadow: '0 2px 6px rgba(169, 50, 38, 0.04)'
+                }}>
+                  <span style={{ color: '#D4AC0D', fontSize: '11px' }}>★</span>
+                  <span>{marqueeBadge}</span>
+                  <span style={{ color: '#D4AC0D', fontSize: '11px' }}>★</span>
+                </div>
+              )}
+
+              {/* Dòng 2: Các lãnh tụ và các nhà lãnh đạo nổi tiếng */}
+              {marqueeTitle && (
+                <h3 style={{
+                  fontFamily: '"Playfair Display", "Roboto Slab", "Times New Roman", Georgia, serif',
+                  fontSize: 'clamp(21px, 3.4vw, 29px)',
+                  fontWeight: '800',
+                  color: '#68350B',
+                  letterSpacing: '1.2px',
+                  margin: '4px 0 2px 0',
+                  textTransform: 'uppercase',
+                  lineHeight: 1.25,
+                  textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)',
+                }}>
+                  {marqueeTitle}
+                </h3>
+              )}
+
+              {/* Nguồn từ tư liệu văn kiện của Đảng kèm Link */}
+              {marqueeSourceUrl && (
+                <div style={{ marginTop: '2px' }}>
+                  <a
+                    href={marqueeSourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Mở hồ sơ Tư liệu Văn kiện Đảng"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      fontSize: '13px',
+                      color: '#8A5A36',
+                      textDecoration: 'none',
+                      fontStyle: 'italic',
+                      padding: '3px 12px',
+                      borderRadius: '6px',
+                      background: 'rgba(255, 255, 255, 0.75)',
+                      border: '1px solid rgba(220, 200, 185, 0.75)',
+                      boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    <span>{marqueeSourceText || 'Nguồn từ Tư liệu Văn kiện của Đảng'} —</span>
+                    <strong style={{ fontStyle: 'normal', color: '#B03A2E' }}>
+                      {marqueeTitle || 'Các lãnh tụ và các nhà lãnh đạo nổi tiếng'}
+                    </strong>
+                    <i className="fa-solid fa-arrow-up-right-from-square" style={{ fontSize: '11px', marginLeft: '3px', color: '#c0392b' }}></i>
+                  </a>
+                </div>
+              )}
+
+              {marqueeSubtitle && (
+                <p style={{
+                  fontSize: '14px',
+                  color: '#8A5A36',
+                  fontStyle: 'italic',
+                  margin: '4px 0 0 0',
+                }}>
+                  {marqueeSubtitle}
+                </p>
+              )}
+            </div>
+          )}
+
+          <DraggableTimelineMarquee
+            marqueeHeight={marqueeHeight}
+            marqueeGap={marqueeGap}
+            marqueeSpeed={marqueeSpeed}
+            marqueePauseHover={marqueePauseHover}
+            marqueePaused={marqueePaused}
+            marqueeShowLabels={marqueeShowLabels}
+            marqueeLabelColor={marqueeLabelColor}
+            baseSequence={baseSequence}
+          />
+        </section>
+      )}
+
+      <div className="container" style={{ maxWidth: '1060px', margin: '0 auto', padding: '0 20px' }}>
 
         {/* ========================================================
             SECTION 4: CHI BỘ ẤP GÒ CAO - TỔ CHỨC ĐẢNG CƠ SỞ

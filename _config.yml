@@ -58,7 +58,7 @@ quora_username: null
 research_gate_profile: your_profile
 scholar_userid: your_id
 scopus_id: "1111111111"
-semanticscholar_id: your_id
+semanticscholar_id: null
 spotify_id: null
 stackoverflow_id: null
 telegram_username: null
@@ -510,7 +510,7 @@ footer_text: |-
                img.src = '{{ site.baseurl }}/assets/img/MacLenin.jpg';
                img.style.width = '56px';
                img.style.height = '32px';
-               img.style.backgroundColor = '#000000';
+               img.style.backgroundColor = '#d33131';
                img.style.padding = '5px'; img.style.borderRadius = '5px';
                img.style.marginRight = '15px';
                img.style.verticalAlign = 'middle';
@@ -529,7 +529,7 @@ middle_name_bold: true
 last_name_bold: true
 header_logo: MacLenin.jpg
 header_logo_size: 56px
-header_logo_bg: "#000000"
+header_logo_bg: "#d33131"
 header_logo_height: 32px
 navbar_scale: 100
 navbar_padding_y: 3px
@@ -589,16 +589,20 @@ description_en: ""
 footer_text_en: ""
 section_titles:
   cv_general: Thông tin chung
-  cv_education: Trình độ
+  cv_education: Học vấn
   cv_experience: Kinh nghiệm
   cv_honors: Giải thưởng và Thành tựu
-  about_news: Bài báo
+  about_news: Tin tức
 section_titles_en:
   cv_general: General Information
   cv_education: Education
   cv_experience: Experience
   cv_honors: Honors and Awards
   about_news: News
-section_titles_color: "#8c0303"
+section_titles_color: "#000000"
 rss_url: /feed.xml
 google_scholar_id: your_id
+inspirehep_id: null
+cv_pdf: null
+cv_pdf_en: null
+semantic_scholar_id: null

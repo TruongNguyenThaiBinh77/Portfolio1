@@ -7,5 +7,10 @@ linkedin_username: your_username
 research_gate_profile: your_profile
 kaggle_id: your_id
 discord_id: your_id
-rss_icon: true
 rss_url: /feed.xml
+cv_pdf: ""
+cv_pdf_en: ""
+x_username: ""
+semanticscholar_id: ""
+inspirehep_id: ""
+rss_icon: true

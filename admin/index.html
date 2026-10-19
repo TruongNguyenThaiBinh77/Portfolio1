@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>Portfolio Admin Panel</title>
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="style.css?v=8" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -23,8 +23,7 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
 </head>
 <body>
-  <!-- Toast notifications -->
-  <div id="toast-container"></div>
+  <div id="toast-container" style="position: fixed !important; top: auto !important; bottom: 28px !important; right: 28px !important; z-index: 10000 !important; display: flex !important; flex-direction: column-reverse !important; gap: 10px !important; pointer-events: none !important;"></div>
 
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
@@ -93,7 +92,7 @@
     </nav>
 
     <div class="sidebar-footer">
-      <a href="http://localhost:8080" target="_blank" class="view-site-btn">
+      <a href="http://localhost:3001/vi" target="_blank" class="view-site-btn">
         <i class="fas fa-external-link-alt"></i>
         <span>View Portfolio</span>
       </a>
@@ -179,6 +178,6 @@
   <script src="https://cdn.jsdelivr.net/npm/bibtex-parse-js@0.0.24/bibtexParse.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-  <script src="app.js?v=37"></script>
+  <script src="app.js?v=44"></script>
 </body>
 </html>

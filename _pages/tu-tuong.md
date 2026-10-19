@@ -101,6 +101,191 @@ hero_banner:
     Commune Party Committee, Tay Ninh Province
   gocao_history_note: 'Trước đây là Khu phố Gò Cao, thị trấn Hậu Nghĩa, huyện Đức Hòa, tỉnh Long An'
   gocao_history_note_en: 'Formerly Go Cao Quarter, Hau Nghia Town, Duc Hoa District, Long An Province'
+  marquee_enabled: true
+  marquee_badge: 'Phong trào cộng sản, công nhân quốc tế'
+  marquee_badge_en: International Communist and Workers' Movement
+  marquee_title: Các lãnh tụ và các nhà lãnh đạo nổi tiếng
+  marquee_title_en: Prominent Leaders and Figures
+  marquee_source_text: Nguồn từ Tư liệu Văn kiện của Đảng
+  marquee_source_text_en: 'Source: Documents & Archives of the Party'
+  marquee_source_url: >-
+    https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng
+  marquee_subtitle: ''
+  marquee_height: 260
+  marquee_speed: 85
+  marquee_pause_hover: true
+  marquee_paused: false
+  marquee_gap: 0
+  marquee_show_labels: true
+  marquee_label_color: '#8B0000'
+  marquee_items:
+    - id: 1
+      image: /assets/img/charles_fourier.webp
+      name: Charles Fourier
+      year: 1772 – 1837
+      title: Charles Fourier (1772 – 1837)
+      url: >-
+        https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/charles-fourier-1772-1837-3059?categoryId=104000084
+      target: _blank
+    - id: 2
+      image: /assets/img/paul_lafargue.webp
+      name: Paul Lafargue
+      year: 1842 – 1911
+      title: Paul Lafargue (1842 – 1911)
+      url: ''
+      target: _blank
+    - id: 3
+      image: /assets/img/georgi_dimitrov.webp
+      name: Ghêoocghi Đimitơrôp
+      year: 1882 – 1949
+      title: Ghêoocghi Đimitơrôp (1882 – 1949)
+      url: >-
+        https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/gheoocghi-dimitorop-1882-1949-3056?categoryId=104000084
+      target: _blank
+    - id: 4
+      image: /assets/img/fidel_castro.webp
+      name: Fidel Castro
+      year: 1926 – 2016
+      title: Fidel Castro (1926 – 2016)
+      url: >-
+        https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/fidel-castro-1926-2016-108?categoryId=104000084
+      target: _blank
+    - id: 5
+      image: /assets/img/erich_honecker.webp
+      name: Erich Honecker
+      year: 1912 – 1994
+      title: Erich Honecker (1912 – 1994)
+      url: >-
+        https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/erich-honecker-1912-1994-3055?categoryId=104000084
+      target: _blank
+    - id: 6
+      image: /assets/img/hugo_chavez.webp
+      name: Hugo Chavez
+      year: 1954 – 2013
+      title: Hugo Chavez (1954 – 2013)
+      url: >-
+        https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/hugo-chavez-1954-2013-3077?categoryId=104000084
+      target: _blank
+    - id: 7
+      image: /assets/img/vladimir_lenin.webp
+      name: V. I. Lênin
+      year: 1870 – 1924
+      title: V. I. Lênin (1870 – 1924)
+      url: >-
+        https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/v-i-lenin-1870-1924-3173?categoryId=104000084
+      target: _blank
+    - id: 8
+      image: /assets/img/mao_zedong.webp
+      name: Mao Trạch Đông
+      year: 1893 – 1976
+      title: Mao Trạch Đông (1893 – 1976)
+      url: >-
+        https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/mao-trach-dong-1893-1976-3051?categoryId=104000084
+      target: _blank
+    - id: 9
+      image: /assets/img/robert_owen.webp
+      name: Robert Owen
+      year: 1771 – 1858
+      title: Robert Owen (1771 – 1858)
+      url: >-
+        https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/robert-owen-1771-1858-3061?categoryId=104000084
+      target: _blank
+    - id: 10
+      image: /assets/img/saint_simon.webp
+      name: Saint Simon
+      year: 1760 – 1825
+      title: Saint Simon (1760 – 1825)
+      url: >-
+        https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/saint-simon-1760-1825-3060?categoryId=104000084
+      target: _blank
+    - id: 11
+      image: /assets/img/joseph_stalin.webp
+      name: V.I. Xtalin
+      year: 1879 – 1953
+      title: V.I. Xtalin (1879 – 1953)
+      url: >-
+        https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/v-i-xtalin-1879-1953-112?categoryId=104000084
+      target: _blank
+    - id: 12
+      image: /assets/img/friedrich_engels.webp
+      name: Phriđơrich Ăngghen
+      year: 1820 – 1895
+      title: Phriđơrich Ăngghen (1820 – 1895)
+      url: >-
+        https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/phridorich-angghen-1820-1895-3157?categoryId=104000084
+      target: _blank
+    - id: 13
+      image: /assets/img/cacMac.webp
+      name: Các Mác
+      year: 1818 – 1883
+      title: Các Mác (1818 – 1883)
+      url: >-
+        https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/cac-mac-1818-1883-3132?categoryId=104000084
+      target: _blank
+    - id: 14
+      image: /assets/img/G.V. Plekhanov.jpg
+      name: G.V. Plekhanov
+      year: 1856 – 1918
+      title: G.V. Plekhanov (1856 – 1918)
+      url: >-
+        https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/g-v-plekhanov-1856-1918-3062?categoryId=104000084
+      target: _blank
+    - id: 15
+      image: /assets/img/ErnstThalmann.webp
+      name: Tenlơnman
+      year: 1886 – 1944
+      title: Tenlơnman (1886 – 1944)
+      url: >-
+        https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/tenlonman-1886-1944-3054?categoryId=104000084
+      target: _blank
+    - id: 16
+      image: /assets/img/JawaharlalNehru.webp
+      name: Jawaharlal Nehru
+      year: 1889 – 1964
+      title: Jawaharlal Nehru (1889 – 1964)
+      url: >-
+        https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/jawaharlal-nehru-1889-1964-109?categoryId=104000084
+      target: _blank
+    - id: 17
+      image: /assets/img/fad4fce945da7a0f8d7c1d26e4f79ba4.jpg
+      name: Hồ Chí Minh
+      year: 1890 – 1969
+      title: Hồ Chí Minh (1890 – 1969)
+      url: >-
+        https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/ho-chi-minh-1890-1969-3081?categoryId=104000084
+      target: _blank
+    - id: 18
+      image: /assets/img/Xuphanuvong.webp
+      name: Xuphanuvông
+      year: 1909 – 1995
+      title: Xuphanuvông (1909 – 1995)
+      url: >-
+        https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/xuphanuvong-1909-1995-3057?categoryId=104000084
+      target: _blank
+    - id: 19
+      image: /assets/img/NelsonMandela.webp
+      name: Nelson Mandela
+      year: 1918 – 2013
+      title: Nelson Mandela (1918 – 2013)
+      url: >-
+        https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/nelson-mandela-1918-2013-3082?categoryId=104000084
+      target: _blank
+    - id: 20
+      image: /assets/img/CayxonPhomvihan.webp
+      name: Cayxỏn Phômvihản
+      year: 1920 – 1992
+      title: Cayxỏn Phômvihản (1920 – 1992)
+      url: >-
+        https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/cayxon-phomvihan-1920-1992-3067?categoryId=104000084
+      target: _blank
+    - id: 21
+      image: /assets/img/ErnestoGuevara.webp
+      name: Chê Ghêvara
+      year: 1928 – 1967
+      title: Chê Ghêvara (1928 – 1967)
+      url: >-
+        https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/che-ghevara-1928-1967-3063?categoryId=104000084
+      target: _blank
 ---
 
 # Hành Trình Cứu Nước Của Chủ Tịch Hồ Chí Minh (1911 – 1941)

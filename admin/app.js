@@ -104,9 +104,10 @@ document.getElementById('editorModalConfirm')?.addEventListener('click', () => {
 
 function showToast(message, type = "success") {
   const container = document.getElementById("toast-container");
+  if (!container) return;
   const toast = document.createElement("div");
   toast.className = `toast ${type}`;
-  const icons = { success: "fa-check-circle", error: "fa-times-circle", info: "fa-info-circle" };
+  const icons = { success: "fa-check-circle", error: "fa-times-circle", info: "fa-info-circle", warning: "fa-exclamation-triangle" };
   toast.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i><span>${message}</span>`;
   container.appendChild(toast);
   setTimeout(() => {
@@ -207,6 +208,7 @@ document.getElementById("mobile-toggle").addEventListener("click", () => {
 // ============================================================================
 
 async function loadSection(section) {
+  window.scrollTo(0, 0);
   showLoading();
   const globalSave = document.getElementById("global-save");
   globalSave.style.display = "flex";
@@ -328,7 +330,7 @@ async function loadSiteSettings() {
             </div>
           </div>
           <div class="form-group">
-            <label>Há»  (First Name)</label>
+            <label>Họ (First Name)</label>
             <input type="text" id="cfg-first_name" value="${escHtml(data.first_name)}" />
             <label style="margin-top: 5px; font-weight: normal; cursor: pointer;">
               <input type="checkbox" id="cfg-first_name_bold" ${data.first_name_bold !== false ? 'checked' : ''} /> In đậm (Bold)
@@ -448,7 +450,7 @@ async function loadSiteSettings() {
       <div class="card-body">
         <div class="form-grid">
           <div class="form-group">
-            <label>Màu ná» n trang web (Body Background)</label>
+            <label>Màu nền trang web (Body Background)</label>
             <div style="display: flex; gap: 10px;">
               <input type="color" id="colorpicker-global_bg" value="${escHtml(data.global_bg_color || "#ffffff")}" oninput="document.getElementById('cfg-global_bg_color').value = this.value;" style="width: 50px; height: 38px; padding: 0;" />
               <input type="text" id="cfg-global_bg_color" value="${escHtml(data.global_bg_color || "#ffffff")}" oninput="const val = this.value.startsWith('#') ? this.value : '#' + this.value; if(val.length===7) document.getElementById('colorpicker-global_bg').value = val;" style="flex: 1;" placeholder="#ffffff" />
@@ -462,7 +464,7 @@ async function loadSiteSettings() {
             </div>
           </div>
           <div class="form-group">
-            <label>Màu ná» n thanh Menu (Header Background)</label>
+            <label>Màu nền thanh Menu (Header Background)</label>
             <div style="display: flex; gap: 10px;">
               <input type="color" id="colorpicker-navbar_bg" value="${escHtml(data.navbar_bg_color || "#ffffff")}" oninput="document.getElementById('cfg-navbar_bg_color').value = this.value;" style="width: 50px; height: 38px; padding: 0;" />
               <input type="text" id="cfg-navbar_bg_color" value="${escHtml(data.navbar_bg_color || "#ffffff")}" oninput="const val = this.value.startsWith('#') ? this.value : '#' + this.value; if(val.length===7) document.getElementById('colorpicker-navbar_bg').value = val;" style="flex: 1;" placeholder="#ffffff" />
@@ -476,19 +478,19 @@ async function loadSiteSettings() {
             </div>
           </div>
           <div class="form-group">
-            <label>Màu chữ đang chá» n (Header Active)</label>
+            <label>Màu chữ đang chọn (Header Active)</label>
             <div style="display: flex; gap: 10px;">
               <input type="color" id="colorpicker-navbar_active" value="${escHtml(data.navbar_active_text_color || "")}" oninput="document.getElementById('cfg-navbar_active_text_color').value = this.value;" style="width: 50px; height: 38px; padding: 0;" />
               <input type="text" id="cfg-navbar_active_text_color" value="${escHtml(data.navbar_active_text_color || "")}" oninput="const val = this.value.startsWith('#') ? this.value : '#' + this.value; if(val.length===7) document.getElementById('colorpicker-navbar_active').value = val;" style="flex: 1;" placeholder="Mặc định" />
             </div>
           </div>
           <div class="form-group full-width">
-            <label>Ảnh ná» n thanh Menu (Header Background Image)</label>
+            <label>Ảnh nền thanh Menu (Header Background Image)</label>
             <div style="display: flex; gap: 10px; align-items: center;">
               <img id="cfg-navbar_bg_image_preview" src="${data.navbar_bg_image ? `/assets/img/${data.navbar_bg_image}` : ''}" style="max-height: 40px; display: ${data.navbar_bg_image ? 'block' : 'none'}; border: 1px solid #ccc; border-radius: 4px;" />
               <input type="text" id="cfg-navbar_bg_image" value="${escHtml(data.navbar_bg_image || "")}" style="flex: 1;" oninput="document.getElementById('cfg-navbar_bg_image_preview').src = this.value ? '/assets/img/' + this.value : ''; document.getElementById('cfg-navbar_bg_image_preview').style.display = this.value ? 'block' : 'none';" />
               <input type="file" id="cfg-navbar_bg_image_upload" accept="image/*" style="display: none;" onchange="uploadNavbarBgImage(this)" />
-              <button class="btn btn-secondary" onclick="document.getElementById('cfg-navbar_bg_image_upload').click()"><i class="fas fa-folder-open"></i> Chá» n file từ máy tính...</button>
+              <button class="btn btn-secondary" onclick="document.getElementById('cfg-navbar_bg_image_upload').click()"><i class="fas fa-folder-open"></i> Chọn file từ máy tính...</button>
               <button class="btn btn-danger" onclick="removeNavbarBgImage()" title="Xóa ảnh"><i class="fas fa-trash"></i></button>
             </div>
             <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px;">
@@ -497,12 +499,12 @@ async function loadSiteSettings() {
               <span id="navbar_bg_size_val" style="min-width: 40px; font-weight: bold;">${data.navbar_bg_image_size || 100}%</span>
             </div>
             <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px;">
-              <label style="margin: 0; min-width: 150px;">Ä ổi màu ảnh (Hue):</label>
-              <input type="range" id="cfg-navbar_bg_hue" min="0" max="360" value="${data.navbar_bg_hue || 0}" oninput="document.getElementById('navbar_bg_hue_val').innerText = this.value + 'Â°'" style="flex: 1;" />
-              <span id="navbar_bg_hue_val" style="min-width: 40px; font-weight: bold;">${data.navbar_bg_hue || 0}Â°</span>
+              <label style="margin: 0; min-width: 150px;">Đổi màu ảnh (Hue):</label>
+              <input type="range" id="cfg-navbar_bg_hue" min="0" max="360" value="${data.navbar_bg_hue || 0}" oninput="document.getElementById('navbar_bg_hue_val').innerText = this.value + '°'" style="flex: 1;" />
+              <span id="navbar_bg_hue_val" style="min-width: 40px; font-weight: bold;">${data.navbar_bg_hue || 0}°</span>
             </div>
             <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px;">
-              <label style="margin: 0; min-width: 150px;">Ä ộ má»  (Opacity):</label>
+              <label style="margin: 0; min-width: 150px;">Độ mờ (Opacity):</label>
               <input type="range" id="cfg-navbar_bg_opacity" min="0" max="100" value="${data.navbar_bg_opacity !== undefined ? data.navbar_bg_opacity : 100}" oninput="document.getElementById('navbar_bg_opacity_val').innerText = this.value + '%'" style="flex: 1;" />
               <span id="navbar_bg_opacity_val" style="min-width: 40px; font-weight: bold;">${data.navbar_bg_opacity !== undefined ? data.navbar_bg_opacity : 100}%</span>
             </div>
@@ -512,32 +514,32 @@ async function loadSiteSettings() {
               <input type="text" id="cfg-navbar_bg_overlay" value="${escHtml(data.navbar_bg_overlay || "")}" oninput="const val = this.value.startsWith('#') ? this.value : '#' + this.value; if(val.length===7) document.getElementById('colorpicker-navbar_bg_overlay').value = val;" style="width: 100px;" placeholder="Trống = Không đè" />
             </div>
             <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px;">
-              <label style="margin: 0; min-width: 150px;">Ä ộ má»  màu đè:</label>
+              <label style="margin: 0; min-width: 150px;">Độ mờ màu đè:</label>
               <input type="range" id="cfg-navbar_bg_overlay_opacity" min="0" max="100" value="${data.navbar_bg_overlay_opacity !== undefined ? data.navbar_bg_overlay_opacity : 50}" oninput="document.getElementById('navbar_bg_overlay_opacity_val').innerText = this.value + '%'" style="flex: 1;" />
               <span id="navbar_bg_overlay_opacity_val" style="min-width: 40px; font-weight: bold;">${data.navbar_bg_overlay_opacity !== undefined ? data.navbar_bg_overlay_opacity : 50}%</span>
             </div>
           </div>
           <div class="form-group full-width">
-            <label>Ảnh ná» n (Background Image)</label>
+            <label>Ảnh nền trung tâm (Background Image)</label>
             <div style="display: flex; gap: 10px; align-items: center;">
               <img id="cfg-global_bg_image_preview" src="${data.global_bg_image ? `/assets/img/${data.global_bg_image}` : ''}" style="max-height: 40px; display: ${data.global_bg_image ? 'block' : 'none'}; border: 1px solid #ccc; border-radius: 4px;" />
               <input type="text" id="cfg-global_bg_image" value="${escHtml(data.global_bg_image || "")}" style="flex: 1;" oninput="document.getElementById('cfg-global_bg_image_preview').src = this.value ? '/assets/img/' + this.value : ''; document.getElementById('cfg-global_bg_image_preview').style.display = this.value ? 'block' : 'none';" />
               <input type="file" id="cfg-global_bg_image_upload" accept="image/*" style="display: none;" onchange="uploadGlobalBgImage(this)" />
-              <button class="btn btn-secondary" onclick="document.getElementById('cfg-global_bg_image_upload').click()"><i class="fas fa-folder-open"></i> Chá» n file từ máy tính...</button>
+              <button class="btn btn-secondary" onclick="document.getElementById('cfg-global_bg_image_upload').click()"><i class="fas fa-folder-open"></i> Chọn file từ máy tính...</button>
               <button class="btn btn-danger" onclick="removeGlobalBgImage()" title="Xóa ảnh"><i class="fas fa-trash"></i></button>
             </div>
             <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px;">
-              <label style="margin: 0; min-width: 150px;">Thu phóng ảnh ná» n:</label>
+              <label style="margin: 0; min-width: 150px;">Thu phóng ảnh nền:</label>
               <input type="range" id="cfg-global_bg_image_size" min="10" max="200" value="${data.global_bg_image_size || 100}" oninput="document.getElementById('global_bg_size_val').innerText = this.value + '%'" style="flex: 1;" />
               <span id="global_bg_size_val" style="min-width: 40px; font-weight: bold;">${data.global_bg_image_size || 100}%</span>
             </div>
             <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px;">
-              <label style="margin: 0; min-width: 150px;">Ä ổi màu ảnh (Hue):</label>
-              <input type="range" id="cfg-global_bg_hue" min="0" max="360" value="${data.global_bg_hue || 0}" oninput="document.getElementById('global_bg_hue_val').innerText = this.value + 'Â°'" style="flex: 1;" />
-              <span id="global_bg_hue_val" style="min-width: 40px; font-weight: bold;">${data.global_bg_hue || 0}Â°</span>
+              <label style="margin: 0; min-width: 150px;">Đổi màu ảnh (Hue):</label>
+              <input type="range" id="cfg-global_bg_hue" min="0" max="360" value="${data.global_bg_hue || 0}" oninput="document.getElementById('global_bg_hue_val').innerText = this.value + '°'" style="flex: 1;" />
+              <span id="global_bg_hue_val" style="min-width: 40px; font-weight: bold;">${data.global_bg_hue || 0}°</span>
             </div>
             <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px;">
-              <label style="margin: 0; min-width: 150px;">Ä ộ má»  (Opacity):</label>
+              <label style="margin: 0; min-width: 150px;">Độ mờ (Opacity):</label>
               <input type="range" id="cfg-global_bg_opacity" min="0" max="100" value="${data.global_bg_opacity !== undefined ? data.global_bg_opacity : 100}" oninput="document.getElementById('global_bg_opacity_val').innerText = this.value + '%'" style="flex: 1;" />
               <span id="global_bg_opacity_val" style="min-width: 40px; font-weight: bold;">${data.global_bg_opacity !== undefined ? data.global_bg_opacity : 100}%</span>
             </div>
@@ -547,7 +549,7 @@ async function loadSiteSettings() {
               <input type="text" id="cfg-global_bg_overlay" value="${escHtml(data.global_bg_overlay || "")}" oninput="const val = this.value.startsWith('#') ? this.value : '#' + this.value; if(val.length===7) document.getElementById('colorpicker-global_bg_overlay').value = val;" style="width: 100px;" placeholder="Trống = Không đè" />
             </div>
             <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px;">
-              <label style="margin: 0; min-width: 150px;">Ä ộ má»  màu đè:</label>
+              <label style="margin: 0; min-width: 150px;">Độ mờ màu đè:</label>
               <input type="range" id="cfg-global_bg_overlay_opacity" min="0" max="100" value="${data.global_bg_overlay_opacity !== undefined ? data.global_bg_overlay_opacity : 50}" oninput="document.getElementById('global_bg_overlay_opacity_val').innerText = this.value + '%'" style="flex: 1;" />
               <span id="global_bg_overlay_opacity_val" style="min-width: 40px; font-weight: bold;">${data.global_bg_overlay_opacity !== undefined ? data.global_bg_overlay_opacity : 50}%</span>
             </div>
@@ -555,12 +557,12 @@ async function loadSiteSettings() {
           </div>
           
           <div class="form-group full-width">
-            <label>Ảnh ná» n toàn trang (Wallpaper / Body Background)</label>
+            <label>Ảnh nền toàn trang (Wallpaper / Body Background)</label>
             <div style="display: flex; gap: 10px; align-items: center;">
               <img id="cfg-body_bg_image_preview" src="${data.body_bg_image ? `/assets/img/${data.body_bg_image}` : ''}" style="max-height: 40px; display: ${data.body_bg_image ? 'block' : 'none'}; border: 1px solid #ccc; border-radius: 4px;" />
               <input type="text" id="cfg-body_bg_image" value="${escHtml(data.body_bg_image || "")}" style="flex: 1;" oninput="document.getElementById('cfg-body_bg_image_preview').src = this.value ? '/assets/img/' + this.value : ''; document.getElementById('cfg-body_bg_image_preview').style.display = this.value ? 'block' : 'none';" />
               <input type="file" id="cfg-body_bg_image_upload" accept="image/*" style="display: none;" onchange="uploadBodyBgImage(this)" />
-              <button class="btn btn-secondary" onclick="document.getElementById('cfg-body_bg_image_upload').click()"><i class="fas fa-folder-open"></i> Chá» n file từ máy tính...</button>
+              <button class="btn btn-secondary" onclick="document.getElementById('cfg-body_bg_image_upload').click()"><i class="fas fa-folder-open"></i> Chọn file từ máy tính...</button>
               <button class="btn btn-danger" onclick="removeBodyBgImage()" title="Xóa ảnh"><i class="fas fa-trash"></i></button>
             </div>
             <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px;">
@@ -569,12 +571,12 @@ async function loadSiteSettings() {
               <span id="body_bg_size_val" style="min-width: 40px; font-weight: bold;">${!['cover', 'contain', 'auto', ''].includes(data.body_bg_image_size) ? data.body_bg_image_size : 100}%</span>
             </div>
             <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px;">
-              <label style="margin: 0; min-width: 150px;">Ä ổi màu ảnh (Hue):</label>
-              <input type="range" id="cfg-body_bg_hue" min="0" max="360" value="${data.body_bg_hue || 0}" oninput="document.getElementById('body_bg_hue_val').innerText = this.value + 'Â°'; updateWallpaperPreview();" style="flex: 1;" />
-              <span id="body_bg_hue_val" style="min-width: 40px; font-weight: bold;">${data.body_bg_hue || 0}Â°</span>
+              <label style="margin: 0; min-width: 150px;">Đổi màu ảnh (Hue):</label>
+              <input type="range" id="cfg-body_bg_hue" min="0" max="360" value="${data.body_bg_hue || 0}" oninput="document.getElementById('body_bg_hue_val').innerText = this.value + '°'; updateWallpaperPreview();" style="flex: 1;" />
+              <span id="body_bg_hue_val" style="min-width: 40px; font-weight: bold;">${data.body_bg_hue || 0}°</span>
             </div>
             <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px;">
-              <label style="margin: 0; min-width: 150px;">Ä ộ má»  (Opacity):</label>
+              <label style="margin: 0; min-width: 150px;">Độ mờ (Opacity):</label>
               <input type="range" id="cfg-body_bg_opacity" min="0" max="100" value="${data.body_bg_opacity !== undefined ? data.body_bg_opacity : 100}" oninput="document.getElementById('body_bg_opacity_val').innerText = this.value + '%'; updateWallpaperPreview();" style="flex: 1;" />
               <span id="body_bg_opacity_val" style="min-width: 40px; font-weight: bold;">${data.body_bg_opacity !== undefined ? data.body_bg_opacity : 100}%</span>
             </div>
@@ -584,14 +586,14 @@ async function loadSiteSettings() {
               <input type="text" id="cfg-body_bg_overlay" value="${escHtml(data.body_bg_overlay || "")}" oninput="const val = this.value.startsWith('#') ? this.value : '#' + this.value; if(val.length===7) document.getElementById('colorpicker-body_bg_overlay').value = val; updateWallpaperPreview();" style="width: 100px;" placeholder="Trống = Không đè" />
             </div>
             <div style="margin-top: 15px; display: flex; align-items: center; gap: 15px;">
-              <label style="margin: 0; min-width: 150px;">Ä ộ má»  màu đè:</label>
+              <label style="margin: 0; min-width: 150px;">Độ mờ màu đè:</label>
               <input type="range" id="cfg-body_bg_overlay_opacity" min="0" max="100" value="${data.body_bg_overlay_opacity !== undefined ? data.body_bg_overlay_opacity : 50}" oninput="document.getElementById('body_bg_overlay_opacity_val').innerText = this.value + '%'; updateWallpaperPreview();" style="flex: 1;" />
               <span id="body_bg_overlay_opacity_val" style="min-width: 40px; font-weight: bold;">${data.body_bg_overlay_opacity !== undefined ? data.body_bg_overlay_opacity : 50}%</span>
             </div>
             
-            <div style="margin-top: 25px; border-top: 1px solid #444; padding-top: 15px;">
+            <div style="margin-top: 25px; border-top: 1px solid var(--border); padding-top: 15px;">
               <label><i class="fas fa-eye"></i> Xem trước (Live Preview)</label>
-              <div id="wallpaper-live-preview" style="width: 100%; height: 250px; border: 2px dashed #666; border-radius: 8px; position: relative; overflow: hidden; background-color: ${data.global_bg_color || '#ffffff'}; margin-top: 10px;">
+              <div id="wallpaper-live-preview" style="width: 100%; height: 250px; border: 2px dashed var(--border-light); border-radius: 8px; position: relative; overflow: hidden; background-color: ${data.global_bg_color || '#ffffff'}; margin-top: 10px;">
                 <div id="wlp-image" style="
                   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
                   background-image: url('${data.body_bg_image ? `/assets/img/${data.body_bg_image}` : ''}');
@@ -606,7 +608,7 @@ async function loadSiteSettings() {
                   opacity: ${data.body_bg_overlay_opacity !== undefined ? data.body_bg_overlay_opacity / 100 : 0.5};
                 "></div>
               </div>
-              <span class="form-help">Khung này hiển thị giả lập hình ná» n của trang web.</span>
+              <span class="form-help">Khung này hiển thị giả lập hình nền của trang web.</span>
             </div>
           </div>
         </div>
@@ -1892,17 +1894,17 @@ function updateEduSectionPreview() {
         <div style="flex: 1; min-width: 280px; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
           <!-- Text info -->
           <div style="flex: 1; min-width: 0;">
-            <div style="font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 4px; word-break: break-word;">
+            <div style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; word-break: break-word;">
               ${escHtml(study)}
             </div>
             
-            <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 0.92rem; color: #334155; margin-bottom: 8px;">
+            <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 0.92rem; color: var(--text-secondary); margin-bottom: 8px;">
               <i class="fa-solid fa-building-columns" style="color: #06b6d4; font-size: 0.98rem; margin-top: 3px; flex-shrink: 0;"></i>
               <span style="font-weight: 500; word-break: break-word;">${escHtml(orgLine || (isEn ? 'Institution name' : 'Tên trường/tổ chức'))}</span>
             </div>
 
             ${highlights.length > 0 ? `
-              <ul style="margin: 0; padding-left: 18px; list-style-type: circle; color: #475569; font-size: 0.88rem; line-height: 1.6;">
+              <ul style="margin: 0; padding-left: 18px; list-style-type: circle; color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
                 ${highlights.map(h => `<li style="margin-bottom: 3px;">${escHtml(h.replace('(theme)', '').trim())}</li>`).join('')}
               </ul>
             ` : ''}
@@ -1910,11 +1912,11 @@ function updateEduSectionPreview() {
 
           <!-- Logo -->
           ${logo ? `
-            <div style="flex-shrink: 0; display: flex; align-items: flex-start; justify-content: center; padding: 4px; background: #fff; border: 1px dashed #e2e8f0; border-radius: 6px;" title="Logo: ${escHtml(logo)} (Kích thước: ${logoSizePx})">
+            <div style="flex-shrink: 0; display: flex; align-items: flex-start; justify-content: center; padding: 4px; background: #fff; border: 1px solid var(--border); border-radius: 6px;" title="Logo: ${escHtml(logo)} (Kích thước: ${logoSizePx})">
               <img src="${logo.startsWith('/') || logo.startsWith('http') ? logo : '/assets/img/' + logo}" alt="${escHtml(inst || 'Logo')}" style="width: ${logoSizePx}; max-width: 260px; max-height: 110px; object-fit: contain; display: block;" onerror="this.parentElement.innerHTML='<span style=\\'font-size:0.75rem;color:#ef4444;\\'>Ảnh lỗi</span>'" />
             </div>
           ` : `
-            <div style="flex-shrink: 0; padding: 6px 10px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; font-size: 0.72rem; color: #94a3b8; font-style: italic;">
+            <div style="flex-shrink: 0; padding: 6px 10px; background: var(--bg-card); border: 1px dashed var(--border); border-radius: 6px; font-size: 0.72rem; color: var(--text-muted); font-style: italic;">
               Không có logo
             </div>
           `}
@@ -2280,33 +2282,33 @@ function updateExpSectionPreview() {
     const highlights = (isEn ? (highEn || highVi) : (highVi || highEn)).split('\n').map(s => s.trim()).filter(Boolean);
 
     html += `
-      <div style="display: flex; flex-wrap: wrap; gap: 16px; padding-bottom: 20px; border-bottom: ${index !== items.length - 1 ? '1px solid #f1f5f9' : 'none'}; align-items: flex-start;">
+      <div style="display: flex; flex-wrap: wrap; gap: 16px; padding-bottom: 20px; border-bottom: ${index !== items.length - 1 ? '1px solid var(--border)' : 'none'}; align-items: flex-start;">
         <div style="flex: 0 0 120px;">
           <span style="background-color: var(--accent, #827717); color: #fff; font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 4px; display: inline-block; text-align: center; letter-spacing: 0.3px;">${escHtml(dateStr)}</span>
         </div>
         <div style="flex: 1; min-width: 280px; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
           <div style="flex: 1; min-width: 0;">
-            <div style="font-size: 1.05rem; font-weight: 700; color: #1e293b; margin-bottom: 4px; word-break: break-word;">${escHtml(position)}</div>
-            <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 0.92rem; color: #334155; margin-bottom: 6px;">
+            <div style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; word-break: break-word;">${escHtml(position)}</div>
+            <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 0.92rem; color: var(--text-secondary); margin-bottom: 6px;">
               <i class="fa-solid fa-briefcase" style="color: #3b82f6; font-size: 0.95rem; margin-top: 3px; flex-shrink: 0;"></i>
               <div style="flex: 1; min-width: 0; word-break: break-word;">
                 <span style="font-weight: 500;">${escHtml(company || (isEn ? 'Company name' : 'Tên công ty/tổ chức'))}</span>
-                ${loc ? `<span style="color: #64748b; font-size: 0.88rem; margin-left: 6px;">(${escHtml(loc)})</span>` : ''}
+                ${loc ? `<span style="color: var(--text-muted); font-size: 0.88rem; margin-left: 6px;">(${escHtml(loc)})</span>` : ''}
               </div>
             </div>
-            ${summary ? `<p style="font-size: 0.88rem; color: #64748b; margin: 0 0 6px 0; word-break: break-word;">${escHtml(summary)}</p>` : ''}
+            ${summary ? `<p style="font-size: 0.88rem; color: var(--text-secondary); margin: 0 0 6px 0; word-break: break-word;">${escHtml(summary)}</p>` : ''}
             ${highlights.length > 0 ? `
-              <ul style="margin: 0; padding-left: 18px; list-style-type: circle; color: #475569; font-size: 0.88rem; line-height: 1.6;">
+              <ul style="margin: 0; padding-left: 18px; list-style-type: circle; color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
                 ${highlights.map(h => `<li style="margin-bottom: 3px;">${escHtml(h)}</li>`).join('')}
               </ul>
             ` : ''}
           </div>
           ${logo ? `
-            <div style="flex-shrink: 0; display: flex; align-items: flex-start; justify-content: center; padding: 4px; background: #fff; border: 1px dashed #e2e8f0; border-radius: 6px;" title="Logo: ${escHtml(logo)} (Kích thước: ${logoSizePx})">
+            <div style="flex-shrink: 0; display: flex; align-items: flex-start; justify-content: center; padding: 4px; background: #fff; border: 1px solid var(--border); border-radius: 6px;" title="Logo: ${escHtml(logo)} (Kích thước: ${logoSizePx})">
               <img src="${logo.startsWith('/') || logo.startsWith('http') ? logo : '/assets/img/' + logo}" alt="${escHtml(company || 'Logo')}" style="width: ${logoSizePx}; max-width: 260px; max-height: 110px; object-fit: contain; display: block;" onerror="this.parentElement.innerHTML='<span style=\\'font-size:0.75rem;color:#ef4444;\\'>Ảnh lỗi</span>'" />
             </div>
           ` : `
-            <div style="flex-shrink: 0; padding: 6px 10px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; font-size: 0.72rem; color: #94a3b8; font-style: italic;">Không có logo</div>
+            <div style="flex-shrink: 0; padding: 6px 10px; background: var(--bg-card); border: 1px dashed var(--border); border-radius: 6px; font-size: 0.72rem; color: var(--text-muted); font-style: italic;">Không có logo</div>
           `}
         </div>
       </div>
@@ -3412,9 +3414,11 @@ function renderTitleStylingBlock({ id, num, icon, label, titleVi, titleEn, isBol
         ${renderColorPresets(`${id}-color`, color)}
       </div>
       <!-- Live Preview -->
-      <div style="margin-top: 12px; padding: 10px 14px; background: rgba(0,0,0,0.25); border-radius: 6px; border-left: 3px solid ${color}; display: flex; align-items: center; justify-content: space-between;">
-        <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Xem trước thực tế:</span>
-        <span id="${id}-preview" style="font-size: 1.25rem; font-weight: ${isBold ? '700' : '400'}; color: ${color}; transition: all 0.2s ease;">
+      <div style="margin-top: 12px; padding: 10px 14px; background: rgba(0,0,0,0.3); border-radius: 8px; border-left: 4px solid ${color}; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+          <i class="fas fa-eye" style="color: var(--accent-light);"></i> Xem trước thực tế:
+        </span>
+        <span id="${id}-preview" style="font-size: 1.15rem; font-weight: ${isBold ? '700' : '500'}; color: ${color}; padding: 4px 12px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); transition: all 0.2s ease;">
           ${previewIcon ? `<i class="${previewIcon} mr-1"></i> ` : ''}${escHtml(titleVi || '')}
         </span>
       </div>
@@ -4036,14 +4040,14 @@ async function loadTeachings() {
     const fm = t.frontMatter || {};
     const isCert = Boolean(fm.is_certificate);
     const typeBadge = isCert
-      ? '<span class="badge" style="background:#e0e7ff; color:#3730a3; font-size:0.75rem; padding: 2px 8px; border-radius: 4px; margin-left: 8px;"><i class="fas fa-certificate mr-1"></i> Chứng chỉ</span>'
-      : '<span class="badge" style="background:#fef3c7; color:#92400e; font-size:0.75rem; padding: 2px 8px; border-radius: 4px; margin-left: 8px;"><i class="fas fa-award mr-1"></i> Thành tích</span>';
+      ? '<span class="badge badge-primary"><i class="fas fa-certificate mr-1"></i> Chứng chỉ</span>'
+      : '<span class="badge badge-warning"><i class="fas fa-award mr-1"></i> Thành tích</span>';
 
     return `
-    <div class="dynamic-item" style="padding: 14px 16px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm, 8px);">
-      <div class="dynamic-item-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-        <div style="flex: 1; padding-right: 12px;">
-          <span class="dynamic-item-title" style="font-size: 0.98rem; font-weight: 600; color: #1e293b;">${escHtml(fm.title || t.slug)}</span>
+    <div class="dynamic-item">
+      <div class="dynamic-item-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <div style="flex: 1; padding-right: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <span class="dynamic-item-title" style="font-size: 0.98rem; font-weight: 700; color: var(--text-primary);">${escHtml(fm.title || t.slug)}</span>
           ${typeBadge}
         </div>
         <div class="dynamic-item-actions" style="display: flex; gap: 6px; flex-shrink: 0;">
@@ -4055,10 +4059,10 @@ async function loadTeachings() {
           </button>
         </div>
       </div>
-      <div class="text-muted text-sm" style="font-size: 0.82rem; color: #64748b; display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
-        ${fm.year ? `<span><i class="far fa-calendar-alt mr-1"></i> ${escHtml(String(fm.year))}</span>` : ''}
-        ${fm.organization ? `<span><i class="fas fa-building mr-1"></i> ${escHtml(fm.organization)}</span>` : ''}
-        <span style="font-family: monospace; font-size: 0.75rem; color: #94a3b8;"><i class="fas fa-file-code mr-1"></i> ${t.slug}.md</span>
+      <div class="text-muted text-sm" style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap; color: var(--text-secondary);">
+        ${fm.year ? `<span><i class="far fa-calendar-alt mr-1" style="color: var(--accent-light);"></i> ${escHtml(String(fm.year))}</span>` : ''}
+        ${fm.organization ? `<span><i class="fas fa-building mr-1" style="color: #38bdf8;"></i> ${escHtml(fm.organization)}</span>` : ''}
+        <span style="font-family: monospace; font-size: 0.75rem; color: var(--text-muted);"><i class="fas fa-file-code mr-1"></i> ${t.slug}.md</span>
       </div>
     </div>
   `;
@@ -4596,16 +4600,17 @@ async function loadNews() {
     const hasPdf = Boolean(fm.pdf || fm.pdf_url);
 
     return `
-      <div class="dynamic-item" style="padding: 16px; margin-bottom: 12px; border: 1px solid #e2e8f0; border-radius: 8px;">
+      <div class="dynamic-item" style="padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 8px;">
         <div class="dynamic-item-header" style="align-items: flex-start; margin-bottom: 6px;">
           <div style="flex: 1; padding-right: 12px;">
-              ${fm.journal ? `<span class="badge" style="background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 4px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;"><span style="display: inline-block; width: 11px; height: 11px; background-color: currentColor; mask-image: url(/assets/img/journal-icon.png); -webkit-mask-image: url(/assets/img/journal-icon.png); mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;"></span> ${escHtml(fm.journal)}</span>` : ''}
-              ${hasExternal ? `<span class="badge" style="background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; font-size: 11px;"><i class="fas fa-external-link-alt"></i> Link online</span>` : ''}
-              ${hasPdf ? `<span class="badge" style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 11px;"><i class="fas fa-file-pdf"></i> Có file PDF</span>` : ''}
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;">
+              ${fm.journal ? `<span class="badge badge-danger" style="padding: 2px 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;"><span style="display: inline-block; width: 11px; height: 11px; background-color: currentColor; mask-image: url(/assets/img/journal-icon.png); -webkit-mask-image: url(/assets/img/journal-icon.png); mask-size: contain; -webkit-mask-size: contain; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;"></span> ${escHtml(fm.journal)}</span>` : ''}
+              ${hasExternal ? `<span class="badge badge-primary" style="padding: 2px 8px; font-size: 11px;"><i class="fas fa-external-link-alt"></i> Link online</span>` : ''}
+              ${hasPdf ? `<span class="badge badge-warning" style="padding: 2px 8px; font-size: 11px;"><i class="fas fa-file-pdf"></i> Có file PDF</span>` : ''}
             </div>
-            <strong style="font-size: 15px; color: #1e293b;">${escHtml(fm.title || n.slug)}</strong>
-            ${fm.title_en ? `<div style="font-size: 13px; color: #64748b; margin-top: 2px;"><em>${escHtml(fm.title_en)}</em></div>` : ''}
-            ${fm.description ? `<p style="font-size: 13px; color: #475569; margin: 6px 0 0 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${escHtml(fm.description)}</p>` : ''}
+            <strong style="font-size: 15px; color: var(--text-primary); font-weight: 600;">${escHtml(fm.title || n.slug)}</strong>
+            ${fm.title_en ? `<div style="font-size: 13px; color: var(--accent-light); margin-top: 2px;"><em>${escHtml(fm.title_en)}</em></div>` : ''}
+            ${fm.description ? `<p style="font-size: 13px; color: var(--text-secondary); margin: 6px 0 0 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5;">${escHtml(fm.description)}</p>` : ''}
           </div>
           <div class="dynamic-item-actions" style="display: flex; gap: 6px; white-space: nowrap;">
             ${hasExternal ? `
@@ -4626,7 +4631,7 @@ async function loadNews() {
             </button>
           </div>
         </div>
-        <div style="font-size: 12px; color: #94a3b8; display: flex; gap: 12px; align-items: center; margin-top: 6px;">
+        <div style="font-size: 12px; color: var(--text-muted); display: flex; gap: 12px; align-items: center; margin-top: 6px;">
           <span><i class="fas fa-calendar-alt"></i> ${escHtml(String(fm.date || ""))}</span>
           ${fm.author ? `<span><i class="fas fa-user-edit"></i> ${escHtml(fm.author)}</span>` : ''}
           <span style="opacity: 0.7;">Slug: ${escHtml(n.slug)}</span>
@@ -5638,19 +5643,19 @@ async function selectExistingImage(targetInputId = 'news-sidebox-image') {
     const firstImg = images[0] ? `/assets/img/${images[0]}` : '';
 
     const modalHtml = `
-      <div class="modal show" id="imageSelectModal" style="display:flex;align-items:center;justify-content:center;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;">
-        <div class="modal-dialog" style="background:#fff;padding:24px;border-radius:12px;max-width:480px;width:90%;box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-          <h3 style="margin-top:0;font-size:17px;display:flex;align-items:center;gap:8px;">
+      <div class="modal show" id="imageSelectModal" style="display:flex;align-items:center;justify-content:center;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:9999;">
+        <div class="modal-dialog" style="background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-light);padding:24px;border-radius:12px;max-width:480px;width:90%;box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <h3 style="margin-top:0;font-size:17px;display:flex;align-items:center;gap:8px;color:var(--text-primary);">
             <i class="fas fa-image text-primary"></i> Chọn hình ảnh từ hệ thống
           </h3>
-          <p style="font-size:13px;color:#64748b;margin-bottom:12px;">Các file nằm trong thư mục <code>assets/img/</code>:</p>
-          <select id="selected-image-dropdown" class="form-control" style="margin-bottom:15px;width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;" onchange="
+          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Các file nằm trong thư mục <code>assets/img/</code>:</p>
+          <select id="selected-image-dropdown" class="form-control" style="margin-bottom:15px;width:100%;" onchange="
             const v = this.value;
             document.getElementById('modal-img-preview').src = v;
           ">
             ${options}
           </select>
-          <div style="text-align: center; margin-bottom: 20px; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0;">
+          <div style="text-align: center; margin-bottom: 20px; background: var(--bg-input); padding: 12px; border-radius: 6px; border: 1px solid var(--border);">
             <img id="modal-img-preview" src="${firstImg}" style="max-height: 120px; max-width: 100%; object-fit: contain; border-radius: 4px;" onerror="this.style.display='none'" />
           </div>
           <div style="display:flex;justify-content:flex-end;gap:10px;">
@@ -5720,13 +5725,13 @@ async function selectExistingPdf(targetInputId = 'news-pdf') {
     }).join('');
 
     const modalHtml = `
-      <div class="modal show" id="pdfSelectModal" style="display:flex;align-items:center;justify-content:center;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;">
-        <div class="modal-dialog" style="background:#fff;padding:24px;border-radius:12px;max-width:480px;width:90%;box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-          <h3 style="margin-top:0;font-size:17px;display:flex;align-items:center;gap:8px;">
+      <div class="modal show" id="pdfSelectModal" style="display:flex;align-items:center;justify-content:center;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:9999;">
+        <div class="modal-dialog" style="background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-light);padding:24px;border-radius:12px;max-width:480px;width:90%;box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+          <h3 style="margin-top:0;font-size:17px;display:flex;align-items:center;gap:8px;color:var(--text-primary);">
             <i class="fas fa-file-pdf text-danger"></i> Chọn file PDF từ hệ thống
           </h3>
-          <p style="font-size:13px;color:#64748b;margin-bottom:12px;">Các file nằm trong thư mục <code>assets/pdf/</code>:</p>
-          <select id="selected-pdf-dropdown" class="form-control" style="margin-bottom:20px;width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:6px;">
+          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Các file nằm trong thư mục <code>assets/pdf/</code>:</p>
+          <select id="selected-pdf-dropdown" class="form-control" style="margin-bottom:20px;width:100%;">
             ${options}
           </select>
           <div style="display:flex;justify-content:flex-end;gap:10px;">
@@ -6226,20 +6231,29 @@ async function uploadBibImage(index) {
 
 async function saveBibliography() {
   bibEntries.forEach((pub, i) => {
-    pub.citationKey = document.getElementById(`bib-key-${i}`).value.trim();
-    pub.entryType = document.getElementById(`bib-type-${i}`).value;
+    const keyEl = document.getElementById(`bib-key-${i}`);
+    if (!keyEl) return;
+    pub.citationKey = keyEl.value.trim();
+    const typeEl = document.getElementById(`bib-type-${i}`);
+    pub.entryType = typeEl ? typeEl.value : (pub.entryType || 'article');
     
     if (!pub.entryTags) pub.entryTags = {};
     const oldTags = pub.entryTags;
-    oldTags.title = document.getElementById(`bib-title-${i}`).value.trim();
-    oldTags.title_en = document.getElementById(`bib-title_en-${i}`).value.trim();
-    oldTags.author = editors[`bib-author-${i}`] ? editors[`bib-author-${i}`].getMarkdown().trim() : '';
-    oldTags.author_en = editors[`bib-author_en-${i}`] ? editors[`bib-author_en-${i}`].getMarkdown().trim() : '';
-    oldTags.year = document.getElementById(`bib-year-${i}`).value.trim();
-    oldTags.year_en = document.getElementById(`bib-year_en-${i}`).value.trim();
+    const titleEl = document.getElementById(`bib-title-${i}`);
+    if (titleEl) oldTags.title = titleEl.value.trim();
+    const titleEnEl = document.getElementById(`bib-title_en-${i}`);
+    if (titleEnEl) oldTags.title_en = titleEnEl.value.trim();
+    oldTags.author = editors[`bib-author-${i}`] ? editors[`bib-author-${i}`].getMarkdown().trim() : (oldTags.author || '');
+    oldTags.author_en = editors[`bib-author_en-${i}`] ? editors[`bib-author_en-${i}`].getMarkdown().trim() : (oldTags.author_en || '');
+    const yearEl = document.getElementById(`bib-year-${i}`);
+    if (yearEl) oldTags.year = yearEl.value.trim();
+    const yearEnEl = document.getElementById(`bib-year_en-${i}`);
+    if (yearEnEl) oldTags.year_en = yearEnEl.value.trim();
     
-    const publisher = document.getElementById(`bib-publisher-${i}`).value.trim();
-    const publisher_en = document.getElementById(`bib-publisher_en-${i}`).value.trim();
+    const publisherEl = document.getElementById(`bib-publisher-${i}`);
+    const publisher = publisherEl ? publisherEl.value.trim() : '';
+    const publisherEnEl = document.getElementById(`bib-publisher_en-${i}`);
+    const publisher_en = publisherEnEl ? publisherEnEl.value.trim() : '';
     if (pub.entryType === 'book') {
       oldTags.publisher = publisher;
       oldTags.publisher_en = publisher_en;
@@ -6259,20 +6273,25 @@ async function saveBibliography() {
     const pdfInput = document.getElementById(`bib-pdf-${i}`);
     if (pdfInput) oldTags.pdf = pdfInput.value.trim();
 
-    oldTags.url = document.getElementById(`bib-url-${i}`).value.trim();
-    oldTags.preview = document.getElementById(`bib-preview-${i}`).value.trim();
-    oldTags.badge_name = document.getElementById(`bib-badge-name-${i}`).value.trim();
-    oldTags.badge_name_en = document.getElementById(`bib-badge-name_en-${i}`).value.trim();
-    oldTags.badge_color = document.getElementById(`bib-badge-color-text-${i}`).value;
+    const urlInput = document.getElementById(`bib-url-${i}`);
+    if (urlInput) oldTags.url = urlInput.value.trim();
+    const prevInput = document.getElementById(`bib-preview-${i}`);
+    if (prevInput) oldTags.preview = prevInput.value.trim();
+    const badgeInput = document.getElementById(`bib-badge-name-${i}`);
+    if (badgeInput) oldTags.badge_name = badgeInput.value.trim();
+    const badgeEnInput = document.getElementById(`bib-badge-name_en-${i}`);
+    if (badgeEnInput) oldTags.badge_name_en = badgeEnInput.value.trim();
+    const badgeColorInput = document.getElementById(`bib-badge-color-text-${i}`);
+    if (badgeColorInput) oldTags.badge_color = badgeColorInput.value;
     const textColorInput = document.getElementById(`bib-badge-text-color-text-${i}`);
     if (textColorInput) {
       oldTags.badge_text_color = textColorInput.value;
     }
 
-    oldTags.abstract = editors[`bib-abstract-${i}`] ? editors[`bib-abstract-${i}`].getMarkdown().trim() : '';
-    oldTags.abstract_en = editors[`bib-abstract_en-${i}`] ? editors[`bib-abstract_en-${i}`].getMarkdown().trim() : '';
-    oldTags.annotation = editors[`bib-annotation-${i}`] ? editors[`bib-annotation-${i}`].getMarkdown().trim() : '';
-    oldTags.annotation_en = editors[`bib-annotation_en-${i}`] ? editors[`bib-annotation_en-${i}`].getMarkdown().trim() : '';
+    oldTags.abstract = editors[`bib-abstract-${i}`] ? editors[`bib-abstract-${i}`].getMarkdown().trim() : (oldTags.abstract || '');
+    oldTags.abstract_en = editors[`bib-abstract_en-${i}`] ? editors[`bib-abstract_en-${i}`].getMarkdown().trim() : (oldTags.abstract_en || '');
+    oldTags.annotation = editors[`bib-annotation-${i}`] ? editors[`bib-annotation-${i}`].getMarkdown().trim() : (oldTags.annotation || '');
+    oldTags.annotation_en = editors[`bib-annotation_en-${i}`] ? editors[`bib-annotation_en-${i}`].getMarkdown().trim() : (oldTags.annotation_en || '');
 
     for(let k in oldTags) {
        if(!oldTags[k]) delete oldTags[k];
@@ -7092,7 +7111,246 @@ const DEFAULT_HB_CONFIG = {
   poem_line3: "Bàn đá chông chênh dịch sử Đảng,",
   poem_line4: "Cuộc đời cách mạng thật là sang.”",
   poem_note: "Mùa xuân năm 1941, sau 30 năm bôn ba tìm đường cứu nước, Bác Hồ trở về Tổ quốc trực tiếp lãnh đạo cách mạng Việt Nam. Giữa núi rừng Pác Bó muôn trùng gian lao, bài thơ thể hiện khí phách lạc quan và phong thái ung dung, tự tại của Người.",
+  poem_note_en: "In spring 1941, after 30 years seeking salvation for the nation, Uncle Ho returned to lead the revolution. Amid the hardships of Pac Bo, the poem shows his supreme revolutionary optimism and serene spirit.",
+  gocao_enabled: true,
+  gocao_title: "CHI BỘ ẤP GÒ CAO",
+  gocao_title_en: "GO CAO HAMLET PARTY CELL",
+  gocao_badge: "TỔ CHỨC CƠ SỞ ĐẢNG • ĐỊA BÀN DÂN CƯ",
+  gocao_badge_en: "GRASSROOTS PARTY ORGANIZATION",
+  gocao_subtitle: "Hạt nhân chính trị lãnh đạo toàn diện tại địa bàn dân cư — Đảng bộ xã Hậu Nghĩa, tỉnh Tây Ninh",
+  gocao_subtitle_en: "Political core leading comprehensively in the residential area — Hau Nghia Commune Party Committee, Tay Ninh Province",
+  gocao_history_note: "Trước đây là Khu phố Gò Cao, thị trấn Hậu Nghĩa, huyện Đức Hòa, tỉnh Long An",
+  gocao_history_note_en: "Formerly Go Cao Quarter, Hau Nghia Town, Duc Hoa District, Long An Province",
+  marquee_enabled: true,
+  marquee_badge: "Phong trào cộng sản, công nhân quốc tế",
+  marquee_badge_en: "International Communist and Workers' Movement",
+  marquee_title: "Các lãnh tụ và các nhà lãnh đạo nổi tiếng",
+  marquee_title_en: "Prominent Leaders and Figures",
+  marquee_source_text: "Nguồn từ Tư liệu Văn kiện của Đảng",
+  marquee_source_text_en: "Source: Documents & Archives of the Party",
+  marquee_source_url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng",
+  marquee_subtitle: "",
+  marquee_height: 260,
+  marquee_speed: 35,
+  marquee_pause_hover: true,
+  marquee_paused: false,
+  marquee_gap: 0,
+  marquee_show_labels: true,
+  marquee_label_color: "#8B0000",
+  marquee_items: [
+    { id: 1, image: "/assets/img/charles_fourier.webp", name: "Charles Fourier", year: "1772 – 1837", title: "Charles Fourier (1772 – 1837)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/charles-fourier-1772-1837-3059?categoryId=104000084", target: "_blank" },
+    { id: 2, image: "/assets/img/paul_lafargue.webp", name: "Paul Lafargue", year: "1842 – 1911", title: "Paul Lafargue (1842 – 1911)", url: "", target: "_blank" },
+    { id: 3, image: "/assets/img/georgi_dimitrov.webp", name: "Ghêoocghi Đimitơrôp", year: "1882 – 1949", title: "Ghêoocghi Đimitơrôp (1882 – 1949)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/gheoocghi-dimitorop-1882-1949-3056?categoryId=104000084", target: "_blank" },
+    { id: 4, image: "/assets/img/fidel_castro.webp", name: "Fidel Castro", year: "1926 – 2016", title: "Fidel Castro (1926 – 2016)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/fidel-castro-1926-2016-108?categoryId=104000084", target: "_blank" },
+    { id: 5, image: "/assets/img/erich_honecker.webp", name: "Erich Honecker", year: "1912 – 1994", title: "Erich Honecker (1912 – 1994)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/erich-honecker-1912-1994-3055?categoryId=104000084", target: "_blank" },
+    { id: 6, image: "/assets/img/hugo_chavez.webp", name: "Hugo Chavez", year: "1954 – 2013", title: "Hugo Chavez (1954 – 2013)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/hugo-chavez-1954-2013-3077?categoryId=104000084", target: "_blank" },
+    { id: 7, image: "/assets/img/vladimir_lenin.webp", name: "V. I. Lênin", year: "1870 – 1924", title: "V. I. Lênin (1870 – 1924)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/v-i-lenin-1870-1924-3173?categoryId=104000084", target: "_blank" },
+    { id: 8, image: "/assets/img/mao_zedong.webp", name: "Mao Trạch Đông", year: "1893 – 1976", title: "Mao Trạch Đông (1893 – 1976)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/mao-trach-dong-1893-1976-3051?categoryId=104000084", target: "_blank" },
+    { id: 9, image: "/assets/img/robert_owen.webp", name: "Robert Owen", year: "1771 – 1858", title: "Robert Owen (1771 – 1858)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/robert-owen-1771-1858-3061?categoryId=104000084", target: "_blank" },
+    { id: 10, image: "/assets/img/saint_simon.webp", name: "Saint Simon", year: "1760 – 1825", title: "Saint Simon (1760 – 1825)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/saint-simon-1760-1825-3060?categoryId=104000084", target: "_blank" },
+    { id: 11, image: "/assets/img/joseph_stalin.webp", name: "V.I. Xtalin", year: "1879 – 1953", title: "V.I. Xtalin (1879 – 1953)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/v-i-xtalin-1879-1953-112?categoryId=104000084", target: "_blank" },
+    { id: 12, image: "/assets/img/friedrich_engels.webp", name: "Phriđơrich Ăngghen", year: "1820 – 1895", title: "Phriđơrich Ăngghen (1820 – 1895)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/phridorich-angghen-1820-1895-3157?categoryId=104000084", target: "_blank" }
+  ]
 };
+
+// ============================================================================
+// DANH MỤC 20 LÃNH TỤ & CÁC NHÀ LÃNH ĐẠO NỔI TIẾNG (Tư liệu Văn kiện ĐCSVN)
+// ============================================================================
+const LEADERS_DATABASE_20 = [
+  {
+    id: "saint_simon",
+    name: "Saint Simon",
+    year: "1760 – 1825",
+    title: "Saint Simon (1760 – 1825)",
+    url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/saint-simon-1760-1825-3060?categoryId=104000084",
+    defaultImage: "/assets/img/saint_simon.webp"
+  },
+  {
+    id: "robert_owen",
+    name: "Robert Owen",
+    year: "1771 – 1858",
+    title: "Robert Owen (1771 – 1858)",
+    url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/robert-owen-1771-1858-3061?categoryId=104000084",
+    defaultImage: "/assets/img/robert_owen.webp"
+  },
+  {
+    id: "charles_fourier",
+    name: "Charles Fourier",
+    year: "1772 – 1837",
+    title: "Charles Fourier (1772 – 1837)",
+    url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/charles-fourier-1772-1837-3059?categoryId=104000084",
+    defaultImage: "/assets/img/charles_fourier.webp"
+  },
+  {
+    id: "cac_mac",
+    name: "Các Mác",
+    year: "1818 – 1883",
+    title: "Các Mác (1818 – 1883)",
+    url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/cac-mac-1818-1883-3132?categoryId=104000084",
+    defaultImage: ""
+  },
+  {
+    id: "friedrich_engels",
+    name: "Phriđơrich Ăngghen",
+    year: "1820 – 1895",
+    title: "Phriđơrich Ăngghen (1820 – 1895)",
+    url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/phridorich-angghen-1820-1895-3157?categoryId=104000084",
+    defaultImage: "/assets/img/friedrich_engels.webp"
+  },
+  {
+    id: "paul_lafargue",
+    name: "Paul Lafargue",
+    year: "1842 – 1911",
+    title: "Paul Lafargue (1842 – 1911)",
+    url: "",
+    defaultImage: "/assets/img/paul_lafargue.webp"
+  },
+  {
+    id: "plekhanov",
+    name: "G.V. Plekhanov",
+    year: "1856 – 1918",
+    title: "G.V. Plekhanov (1856 – 1918)",
+    url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/g-v-plekhanov-1856-1918-3062?categoryId=104000084",
+    defaultImage: ""
+  },
+  {
+    id: "lenin",
+    name: "V. I. Lênin",
+    year: "1870 – 1924",
+    title: "V. I. Lênin (1870 – 1924)",
+    url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/v-i-lenin-1870-1924-3173?categoryId=104000084",
+    defaultImage: "/assets/img/vladimir_lenin.webp"
+  },
+  {
+    id: "stalin",
+    name: "V.I. Xtalin",
+    year: "1879 – 1953",
+    title: "V.I. Xtalin (1879 – 1953)",
+    url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/v-i-xtalin-1879-1953-112?categoryId=104000084",
+    defaultImage: "/assets/img/joseph_stalin.webp"
+  },
+  {
+    id: "dimitrov",
+    name: "Ghêoocghi Đimitơrôp",
+    year: "1882 – 1949",
+    title: "Ghêoocghi Đimitơrôp (1882 – 1949)",
+    url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/gheoocghi-dimitorop-1882-1949-3056?categoryId=104000084",
+    defaultImage: "/assets/img/georgi_dimitrov.webp"
+  },
+  {
+    id: "tenlonman",
+    name: "Tenlơnman",
+    year: "1886 – 1944",
+    title: "Tenlơnman (1886 – 1944)",
+    url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/tenlonman-1886-1944-3054?categoryId=104000084",
+    defaultImage: ""
+  },
+  {
+    id: "nehru",
+    name: "Jawaharlal Nehru",
+    year: "1889 – 1964",
+    title: "Jawaharlal Nehru (1889 – 1964)",
+    url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/jawaharlal-nehru-1889-1964-109?categoryId=104000084",
+    defaultImage: ""
+  },
+  {
+    id: "hochiminh",
+    name: "Hồ Chí Minh",
+    year: "1890 – 1969",
+    title: "Hồ Chí Minh (1890 – 1969)",
+    url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/ho-chi-minh-1890-1969-3081?categoryId=104000084",
+    defaultImage: ""
+  },
+  {
+    id: "maotrachdong",
+    name: "Mao Trạch Đông",
+    year: "1893 – 1976",
+    title: "Mao Trạch Đông (1893 – 1976)",
+    url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/mao-trach-dong-1893-1976-3051?categoryId=104000084",
+    defaultImage: "/assets/img/mao_zedong.webp"
+  },
+  {
+    id: "xuphanuvong",
+    name: "Xuphanuvông",
+    year: "1909 – 1995",
+    title: "Xuphanuvông (1909 – 1995)",
+    url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/xuphanuvong-1909-1995-3057?categoryId=104000084",
+    defaultImage: ""
+  },
+  {
+    id: "honecker",
+    name: "Erich Honecker",
+    year: "1912 – 1994",
+    title: "Erich Honecker (1912 – 1994)",
+    url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/erich-honecker-1912-1994-3055?categoryId=104000084",
+    defaultImage: "/assets/img/erich_honecker.webp"
+  },
+  {
+    id: "mandela",
+    name: "Nelson Mandela",
+    year: "1918 – 2013",
+    title: "Nelson Mandela (1918 – 2013)",
+    url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/nelson-mandela-1918-2013-3082?categoryId=104000084",
+    defaultImage: ""
+  },
+  {
+    id: "phomvihan",
+    name: "Cayxỏn Phômvihản",
+    year: "1920 – 1992",
+    title: "Cayxỏn Phômvihản (1920 – 1992)",
+    url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/cayxon-phomvihan-1920-1992-3067?categoryId=104000084",
+    defaultImage: ""
+  },
+  {
+    id: "fidel_castro",
+    name: "Fidel Castro",
+    year: "1926 – 2016",
+    title: "Fidel Castro (1926 – 2016)",
+    url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/fidel-castro-1926-2016-108?categoryId=104000084",
+    defaultImage: "/assets/img/fidel_castro.webp"
+  },
+  {
+    id: "che_guevara",
+    name: "Chê Ghêvara",
+    year: "1928 – 1967",
+    title: "Chê Ghêvara (1928 – 1967)",
+    url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/che-ghevara-1928-1967-3063?categoryId=104000084",
+    defaultImage: ""
+  },
+  {
+    id: "hugo_chavez",
+    name: "Hugo Chavez",
+    year: "1954 – 2013",
+    title: "Hugo Chavez (1954 – 2013)",
+    url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/hugo-chavez-1954-2013-3077?categoryId=104000084",
+    defaultImage: "/assets/img/hugo_chavez.webp"
+  }
+];
+
+const MARQUEE_PRESET_LEADERS = [
+  { id: 1, image: "/assets/img/charles_fourier.webp", name: "Charles Fourier", year: "1772 – 1837", title: "Charles Fourier (1772 – 1837)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/charles-fourier-1772-1837-3059?categoryId=104000084", target: "_blank" },
+  { id: 2, image: "/assets/img/paul_lafargue.webp", name: "Paul Lafargue", year: "1842 – 1911", title: "Paul Lafargue (1842 – 1911)", url: "", target: "_blank" },
+  { id: 3, image: "/assets/img/georgi_dimitrov.webp", name: "Ghêoocghi Đimitơrôp", year: "1882 – 1949", title: "Ghêoocghi Đimitơrôp (1882 – 1949)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/gheoocghi-dimitorop-1882-1949-3056?categoryId=104000084", target: "_blank" },
+  { id: 4, image: "/assets/img/fidel_castro.webp", name: "Fidel Castro", year: "1926 – 2016", title: "Fidel Castro (1926 – 2016)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/fidel-castro-1926-2016-108?categoryId=104000084", target: "_blank" },
+  { id: 5, image: "/assets/img/erich_honecker.webp", name: "Erich Honecker", year: "1912 – 1994", title: "Erich Honecker (1912 – 1994)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/erich-honecker-1912-1994-3055?categoryId=104000084", target: "_blank" },
+  { id: 6, image: "/assets/img/hugo_chavez.webp", name: "Hugo Chavez", year: "1954 – 2013", title: "Hugo Chavez (1954 – 2013)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/hugo-chavez-1954-2013-3077?categoryId=104000084", target: "_blank" },
+  { id: 7, image: "/assets/img/vladimir_lenin.webp", name: "V. I. Lênin", year: "1870 – 1924", title: "V. I. Lênin (1870 – 1924)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/v-i-lenin-1870-1924-3173?categoryId=104000084", target: "_blank" },
+  { id: 8, image: "/assets/img/mao_zedong.webp", name: "Mao Trạch Đông", year: "1893 – 1976", title: "Mao Trạch Đông (1893 – 1976)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/mao-trach-dong-1893-1976-3051?categoryId=104000084", target: "_blank" },
+  { id: 9, image: "/assets/img/robert_owen.webp", name: "Robert Owen", year: "1771 – 1858", title: "Robert Owen (1771 – 1858)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/robert-owen-1771-1858-3061?categoryId=104000084", target: "_blank" },
+  { id: 10, image: "/assets/img/saint_simon.webp", name: "Saint Simon", year: "1760 – 1825", title: "Saint Simon (1760 – 1825)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/saint-simon-1760-1825-3060?categoryId=104000084", target: "_blank" },
+  { id: 11, image: "/assets/img/joseph_stalin.webp", name: "V.I. Xtalin", year: "1879 – 1953", title: "V.I. Xtalin (1879 – 1953)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/v-i-xtalin-1879-1953-112?categoryId=104000084", target: "_blank" },
+  { id: 12, image: "/assets/img/friedrich_engels.webp", name: "Phriđơrich Ăngghen", year: "1820 – 1895", title: "Phriđơrich Ăngghen (1820 – 1895)", url: "https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/phridorich-angghen-1820-1895-3157?categoryId=104000084", target: "_blank" }
+];
+
+const MARQUEE_PRESET_CONGRESS = [
+  { id: 1, image: "/assets/img/timeline_1996.png", name: "Đại hội VIII", year: "1996", title: "Đại hội Đảng VIII (1996)", url: "", target: "_blank" },
+  { id: 2, image: "/assets/img/timeline_2001.png", name: "Đại hội IX", year: "2001", title: "Đại hội Đảng IX (2001)", url: "", target: "_blank" },
+  { id: 3, image: "/assets/img/timeline_2006.png", name: "Đại hội X", year: "2006", title: "Đại hội Đảng X (2006)", url: "", target: "_blank" },
+  { id: 4, image: "/assets/img/timeline_2011.png", name: "Đại hội XI", year: "2011", title: "Đại hội Đảng XI (2011)", url: "", target: "_blank" },
+  { id: 5, image: "/assets/img/timeline_2016.png", name: "Đại hội XII", year: "2016", title: "Đại hội Đảng XII (2016)", url: "", target: "_blank" },
+  { id: 6, image: "/assets/img/timeline_2021.png", name: "Đại hội XIII", year: "2021", title: "Đại hội Đảng XIII (2021)", url: "", target: "_blank" },
+  { id: 7, image: "/assets/img/timeline_2026.png", name: "Đại hội XIV", year: "2026", title: "Đại hội Đảng XIV (2026)", url: "", target: "_blank" }
+];
 
 let currentHbData = { ...DEFAULT_HB_CONFIG };
 let hbDragTarget = "portrait"; // 'portrait' or 'drum'
@@ -7116,12 +7374,17 @@ async function loadTuTuongSettings() {
       'drum_x', 'drum_y', 'drum_size', 'drum_opacity', 'drum_blur', 'drum_rotate', 'drum_sepia', 'drum_saturate',
       'portrait_x', 'portrait_y', 'portrait_scale', 'portrait_max_height', 'portrait_opacity', 'portrait_blur',
       'portrait_contrast', 'portrait_brightness', 'portrait_grayscale',
-      'subtitle_size', 'title_size', 'text_x', 'text_y', 'bottom_bar_size'
+      'subtitle_size', 'title_size', 'text_x', 'text_y', 'bottom_bar_size',
+      'marquee_height', 'marquee_speed', 'marquee_gap'
     ].forEach(k => {
       if (currentHbData[k] !== undefined) {
         currentHbData[k] = Number(currentHbData[k]);
       }
     });
+
+    if (!Array.isArray(currentHbData.marquee_items) || currentHbData.marquee_items.length === 0) {
+      currentHbData.marquee_items = JSON.parse(JSON.stringify(DEFAULT_HB_CONFIG.marquee_items));
+    }
 
     renderTuTuongUI();
   } catch (err) {
@@ -7152,57 +7415,78 @@ function renderTuTuongUI() {
   const d = currentHbData;
 
   const html = `
-    <div class="tu-tuong-config-container" style="max-width: 1300px; margin: 0 auto; padding-bottom: 80px;">
+    <div class="tu-tuong-config-container" style="width: 100%; padding-bottom: 80px;">
       
       <!-- Top header bar -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
         <div>
-          <h2 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 700; color: var(--text-color, #2c3e50);">
-            <i class="fas fa-landmark" style="color: #c0392b; margin-right: 10px;"></i>Thiết kế Banner Bác Hồ & Trống Đồng (2 Section Độc Lập)
+          <h2 style="margin: 0 0 6px 0; font-size: 22px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-landmark" style="color: var(--accent-light);"></i>
+            <span>Quản lý Trang Chi bộ / Tư tưởng</span>
+            <span class="badge badge-primary">Studio v1.2</span>
           </h2>
-          <p style="margin: 0; color: #7f8c8d; font-size: 13.5px;">
-            Bố cục chuẩn theo hình mẫu: Section 1 Khung chữ nhật Trống Đồng + Section 2 Ảnh Bác đứng riêng đè lên góc trái dễ dàng kéo thả.
+          <p style="margin: 0; color: var(--text-muted); font-size: 13.5px;">
+            Tùy chỉnh toàn diện 4 Section: Banner Bác Hồ & Trống Đồng, Bài thơ Pác Bó, Dải ảnh Lãnh tụ & Phong trào Quốc tế, Chi bộ Ấp Gò Cao.
           </p>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
-          <button class="btn btn-secondary" onclick="applyHbPreset('tolam')" style="background: #fdf5e6; border-color: #e67e22; color: #d35400; font-weight: 600;">
-            <i class="fas fa-magic"></i> Áp dụng Hình mẫu chuẩn
+          <button class="btn btn-secondary" onclick="applyHbPreset('tolam')" title="Khôi phục về hình mẫu chuẩn">
+            <i class="fas fa-magic"></i> Mẫu chuẩn
           </button>
-          <button class="btn btn-primary" onclick="saveTuTuongSettings()" style="font-weight: 600; padding: 8px 20px;">
+          <button class="btn btn-primary" onclick="saveTuTuongSettings()" style="padding: 8px 22px;">
             <i class="fas fa-save"></i> Lưu Thay Đổi
           </button>
         </div>
       </div>
 
+      <!-- Quick Jump Navigator Pills -->
+      <div class="card" style="padding: 10px 16px; margin-bottom: 22px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: var(--bg-card); border: 1px solid var(--border);">
+        <span style="font-size: 12.5px; font-weight: 700; color: var(--text-secondary); margin-right: 4px; display: flex; align-items: center; gap: 6px;">
+          <i class="fas fa-compass" style="color: var(--accent);"></i> Chuyển nhanh tới Section:
+        </span>
+        <button type="button" class="quick-jump-chip" onclick="switchHbTab(1); document.getElementById('tu-tuong-tabs-card').scrollIntoView({behavior:'smooth'});">
+          <i class="fas fa-landmark" style="color: var(--accent-light);"></i> 1. Banner Bác Hồ
+        </button>
+        <button type="button" class="quick-jump-chip" onclick="switchHbTab(5); document.getElementById('tu-tuong-tabs-card').scrollIntoView({behavior:'smooth'});">
+          <i class="fas fa-feather-alt" style="color: #f59e0b;"></i> 2. Bài Thơ Pác Bó
+        </button>
+        <button type="button" class="quick-jump-chip" onclick="switchHbTab(6); document.getElementById('tu-tuong-tabs-card').scrollIntoView({behavior:'smooth'});" style="border-color: rgba(99, 102, 241, 0.4); color: var(--text-primary);">
+          <i class="fas fa-users" style="color: #ef4444;"></i> 3. Dải Ảnh Lãnh Tụ & QT ⭐
+        </button>
+        <button type="button" class="quick-jump-chip" onclick="switchHbTab(7); document.getElementById('tu-tuong-tabs-card').scrollIntoView({behavior:'smooth'});">
+          <i class="fas fa-sitemap" style="color: #38bdf8;"></i> 4. Chi Bộ Ấp Gò Cao
+        </button>
+      </div>
+
       <!-- MASTER BANNER CONTROLLER (PHÓNG TO / THU NHỎ & CĂN GIỮA SECTION MẸ) -->
-      <div style="background: linear-gradient(135deg, #fffaf5 0%, #ffffff 100%); border: 1.5px solid #ebdcd0; border-radius: 12px; padding: 18px 20px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 4px 16px rgba(104, 53, 11, 0.05);">
+      <div class="card" style="padding: 18px 20px; margin-bottom: 22px; display: flex; flex-direction: column; gap: 14px; background: var(--bg-card); border: 1px solid var(--border);">
         
         <!-- Hàng 1: Thu phóng toàn bộ Section Mẹ -->
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; border-bottom: 1px dashed #ebdcd0; padding-bottom: 12px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; border-bottom: 1px dashed var(--border); padding-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(192, 57, 43, 0.1); color: #c0392b; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+            <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(99, 102, 241, 0.12); color: var(--accent-light); display: flex; align-items: center; justify-content: center; font-size: 18px;">
               <i class="fas fa-expand-arrows-alt"></i>
             </div>
             <div>
-              <div style="font-weight: 700; font-size: 14.5px; color: #5a3818; display: flex; align-items: center; gap: 8px;">
+              <div style="font-weight: 700; font-size: 14.5px; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
                 <span>Thu phóng Section Mẹ (Banner Master Scale)</span>
-                <span style="font-size: 11px; background: #27ae60; color: #fff; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Tự co dãn Section con</span>
+                <span class="badge badge-success">Tự co dãn Section con</span>
               </div>
-              <div style="font-size: 12.5px; color: #7f8c8d; margin-top: 2px;">
+              <div style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">
                 Kéo để phóng to/thu nhỏ toàn bộ Section Mẹ. Các Section con (ảnh Bác, khung Trống Đồng, tiêu đề chữ) tự động co dãn chuẩn tỷ lệ.
               </div>
             </div>
           </div>
 
           <div style="display: flex; align-items: center; gap: 10px; flex: 1; max-width: 460px; min-width: 280px;">
-            <button class="btn btn-sm btn-outline-secondary" onclick="stepHbScale(-5)" title="Giảm 5%" style="padding: 5px 12px; font-weight: bold; font-size: 14px; border-color: #d5c8be; color: #68350B; background: #fff;">
+            <button class="btn btn-sm btn-secondary" onclick="stepHbScale(-5)" title="Giảm 5%">
               <i class="fas fa-minus"></i>
             </button>
-            <input type="range" class="form-range" id="input-banner-scale" min="60" max="150" step="2" value="${d.banner_scale || 100}" oninput="syncHbField('banner_scale', Number(this.value)); document.getElementById('val-banner-scale').innerText = this.value + '%'; if(document.getElementById('input-drum-box-scale')) document.getElementById('input-drum-box-scale').value = this.value; if(document.getElementById('val-drum-box-scale')) document.getElementById('val-drum-box-scale').innerText = this.value + '%';" style="flex: 1; accent-color: #c0392b; cursor: pointer;">
-            <button class="btn btn-sm btn-outline-secondary" onclick="stepHbScale(5)" title="Tăng 5%" style="padding: 5px 12px; font-weight: bold; font-size: 14px; border-color: #d5c8be; color: #68350B; background: #fff;">
+            <input type="range" class="form-range" id="input-banner-scale" min="60" max="150" step="2" value="${d.banner_scale || 100}" oninput="syncHbField('banner_scale', Number(this.value)); document.getElementById('val-banner-scale').innerText = this.value + '%'; if(document.getElementById('input-drum-box-scale')) document.getElementById('input-drum-box-scale').value = this.value; if(document.getElementById('val-drum-box-scale')) document.getElementById('val-drum-box-scale').innerText = this.value + '%';" style="flex: 1;">
+            <button class="btn btn-sm btn-secondary" onclick="stepHbScale(5)" title="Tăng 5%">
               <i class="fas fa-plus"></i>
             </button>
-            <button class="btn btn-sm" onclick="syncHbField('banner_scale', 100); document.getElementById('input-banner-scale').value = 100; document.getElementById('val-banner-scale').innerText = '100%'; if(document.getElementById('input-drum-box-scale')) document.getElementById('input-drum-box-scale').value = 100; if(document.getElementById('val-drum-box-scale')) document.getElementById('val-drum-box-scale').innerText = '100%';" title="Khôi phục về kích thước gốc 100%" style="background: #fdf5e6; border: 1px solid #e67e22; color: #d35400; font-weight: 700; min-width: 68px; padding: 5px 10px;">
+            <button class="btn btn-sm btn-secondary" onclick="syncHbField('banner_scale', 100); document.getElementById('input-banner-scale').value = 100; document.getElementById('val-banner-scale').innerText = '100%'; if(document.getElementById('input-drum-box-scale')) document.getElementById('input-drum-box-scale').value = 100; if(document.getElementById('val-drum-box-scale')) document.getElementById('val-drum-box-scale').innerText = '100%';" title="Khôi phục về kích thước gốc 100%" style="min-width: 68px; font-weight: 700;">
               <span id="val-banner-scale">${d.banner_scale || 100}%</span>
             </button>
           </div>
@@ -7211,33 +7495,33 @@ function renderTuTuongUI() {
         <!-- Hàng 2: Căn giữa Section Mẹ (Auto-Center & Offset X) -->
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
           <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(230, 126, 34, 0.12); color: #d35400; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+            <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(245, 158, 11, 0.12); color: #fbbf24; display: flex; align-items: center; justify-content: center; font-size: 18px;">
               <i class="fas fa-align-center"></i>
             </div>
             <div>
-              <div style="font-weight: 700; font-size: 14.5px; color: #5a3818; display: flex; align-items: center; gap: 8px;">
+              <div style="font-weight: 700; font-size: 14.5px; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
                 <span>Căn giữa Section Mẹ (Master Section Alignment)</span>
-                <span style="font-size: 11px; background: #2980b9; color: #fff; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Không đổi layout con</span>
+                <span class="badge badge-primary">Không đổi layout con</span>
               </div>
-              <div style="font-size: 12.5px; color: #7f8c8d; margin-top: 2px;">
-                Khi tùy chỉnh làm các phần tử (ảnh Bác, Trống Đồng) lọt ra ngoài mép, bấm nút để tự động cân đối đưa toàn bộ Section Mẹ vào chính giữa.
+              <div style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;">
+                Khi tùy chỉnh làm các phần tử (ảnh Bác, Trống Đồng) lệch mép, bấm nút để tự động cân đối đưa toàn bộ Section Mẹ vào chính giữa.
               </div>
             </div>
           </div>
 
           <div style="display: flex; align-items: center; gap: 10px; flex: 1; max-width: 460px; min-width: 280px; justify-content: flex-end;">
-            <button class="btn btn-sm" onclick="autoCenterMasterSection()" style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); color: #fff; font-weight: 700; padding: 6px 14px; border: none; border-radius: 6px; box-shadow: 0 2px 8px rgba(211,84,0,0.25); display: flex; align-items: center; gap: 6px; white-space: nowrap; cursor: pointer;">
+            <button class="btn btn-sm btn-primary" onclick="autoCenterMasterSection()" style="display: flex; align-items: center; gap: 6px; white-space: nowrap;">
               <i class="fas fa-magic"></i> Căn giữa Section Mẹ
             </button>
             <div style="display: flex; align-items: center; gap: 6px; flex: 1; max-width: 260px;">
-              <button class="btn btn-sm btn-outline-secondary" onclick="stepHbOffsetX(-5)" title="Dịch trái 5px" style="padding: 4px 8px; font-weight: bold; border-color: #d5c8be; color: #68350B; background: #fff;">
+              <button class="btn btn-sm btn-secondary" onclick="stepHbOffsetX(-5)" title="Dịch trái 5px">
                 <i class="fas fa-minus"></i>
               </button>
-              <input type="range" class="form-range" id="input-banner-offset-x" min="-200" max="200" step="1" value="${d.banner_offset_x || 0}" oninput="syncHbField('banner_offset_x', Number(this.value)); document.getElementById('val-banner-offset-x').innerText = (this.value > 0 ? '+' : '') + this.value + 'px'; if(document.getElementById('input-drum-box-offset-x')) document.getElementById('input-drum-box-offset-x').value = this.value; if(document.getElementById('val-drum-box-offset-x')) document.getElementById('val-drum-box-offset-x').innerText = (this.value > 0 ? '+' : '') + this.value + 'px';" style="flex: 1; accent-color: #d35400; cursor: pointer;">
-              <button class="btn btn-sm btn-outline-secondary" onclick="stepHbOffsetX(5)" title="Dịch phải 5px" style="padding: 4px 8px; font-weight: bold; border-color: #d5c8be; color: #68350B; background: #fff;">
+              <input type="range" class="form-range" id="input-banner-offset-x" min="-200" max="200" step="1" value="${d.banner_offset_x || 0}" oninput="syncHbField('banner_offset_x', Number(this.value)); document.getElementById('val-banner-offset-x').innerText = (this.value > 0 ? '+' : '') + this.value + 'px'; if(document.getElementById('input-drum-box-offset-x')) document.getElementById('input-drum-box-offset-x').value = this.value; if(document.getElementById('val-drum-box-offset-x')) document.getElementById('val-drum-box-offset-x').innerText = (this.value > 0 ? '+' : '') + this.value + 'px';" style="flex: 1;">
+              <button class="btn btn-sm btn-secondary" onclick="stepHbOffsetX(5)" title="Dịch phải 5px">
                 <i class="fas fa-plus"></i>
               </button>
-              <button class="btn btn-sm" onclick="syncHbField('banner_offset_x', 0); document.getElementById('input-banner-offset-x').value = 0; document.getElementById('val-banner-offset-x').innerText = '0px'; if(document.getElementById('input-drum-box-offset-x')) document.getElementById('input-drum-box-offset-x').value = 0; if(document.getElementById('val-drum-box-offset-x')) document.getElementById('val-drum-box-offset-x').innerText = '0px';" title="Đưa về 0px" style="background: #fdf5e6; border: 1px solid #e67e22; color: #d35400; font-weight: 700; min-width: 60px; padding: 4px 8px; font-size: 12px;">
+              <button class="btn btn-sm btn-secondary" onclick="syncHbField('banner_offset_x', 0); document.getElementById('input-banner-offset-x').value = 0; document.getElementById('val-banner-offset-x').innerText = '0px'; if(document.getElementById('input-drum-box-offset-x')) document.getElementById('input-drum-box-offset-x').value = 0; if(document.getElementById('val-drum-box-offset-x')) document.getElementById('val-drum-box-offset-x').innerText = '0px';" title="Đưa về 0px" style="min-width: 60px; font-weight: 700; font-size: 12px;">
                 <span id="val-banner-offset-x">${(d.banner_offset_x > 0 ? '+' : '') + (d.banner_offset_x || 0)}px</span>
               </button>
             </div>
@@ -7247,38 +7531,38 @@ function renderTuTuongUI() {
       </div>
 
       <!-- LIVE PREVIEW CARD -->
-      <div class="card" style="margin-bottom: 25px; border-radius: 14px; box-shadow: 0 6px 22px rgba(0,0,0,0.07); overflow: hidden; border: 1px solid #e2dcd5;">
-        <div class="card-header" style="background: #fdfcfb; border-bottom: 1px solid #ede7df; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-          <div style="font-weight: 700; color: #5a3818; display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-eye" style="color: #e67e22;"></i> 
+      <div class="card" style="margin-bottom: 25px; overflow: hidden; border: 1px solid var(--border);">
+        <div class="card-header" style="background: var(--bg-secondary); border-bottom: 1px solid var(--border); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div style="font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-eye" style="color: var(--accent-light);"></i> 
             <span>Màn hình xem trước trực tiếp (Live Preview)</span>
           </div>
           <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-            <span style="font-size: 12.5px; color: #7f8c8d;">Chế độ kéo thả chuột:</span>
-            <div class="btn-group" style="display: inline-flex; border-radius: 6px; overflow: hidden; border: 1px solid #d5c8be;">
-              <button id="btn-drag-portrait" onclick="setHbDragTarget('portrait')" class="btn" style="padding: 4px 10px; font-size: 12px; font-weight: 600; background: ${hbDragTarget === 'portrait' ? '#68350B' : '#fff'}; color: ${hbDragTarget === 'portrait' ? '#fff' : '#555'};">
-                <i class="fas fa-user"></i> Kéo Ảnh Bác
+            <span style="font-size: 12px; color: var(--text-muted);">Chế độ kéo thả chuột:</span>
+            <div class="btn-group" style="display: inline-flex; border-radius: 6px; overflow: hidden; border: 1px solid var(--border);">
+              <button id="btn-drag-portrait" onclick="setHbDragTarget('portrait')" class="btn btn-sm ${hbDragTarget === 'portrait' ? 'btn-primary' : 'btn-secondary'}">
+                <i class="fas fa-user"></i> Kéo Bác
               </button>
-              <button id="btn-drag-drum" onclick="setHbDragTarget('drum')" class="btn" style="padding: 4px 10px; font-size: 12px; font-weight: 600; background: ${hbDragTarget === 'drum' ? '#68350B' : '#fff'}; color: ${hbDragTarget === 'drum' ? '#fff' : '#555'};">
+              <button id="btn-drag-drum" onclick="setHbDragTarget('drum')" class="btn btn-sm ${hbDragTarget === 'drum' ? 'btn-primary' : 'btn-secondary'}">
                 <i class="fas fa-sun"></i> Kéo Trống Đồng
               </button>
-              <button id="btn-drag-master" onclick="setHbDragTarget('master')" class="btn" style="padding: 4px 10px; font-size: 12px; font-weight: 600; background: ${hbDragTarget === 'master' ? '#68350B' : '#fff'}; color: ${hbDragTarget === 'master' ? '#fff' : '#555'};" title="Kéo chuột để dịch chuyển toàn bộ Section Mẹ">
+              <button id="btn-drag-master" onclick="setHbDragTarget('master')" class="btn btn-sm ${hbDragTarget === 'master' ? 'btn-primary' : 'btn-secondary'}" title="Kéo chuột để dịch chuyển toàn bộ Section Mẹ">
                 <i class="fas fa-arrows-alt-h"></i> Kéo Section Mẹ
               </button>
             </div>
-            <button class="btn btn-sm" onclick="autoCenterMasterSection()" title="Tự động tính toán & căn giữa toàn bộ Section Mẹ" style="padding: 4px 12px; font-size: 12px; font-weight: 700; background: #e67e22; color: #fff; border: none; border-radius: 6px; display: flex; align-items: center; gap: 5px;">
-              <i class="fas fa-align-center"></i> Căn giữa Section
+            <button class="btn btn-sm btn-primary" onclick="autoCenterMasterSection()" title="Tự động tính toán & căn giữa toàn bộ Section Mẹ" style="display: flex; align-items: center; gap: 5px;">
+              <i class="fas fa-align-center"></i> Căn giữa
             </button>
-            <button class="btn btn-sm btn-outline-secondary" onclick="resetHbPositions()" title="Đưa về vị trí mặc định" style="padding: 4px 10px; font-size: 12px;">
-              <i class="fas fa-undo"></i> Reset Vị Trí
+            <button class="btn btn-sm btn-secondary" onclick="resetHbPositions()" title="Đưa về vị trí mặc định">
+              <i class="fas fa-undo"></i> Reset
             </button>
           </div>
         </div>
 
-        <div class="card-body" style="padding: 24px; background: #faf8f5;">
-          <div style="font-size: 12px; color: #8c7662; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-            <i class="fas fa-info-circle"></i> 
-            <span><strong>Mẹo kéo thả:</strong> Click giữ chuột trực tiếp lên <strong>Ảnh Bác</strong> để di chuyển góc trái. Chọn <em>Kéo Trống Đồng</em> để di chuyển hoa văn Trống Đồng. Hoặc bấm nút <strong>Căn giữa Section</strong> để tự động cân bằng toàn bộ bố cục.</span>
+        <div class="card-body" style="padding: 20px; background: #070b14;">
+          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+            <i class="fas fa-info-circle" style="color: var(--accent-light);"></i> 
+            <span><strong>Mẹo kéo thả:</strong> Click giữ chuột trực tiếp lên <strong>Ảnh Bác</strong> để di chuyển góc trái. Chọn <em>Kéo Trống Đồng</em> để di chuyển hoa văn Trống Đồng. Hoặc bấm <strong>Căn giữa Section</strong> để tự động cân bằng bố cục.</span>
           </div>
 
           <!-- Live Preview Canvas Stage Wrapper -->
@@ -7291,9 +7575,9 @@ function renderTuTuongUI() {
               align-items: flex-end;
               min-height: ${Math.round(Math.max(d.drum_box_height, d.portrait_max_height) * ((d.banner_scale || 100) / 100))}px;
               overflow: visible;
-              background: #fff;
-              border-radius: 14px;
-              box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+              background: #0f172a;
+              border-radius: 12px;
+              box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
               transition: min-height 0.2s ease;
             "
           >
@@ -7328,266 +7612,262 @@ function renderTuTuongUI() {
                   align-items: center;
                   justify-content: flex-end;
                   padding: 40px 60px 40px 240px;
-                  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+                  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
                   cursor: ${hbDragTarget === 'drum' ? 'crosshair' : 'default'};
                   transition: background-color 0.2s, border-radius 0.2s, min-height 0.2s, margin-left 0.2s;
                 "
-            >
-              <!-- Hoa văn Trống Đồng Watermark -->
-              <div 
-                id="preview-hb-drum"
-                style="
-                  position: absolute;
-                  top: ${d.drum_y}%;
-                  left: ${d.drum_x}%;
-                  transform: translate(-50%, -50%) rotate(${d.drum_rotate}deg);
-                  width: ${d.drum_size}px;
-                  height: ${d.drum_size}px;
-                  background-image: url('${d.drum_image}');
-                  background-size: contain;
-                  background-position: center;
-                  background-repeat: no-repeat;
-                  opacity: ${d.drum_opacity / 100};
-                  pointer-events: none;
-                  filter: sepia(${d.drum_sepia}%) saturate(${d.drum_saturate}%) blur(${d.drum_blur}px);
-                  mix-blend-mode: ${d.drum_blend_mode};
-                "
-              ></div>
-
-              <!-- Cụm Tiêu Đề trên Trống Đồng -->
-              <div 
-                id="preview-hb-title-block"
-                style="
-                  position: relative;
-                  z-index: 3;
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  text-align: center;
-                  transform: translate(${d.text_x}px, ${d.text_y}px);
-                  pointer-events: none;
-                "
               >
-                <span 
-                  id="preview-hb-subtitle"
-                  style="
-                    font-family: Georgia, 'Times New Roman', serif;
-                    font-size: ${d.subtitle_size}px;
-                    font-weight: 600;
-                    color: ${d.subtitle_color};
-                    margin-bottom: 10px;
-                    letter-spacing: 0.5px;
-                  "
-                >
-                  ${escapeHtml(d.subtitle || 'Chủ tịch')}
-                </span>
-
+                <!-- Hoa văn Trống Đồng Watermark -->
                 <div 
-                  id="preview-hb-title-wrapper"
+                  id="preview-hb-drum"
                   style="
-                    display: inline-flex;
+                    position: absolute;
+                    top: ${d.drum_y}%;
+                    left: ${d.drum_x}%;
+                    transform: translate(-50%, -50%) rotate(${d.drum_rotate}deg);
+                    width: ${d.drum_size}px;
+                    height: ${d.drum_size}px;
+                    background-image: url('${d.drum_image}');
+                    background-size: contain;
+                    background-position: center;
+                    background-repeat: no-repeat;
+                    opacity: ${d.drum_opacity / 100};
+                    pointer-events: none;
+                    filter: sepia(${d.drum_sepia}%) saturate(${d.drum_saturate}%) blur(${d.drum_blur}px);
+                    mix-blend-mode: ${d.drum_blend_mode};
+                  "
+                ></div>
+
+                <!-- Cụm Tiêu Đề trên Trống Đồng -->
+                <div 
+                  id="preview-hb-title-block"
+                  style="
+                    position: relative;
+                    z-index: 3;
+                    display: flex;
+                    flex-direction: column;
                     align-items: center;
-                    justify-content: center;
-                    gap: 12px;
-                    font-size: ${d.title_size}px;
-                    line-height: 1.2;
-                    letter-spacing: 2px;
-                    color: ${d.title_color};
-                    font-weight: 900;
-                    font-family: 'Times New Roman', serif;
-                    white-space: nowrap;
+                    text-align: center;
+                    transform: translate(${d.text_x}px, ${d.text_y}px);
+                    pointer-events: none;
                   "
                 >
-                  <span id="preview-hb-star-left" style="color: ${d.star_color}; font-size: ${d.title_size * 0.64}px; display: ${d.show_stars ? 'inline' : 'none'};">★</span>
-                  <span id="preview-hb-title" style="color: ${d.title_color}; font-weight: 900;">${escapeHtml(d.title || 'HỒ CHÍ MINH')}</span>
-                  <span id="preview-hb-star-right" style="color: ${d.star_color}; font-size: ${d.title_size * 0.64}px; display: ${d.show_stars ? 'inline' : 'none'};">★</span>
+                  <span 
+                    id="preview-hb-subtitle"
+                    style="
+                      font-family: Georgia, 'Times New Roman', serif;
+                      font-size: ${d.subtitle_size}px;
+                      font-weight: 600;
+                      color: ${d.subtitle_color};
+                      margin-bottom: 10px;
+                      letter-spacing: 0.5px;
+                    "
+                  >
+                    ${escapeHtml(d.subtitle || 'Chủ tịch')}
+                  </span>
+
+                  <div 
+                    id="preview-hb-title-wrapper"
+                    style="
+                      display: inline-flex;
+                      align-items: center;
+                      justify-content: center;
+                      gap: 12px;
+                      font-size: ${d.title_size}px;
+                      line-height: 1.2;
+                      letter-spacing: 2px;
+                      color: ${d.title_color};
+                      font-weight: 900;
+                      font-family: 'Times New Roman', serif;
+                      white-space: nowrap;
+                    "
+                  >
+                    <span id="preview-hb-star-left" style="color: ${d.star_color}; font-size: ${d.title_size * 0.64}px; display: ${d.show_stars ? 'inline' : 'none'};">★</span>
+                    <span id="preview-hb-title" style="color: ${d.title_color}; font-weight: 900;">${escapeHtml(d.title || 'HỒ CHÍ MINH')}</span>
+                    <span id="preview-hb-star-right" style="color: ${d.star_color}; font-size: ${d.title_size * 0.64}px; display: ${d.show_stars ? 'inline' : 'none'};">★</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- SECTION 2: KHUNG CHỨA ẢNH BÁC RIÊNG BIỆT (ĐỘC LẬP, KÉO THẢ DỄ DÀNG, NẰM ĐÈ GÓC TRÁI) -->
-            <div 
-              id="preview-hb-portrait-container"
-              style="
-                position: absolute;
-                left: 0px;
-                bottom: 0px;
-                z-index: 10;
-                transform: translate(${d.portrait_x}px, ${d.portrait_y}px);
-                display: flex;
-                align-items: flex-end;
-                cursor: grab;
-                touch-action: none;
-              "
-              title="Click giữ và kéo chuột để di chuyển ảnh Bác"
-            >
-              <img 
-                id="preview-hb-portrait"
-                src="${d.portrait_image}" 
-                alt="Bác Hồ"
-                style="
-                  max-height: ${d.portrait_max_height}px;
-                  width: auto;
-                  max-width: none;
-                  object-fit: contain;
-                  display: block;
-                  mix-blend-mode: ${d.portrait_blend_mode};
-                  opacity: ${d.portrait_opacity / 100};
-                  filter: contrast(${d.portrait_contrast}%) brightness(${d.portrait_brightness}%) grayscale(${d.portrait_grayscale}%) blur(${d.portrait_blur}px);
-                  -webkit-mask-image: ${d.portrait_mask ? 'radial-gradient(ellipse 90% 92% at 50% 50%, black 65%, transparent 100%)' : 'none'};
-                  mask-image: ${d.portrait_mask ? 'radial-gradient(ellipse 90% 92% at 50% 50%, black 65%, transparent 100%)' : 'none'};
-                  transform: scale(${d.portrait_scale / 100}) ${d.portrait_flip ? 'scaleX(-1)' : ''};
-                  transform-origin: bottom center;
-                  pointer-events: none;
-                "
-              />
+              <!-- SECTION 2: KHUNG CHỨA ẢNH BÁC RIÊNG BIỆT (ĐỘC LẬP, KÉO THẢ DỄ DÀNG, NẰM ĐÈ GÓC TRÁI) -->
               <div 
-                id="preview-hb-portrait-badge"
+                id="preview-hb-portrait-container"
                 style="
                   position: absolute;
-                  top: 15px;
-                  left: 15px;
-                  background: rgba(104, 53, 11, 0.85);
-                  color: #fff;
-                  font-size: 11px;
-                  font-weight: 600;
-                  padding: 3px 10px;
-                  border-radius: 20px;
-                  pointer-events: none;
-                  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-                  opacity: 0.9;
+                  left: 0px;
+                  bottom: 0px;
+                  z-index: 10;
+                  transform: translate(${d.portrait_x}px, ${d.portrait_y}px);
+                  display: flex;
+                  align-items: flex-end;
+                  cursor: grab;
+                  touch-action: none;
+                "
+                title="Click giữ và kéo chuột để di chuyển ảnh Bác"
+              >
+                <img 
+                  id="preview-hb-portrait"
+                  src="${d.portrait_image}" 
+                  alt="Bác Hồ"
+                  style="
+                    max-height: ${d.portrait_max_height}px;
+                    width: auto;
+                    max-width: none;
+                    object-fit: contain;
+                    display: block;
+                    mix-blend-mode: ${d.portrait_blend_mode};
+                    opacity: ${d.portrait_opacity / 100};
+                    filter: contrast(${d.portrait_contrast}%) brightness(${d.portrait_brightness}%) grayscale(${d.portrait_grayscale}%) blur(${d.portrait_blur}px);
+                    -webkit-mask-image: ${d.portrait_mask ? 'radial-gradient(ellipse 90% 92% at 50% 50%, black 65%, transparent 100%)' : 'none'};
+                    mask-image: ${d.portrait_mask ? 'radial-gradient(ellipse 90% 92% at 50% 50%, black 65%, transparent 100%)' : 'none'};
+                    transform: scale(${d.portrait_scale / 100}) ${d.portrait_flip ? 'scaleX(-1)' : ''};
+                    transform-origin: bottom center;
+                    pointer-events: none;
+                  "
+                />
+                <div 
+                  id="preview-hb-portrait-badge"
+                  style="
+                    position: absolute;
+                    top: 15px;
+                    left: 15px;
+                    background: rgba(15, 23, 42, 0.85);
+                    color: #fff;
+                    font-size: 11px;
+                    font-weight: 600;
+                    padding: 3px 10px;
+                    border-radius: 20px;
+                    border: 1px solid rgba(255,255,255,0.15);
+                    pointer-events: none;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+                  "
+                >
+                  <i class="fas fa-arrows-alt"></i> Kéo Bác
+                </div>
+              </div>
+
+              <!-- Thanh chân trang dưới (Tùy chọn) -->
+              <div 
+                id="preview-hb-bottom-bar"
+                style="
+                  position: absolute;
+                  bottom: 0;
+                  right: 0;
+                  z-index: 4;
+                  background-color: ${d.bottom_bar_bg || 'rgba(255, 241, 229, 0.95)'};
+                  padding: 12px 35px;
+                  border-radius: 8px 0 16px 0;
+                  display: ${d.bottom_bar_enabled ? 'block' : 'none'};
                 "
               >
-                <i class="fas fa-arrows-alt"></i> Kéo Bác
+                <span id="preview-hb-bottom-bar-text" style="font-size: ${d.bottom_bar_size || 24}px; color: ${d.bottom_bar_color || '#6f3706'}; font-weight: 700;">
+                  ${escapeHtml(d.bottom_bar_text || 'Vững bước dưới cờ Đảng')}
+                </span>
               </div>
-            </div>
 
-            <!-- Thanh chân trang dưới (Tùy chọn, mặc định tắt theo yêu cầu) -->
-            <div 
-              id="preview-hb-bottom-bar"
-              style="
-                position: absolute;
-                bottom: 0;
-                right: 0;
-                z-index: 4;
-                background-color: ${d.bottom_bar_bg || 'rgba(255, 241, 229, 0.95)'};
-                padding: 12px 35px;
-                border-radius: 8px 0 16px 0;
-                display: ${d.bottom_bar_enabled ? 'block' : 'none'};
-              "
-            >
-              <span id="preview-hb-bottom-bar-text" style="font-size: ${d.bottom_bar_size || 24}px; color: ${d.bottom_bar_color || '#6f3706'}; font-weight: 700;">
-                ${escapeHtml(d.bottom_bar_text || 'Vững bước dưới cờ Đảng')}
-              </span>
             </div>
-
-          </div>
           </div>
         </div>
       </div>
 
       <!-- TABS CONTROLLER -->
-      <div class="card" style="border-radius: 14px; box-shadow: 0 4px 18px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e2dcd5;">
-        <div class="card-header" style="background: #fdfcfb; padding: 0 15px; border-bottom: 1px solid #ede7df;">
-          <ul class="nav nav-tabs" style="border-bottom: none; display: flex; gap: 4px; margin: 0; padding: 0; list-style: none;">
-            <li class="nav-item">
-              <a class="nav-link active" id="tab-btn-1" href="javascript:void(0)" onclick="switchHbTab(1)" style="padding: 14px 20px; font-weight: 600; font-size: 13.5px; border: none; border-bottom: 3px solid #68350B; color: #68350B; display: inline-block;">
-                <i class="fas fa-vector-square" style="margin-right: 6px;"></i> 1. Khung Chữ Nhật & Trống Đồng (Section 1)
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" id="tab-btn-2" href="javascript:void(0)" onclick="switchHbTab(2)" style="padding: 14px 20px; font-weight: 600; font-size: 13.5px; border: none; border-bottom: 3px solid transparent; color: #7f8c8d; display: inline-block;">
-                <i class="fas fa-portrait" style="margin-right: 6px;"></i> 2. Section Ảnh Bác Kéo Thả (Section 2)
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" id="tab-btn-3" href="javascript:void(0)" onclick="switchHbTab(3)" style="padding: 14px 20px; font-weight: 600; font-size: 13.5px; border: none; border-bottom: 3px solid transparent; color: #7f8c8d; display: inline-block;">
-                <i class="fas fa-heading" style="margin-right: 6px;"></i> 3. Tiêu Đề & Chữ
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" id="tab-btn-4" href="javascript:void(0)" onclick="switchHbTab(4)" style="padding: 14px 20px; font-weight: 600; font-size: 13.5px; border: none; border-bottom: 3px solid transparent; color: #7f8c8d; display: inline-block;">
-                <i class="fas fa-sliders-h" style="margin-right: 6px;"></i> 4. Mẫu Chuẩn & Nâng Cao
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" id="tab-btn-5" href="javascript:void(0)" onclick="switchHbTab(5)" style="padding: 14px 20px; font-weight: 600; font-size: 13.5px; border: none; border-bottom: 3px solid transparent; color: #7f8c8d; display: inline-block;">
-                <i class="fas fa-feather-alt" style="margin-right: 6px;"></i> 5. Bài Thơ Pác Bó
-              </a>
-            </li>
-          </ul>
+      <div id="tu-tuong-tabs-card" class="card" style="border: 1px solid var(--border); overflow: hidden;">
+        <div class="card-header" style="background: var(--bg-secondary); padding: 8px 12px; border-bottom: 1px solid var(--border);">
+          <div class="studio-tabs" style="margin-bottom: 0; border: none; background: transparent; padding: 0;">
+            <button class="studio-tab-btn active" id="tab-btn-1" onclick="switchHbTab(1)">
+              <i class="fas fa-vector-square"></i> 1. Trống Đồng
+            </button>
+            <button class="studio-tab-btn" id="tab-btn-2" onclick="switchHbTab(2)">
+              <i class="fas fa-portrait"></i> 2. Ảnh Bác Hồ
+            </button>
+            <button class="studio-tab-btn" id="tab-btn-3" onclick="switchHbTab(3)">
+              <i class="fas fa-heading"></i> 3. Chữ Banner
+            </button>
+            <button class="studio-tab-btn" id="tab-btn-4" onclick="switchHbTab(4)">
+              <i class="fas fa-sliders-h"></i> 4. Mẫu Chuẩn
+            </button>
+            <button class="studio-tab-btn" id="tab-btn-5" onclick="switchHbTab(5)">
+              <i class="fas fa-feather-alt"></i> 5. Bài Thơ Pác Bó
+            </button>
+            <button class="studio-tab-btn" id="tab-btn-6" onclick="switchHbTab(6)" style="font-weight: 700;">
+              <i class="fas fa-users" style="color: #ef4444;"></i> 6. Dải Ảnh Lãnh Tụ ⭐
+            </button>
+            <button class="studio-tab-btn" id="tab-btn-7" onclick="switchHbTab(7)">
+              <i class="fas fa-sitemap" style="color: #38bdf8;"></i> 7. Chi Bộ Ấp Gò Cao
+            </button>
+          </div>
         </div>
 
-        <div class="card-body" style="padding: 26px;">
+        <div class="card-body" style="padding: 24px;">
           
           <!-- TAB 1: KHUNG CHỮ NHẬT & TRỐNG ĐỒNG -->
           <div id="hb-tab-pane-1" class="hb-tab-pane">
-            <h4 style="font-size: 15px; font-weight: 700; color: #68350B; margin-bottom: 16px; border-bottom: 1px dashed #d5c8be; padding-bottom: 8px;">
-              <i class="fas fa-layer-group"></i> Cấu hình Khung Hình Chữ Nhật Nền
+            <h4 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+              <i class="fas fa-layer-group" style="color: var(--accent-light);"></i> Cấu hình Khung Chữ Nhật Nền
             </h4>
-            <div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
+            <div class="form-grid" style="margin-bottom: 25px;">
               <div class="form-group">
-                <label style="font-weight: 600; font-size: 13px;">Màu nền khung chữ nhật (Màu kem chuẩn):</label>
+                <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Màu nền khung chữ nhật (Màu kem chuẩn):</label>
                 <div style="display: flex; gap: 10px; align-items: center; margin-top: 6px;">
-                  <input type="color" id="input-drum-box-bg-picker" value="${d.drum_box_bg}" onchange="syncHbField('drum_box_bg', this.value); document.getElementById('input-drum-box-bg').value = this.value;" style="height: 38px; width: 50px; border-radius: 6px; border: 1px solid #ccc; cursor: pointer;">
+                  <input type="color" id="input-drum-box-bg-picker" value="${d.drum_box_bg}" onchange="syncHbField('drum_box_bg', this.value); document.getElementById('input-drum-box-bg').value = this.value;" style="height: 38px; width: 48px; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; background: var(--bg-input);">
                   <input type="text" id="input-drum-box-bg" class="form-control" value="${d.drum_box_bg}" oninput="syncHbField('drum_box_bg', this.value); document.getElementById('input-drum-box-bg-picker').value = this.value;">
                 </div>
               </div>
 
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Chiều cao khung chữ nhật (px):</label>
-                  <span id="val-drum-box-height" style="font-weight: bold; color: #68350B;">${d.drum_box_height}px</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Chiều cao khung chữ nhật:</label>
+                  <span id="val-drum-box-height" class="badge badge-primary">${d.drum_box_height}px</span>
                 </div>
                 <input type="range" class="form-range" min="300" max="600" step="5" value="${d.drum_box_height}" oninput="syncHbField('drum_box_height', Number(this.value)); document.getElementById('val-drum-box-height').innerText = this.value + 'px';">
               </div>
 
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Bo góc khung (Radius px):</label>
-                  <span id="val-drum-box-radius" style="font-weight: bold; color: #68350B;">${d.drum_box_radius}px</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Bo góc khung (Radius):</label>
+                  <span id="val-drum-box-radius" class="badge badge-primary">${d.drum_box_radius}px</span>
                 </div>
                 <input type="range" class="form-range" min="0" max="40" step="2" value="${d.drum_box_radius}" oninput="syncHbField('drum_box_radius', Number(this.value)); document.getElementById('val-drum-box-radius').innerText = this.value + 'px';">
               </div>
 
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Khoảng cách lề trái (Chừa chỗ cho ảnh Bác px):</label>
-                  <span id="val-drum-box-margin-left" style="font-weight: bold; color: #68350B;">${d.drum_box_margin_left}px</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Khoảng cách lề trái (chừa ảnh Bác):</label>
+                  <span id="val-drum-box-margin-left" class="badge badge-primary">${d.drum_box_margin_left}px</span>
                 </div>
                 <input type="range" class="form-range" min="0" max="300" step="5" value="${d.drum_box_margin_left}" oninput="syncHbField('drum_box_margin_left', Number(this.value)); document.getElementById('val-drum-box-margin-left').innerText = this.value + 'px';">
               </div>
 
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Thu phóng toàn bộ Section Mẹ (%):</label>
-                  <span id="val-drum-box-scale" style="font-weight: bold; color: #68350B;">${d.banner_scale || 100}%</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Thu phóng toàn bộ Section Mẹ:</label>
+                  <span id="val-drum-box-scale" class="badge badge-primary">${d.banner_scale || 100}%</span>
                 </div>
                 <input type="range" class="form-range" id="input-drum-box-scale" min="60" max="150" step="2" value="${d.banner_scale || 100}" oninput="syncHbField('banner_scale', Number(this.value)); if(document.getElementById('input-banner-scale')) document.getElementById('input-banner-scale').value = this.value; if(document.getElementById('val-banner-scale')) document.getElementById('val-banner-scale').innerText = this.value + '%'; document.getElementById('val-drum-box-scale').innerText = this.value + '%';">
-                <span class="form-help" style="font-size: 11.5px; color: #888; display: block; margin-top: 4px;">Phóng to/thu nhỏ toàn bộ Section Mẹ (các Section con tự động co dãn theo tỷ lệ).</span>
+                <span class="form-help">Phóng to/thu nhỏ toàn bộ Section Mẹ (các Section con tự động co dãn theo tỷ lệ).</span>
               </div>
 
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Căn giữa Section Mẹ (Offset X px):</label>
-                  <span id="val-drum-box-offset-x" style="font-weight: bold; color: #68350B;">${(d.banner_offset_x > 0 ? '+' : '') + (d.banner_offset_x || 0)}px</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Căn giữa Section Mẹ (Offset X):</label>
+                  <span id="val-drum-box-offset-x" class="badge badge-primary">${(d.banner_offset_x > 0 ? '+' : '') + (d.banner_offset_x || 0)}px</span>
                 </div>
                 <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
-                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="stepHbOffsetX(-5)" style="padding: 2px 8px; font-weight: bold;">-5</button>
-                  <input type="range" class="form-range" id="input-drum-box-offset-x" min="-200" max="200" step="1" value="${d.banner_offset_x || 0}" oninput="syncHbField('banner_offset_x', Number(this.value)); document.getElementById('val-drum-box-offset-x').innerText = (this.value > 0 ? '+' : '') + this.value + 'px'; if(document.getElementById('input-banner-offset-x')) document.getElementById('input-banner-offset-x').value = this.value; if(document.getElementById('val-banner-offset-x')) document.getElementById('val-banner-offset-x').innerText = (this.value > 0 ? '+' : '') + this.value + 'px';" style="flex: 1; accent-color: #d35400;">
-                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="stepHbOffsetX(5)" style="padding: 2px 8px; font-weight: bold;">+5</button>
-                  <button type="button" class="btn btn-sm btn-outline-primary" onclick="autoCenterMasterSection()" style="font-size: 11px; padding: 4px 10px; font-weight: 600; white-space: nowrap;"><i class="fas fa-magic"></i> Căn giữa</button>
+                  <button type="button" class="btn btn-sm btn-secondary" onclick="stepHbOffsetX(-5)">-5</button>
+                  <input type="range" class="form-range" id="input-drum-box-offset-x" min="-200" max="200" step="1" value="${d.banner_offset_x || 0}" oninput="syncHbField('banner_offset_x', Number(this.value)); document.getElementById('val-drum-box-offset-x').innerText = (this.value > 0 ? '+' : '') + this.value + 'px'; if(document.getElementById('input-banner-offset-x')) document.getElementById('input-banner-offset-x').value = this.value; if(document.getElementById('val-banner-offset-x')) document.getElementById('val-banner-offset-x').innerText = (this.value > 0 ? '+' : '') + this.value + 'px';" style="flex: 1;">
+                  <button type="button" class="btn btn-sm btn-secondary" onclick="stepHbOffsetX(5)">+5</button>
+                  <button type="button" class="btn btn-sm btn-primary" onclick="autoCenterMasterSection()" style="font-size: 11.5px; padding: 4px 10px; white-space: nowrap;"><i class="fas fa-magic"></i> Căn giữa</button>
                 </div>
-                <span class="form-help" style="font-size: 11.5px; color: #888; display: block; margin-top: 4px;">Dịch chuyển toàn bộ Section Mẹ sang trái/phải để cân đối chính giữa mà không làm thay đổi các layout con.</span>
+                <span class="form-help">Dịch chuyển toàn bộ Section Mẹ sang trái/phải để cân đối chính giữa.</span>
               </div>
             </div>
 
-            <h4 style="font-size: 15px; font-weight: 700; color: #68350B; margin-bottom: 16px; border-bottom: 1px dashed #d5c8be; padding-bottom: 8px;">
-              <i class="fas fa-sun"></i> Hoa Văn Trống Đồng (Watermark Nằm Trong Khung)
+            <h4 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+              <i class="fas fa-sun" style="color: #fbbf24;"></i> Hoa Văn Trống Đồng (Watermark Nằm Trong Khung)
             </h4>
             
             <div style="margin-bottom: 20px;">
-              <label style="font-weight: 600; font-size: 13px;">Đường dẫn ảnh Trống Đồng:</label>
+              <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Đường dẫn ảnh Trống Đồng:</label>
               <div style="display: flex; gap: 10px; margin-top: 6px;">
                 <input type="text" id="input-drum-image" class="form-control" value="${d.drum_image}" oninput="syncHbField('drum_image', this.value)">
                 <label class="btn btn-secondary" style="margin: 0; white-space: nowrap; cursor: pointer;">
@@ -7597,51 +7877,51 @@ function renderTuTuongUI() {
               </div>
             </div>
 
-            <div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+            <div class="form-grid">
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Vị trí ngang X (%):</label>
-                  <span id="val-drum-x" style="font-weight: bold; color: #68350B;">${d.drum_x}%</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Vị trí ngang X (%):</label>
+                  <span id="val-drum-x" class="badge badge-primary">${d.drum_x}%</span>
                 </div>
                 <input type="range" id="input-drum-x" class="form-range" min="0" max="100" value="${d.drum_x}" oninput="syncHbField('drum_x', Number(this.value)); document.getElementById('val-drum-x').innerText = this.value + '%';">
               </div>
 
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Vị trí dọc Y (%):</label>
-                  <span id="val-drum-y" style="font-weight: bold; color: #68350B;">${d.drum_y}%</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Vị trí dọc Y (%):</label>
+                  <span id="val-drum-y" class="badge badge-primary">${d.drum_y}%</span>
                 </div>
                 <input type="range" id="input-drum-y" class="form-range" min="0" max="100" value="${d.drum_y}" oninput="syncHbField('drum_y', Number(this.value)); document.getElementById('val-drum-y').innerText = this.value + '%';">
               </div>
 
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Kích thước Trống Đồng (px):</label>
-                  <span id="val-drum-size" style="font-weight: bold; color: #68350B;">${d.drum_size}px</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Kích thước Trống Đồng:</label>
+                  <span id="val-drum-size" class="badge badge-primary">${d.drum_size}px</span>
                 </div>
                 <input type="range" class="form-range" min="200" max="900" step="10" value="${d.drum_size}" oninput="syncHbField('drum_size', Number(this.value)); document.getElementById('val-drum-size').innerText = this.value + 'px';">
               </div>
 
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Độ mờ chìm (Opacity %):</label>
-                  <span id="val-drum-opacity" style="font-weight: bold; color: #68350B;">${d.drum_opacity}%</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Độ mờ chìm (Opacity):</label>
+                  <span id="val-drum-opacity" class="badge badge-primary">${d.drum_opacity}%</span>
                 </div>
                 <input type="range" class="form-range" min="5" max="100" value="${d.drum_opacity}" oninput="syncHbField('drum_opacity', Number(this.value)); document.getElementById('val-drum-opacity').innerText = this.value + '%';">
               </div>
 
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Góc xoay hoa văn (Độ):</label>
-                  <span id="val-drum-rotate" style="font-weight: bold; color: #68350B;">${d.drum_rotate}°</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Góc xoay hoa văn:</label>
+                  <span id="val-drum-rotate" class="badge badge-primary">${d.drum_rotate}°</span>
                 </div>
                 <input type="range" class="form-range" min="0" max="360" value="${d.drum_rotate}" oninput="syncHbField('drum_rotate', Number(this.value)); document.getElementById('val-drum-rotate').innerText = this.value + '°';">
               </div>
 
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Độ nhòe hoa văn (Blur px):</label>
-                  <span id="val-drum-blur" style="font-weight: bold; color: #68350B;">${d.drum_blur}px</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Độ nhòe hoa văn (Blur):</label>
+                  <span id="val-drum-blur" class="badge badge-primary">${d.drum_blur}px</span>
                 </div>
                 <input type="range" class="form-range" min="0" max="10" step="0.5" value="${d.drum_blur}" oninput="syncHbField('drum_blur', Number(this.value)); document.getElementById('val-drum-blur').innerText = this.value + 'px';">
               </div>
@@ -7650,15 +7930,13 @@ function renderTuTuongUI() {
 
           <!-- TAB 2: SECTION ẢNH BÁC (KÉO THẢ ĐỘC LẬP) -->
           <div id="hb-tab-pane-2" class="hb-tab-pane" style="display: none;">
-            <div style="background: #fdfaf7; border-left: 4px solid #68350B; padding: 12px 18px; border-radius: 6px; margin-bottom: 22px;">
-              <span style="font-size: 13.5px; color: #5a3818;">
-                <strong>Section Chân Dung Độc Lập:</strong> Nằm ở lớp trên cùng (z-index: 10), dễ dàng kéo thả bằng chuột mà không bị kẹt hay chạm vào các thành phần phía dưới.
-              </span>
+            <div style="background: rgba(99, 102, 241, 0.08); border-left: 3px solid var(--accent); padding: 12px 18px; border-radius: 8px; margin-bottom: 22px; color: var(--text-primary); font-size: 13px;">
+              <strong>Section Chân Dung Độc Lập:</strong> Nằm ở lớp trên cùng (z-index: 10), dễ dàng kéo thả bằng chuột mà không bị kẹt hay chạm vào các thành phần phía dưới.
             </div>
 
             <!-- Upload ảnh chân dung -->
             <div style="margin-bottom: 24px;">
-              <label style="font-weight: 600; font-size: 13px;">Đường dẫn file ảnh Bác (PNG tách nền):</label>
+              <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Đường dẫn file ảnh Bác (PNG tách nền):</label>
               <div style="display: flex; gap: 10px; margin-top: 6px;">
                 <input type="text" id="input-portrait-image" class="form-control" value="${d.portrait_image}" oninput="syncHbField('portrait_image', this.value)">
                 <label class="btn btn-primary" style="margin: 0; white-space: nowrap; cursor: pointer;">
@@ -7669,95 +7947,95 @@ function renderTuTuongUI() {
             </div>
 
             <!-- Nút chọn nhanh chế độ màu sắc -->
-            <div style="margin-bottom: 25px; padding: 16px; background: #fff; border: 1px solid #ebdcd0; border-radius: 10px;">
-              <label style="font-weight: 700; font-size: 13.5px; color: #68350B; display: block; margin-bottom: 10px;">
-                <i class="fas fa-palette"></i> Chế độ màu sắc chân dung:
+            <div class="card" style="padding: 16px 20px; margin-bottom: 25px; background: var(--bg-card); border: 1px solid var(--border);">
+              <label style="font-weight: 700; font-size: 13.5px; color: var(--text-primary); display: block; margin-bottom: 10px;">
+                <i class="fas fa-palette" style="color: var(--accent-light);"></i> Chế độ màu sắc chân dung:
               </label>
               <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                <button class="btn" onclick="setPortraitColorMode('natural')" style="background: #27ae60; color: #fff; font-weight: 600; padding: 8px 16px;">
+                <button class="btn btn-sm btn-success" onclick="setPortraitColorMode('natural')">
                   <i class="fas fa-paint-brush"></i> 1. Giữ Màu Gốc Tự Nhiên (Khuyên dùng)
                 </button>
-                <button class="btn" onclick="setPortraitColorMode('bw')" style="background: #34495e; color: #fff; font-weight: 600; padding: 8px 16px;">
+                <button class="btn btn-sm btn-secondary" onclick="setPortraitColorMode('bw')">
                   <i class="fas fa-camera"></i> 2. Đen Trắng Cổ Điển
                 </button>
-                <button class="btn" onclick="setPortraitColorMode('multiply')" style="background: #8e44ad; color: #fff; font-weight: 600; padding: 8px 16px;">
-                  <i class="fas fa-clone"></i> 3. Hòa Trộn Mờ Ảo (Multiply)
+                <button class="btn btn-sm btn-secondary" onclick="setPortraitColorMode('multiply')">
+                  <i class="fas fa-clone"></i> 3. Hòa Trộn (Multiply)
                 </button>
               </div>
-              <div style="font-size: 12px; color: #7f8c8d; margin-top: 8px;">
-                <em>* Khi chọn "Màu Gốc Tự Nhiên", ảnh Bác sẽ hiển thị đúng 100% màu sắc gốc như file bạn tải lên.</em>
+              <div class="form-help" style="margin-top: 8px;">
+                * Khi chọn "Màu Gốc Tự Nhiên", ảnh Bác sẽ hiển thị đúng 100% màu sắc gốc như file bạn tải lên.
               </div>
             </div>
 
             <!-- Vị trí và kích thước kéo thả -->
-            <h4 style="font-size: 15px; font-weight: 700; color: #68350B; margin-bottom: 16px; border-bottom: 1px dashed #d5c8be; padding-bottom: 8px;">
-              <i class="fas fa-arrows-alt"></i> Tọa Độ & Kích Thước Kéo Thả
+            <h4 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+              <i class="fas fa-arrows-alt" style="color: var(--accent-light);"></i> Tọa Độ & Kích Thước Kéo Thả
             </h4>
-            <div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
+            <div class="form-grid" style="margin-bottom: 25px;">
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Tọa độ ngang X (px) - Có thể kéo trực tiếp:</label>
-                  <span id="val-portrait-x" style="font-weight: bold; color: #68350B;">${d.portrait_x}px</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Tọa độ ngang X (px):</label>
+                  <span id="val-portrait-x" class="badge badge-primary">${d.portrait_x}px</span>
                 </div>
                 <input type="range" id="input-portrait-x" class="form-range" min="-300" max="400" step="5" value="${d.portrait_x}" oninput="syncHbField('portrait_x', Number(this.value)); document.getElementById('val-portrait-x').innerText = this.value + 'px';">
               </div>
 
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Tọa độ dọc Y (px) - Có thể kéo trực tiếp:</label>
-                  <span id="val-portrait-y" style="font-weight: bold; color: #68350B;">${d.portrait_y}px</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Tọa độ dọc Y (px):</label>
+                  <span id="val-portrait-y" class="badge badge-primary">${d.portrait_y}px</span>
                 </div>
                 <input type="range" id="input-portrait-y" class="form-range" min="-250" max="250" step="5" value="${d.portrait_y}" oninput="syncHbField('portrait_y', Number(this.value)); document.getElementById('val-portrait-y').innerText = this.value + 'px';">
               </div>
 
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Chiều cao tối đa ảnh (px):</label>
-                  <span id="val-portrait-max-height" style="font-weight: bold; color: #68350B;">${d.portrait_max_height}px</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Chiều cao tối đa ảnh:</label>
+                  <span id="val-portrait-max-height" class="badge badge-primary">${d.portrait_max_height}px</span>
                 </div>
                 <input type="range" class="form-range" min="300" max="650" step="10" value="${d.portrait_max_height}" oninput="syncHbField('portrait_max_height', Number(this.value)); document.getElementById('val-portrait-max-height').innerText = this.value + 'px';">
               </div>
 
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Tỷ lệ thu phóng Scale (%):</label>
-                  <span id="val-portrait-scale" style="font-weight: bold; color: #68350B;">${d.portrait_scale}%</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Tỷ lệ thu phóng Scale (%):</label>
+                  <span id="val-portrait-scale" class="badge badge-primary">${d.portrait_scale}%</span>
                 </div>
                 <input type="range" class="form-range" min="50" max="180" step="2" value="${d.portrait_scale}" oninput="syncHbField('portrait_scale', Number(this.value)); document.getElementById('val-portrait-scale').innerText = this.value + '%';">
               </div>
             </div>
 
             <!-- Tinh chỉnh hiệu ứng -->
-            <h4 style="font-size: 15px; font-weight: 700; color: #68350B; margin-bottom: 16px; border-bottom: 1px dashed #d5c8be; padding-bottom: 8px;">
-              <i class="fas fa-sliders-h"></i> Tinh Chỉnh Hiệu Ứng Hình Ảnh
+            <h4 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+              <i class="fas fa-sliders-h" style="color: var(--accent-light);"></i> Tinh Chỉnh Hiệu Ứng Hình Ảnh
             </h4>
-            <div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+            <div class="form-grid">
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Độ đen trắng Grayscale (%):</label>
-                  <span id="val-portrait-grayscale" style="font-weight: bold; color: #68350B;">${d.portrait_grayscale}%</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Độ đen trắng Grayscale (%):</label>
+                  <span id="val-portrait-grayscale" class="badge badge-primary">${d.portrait_grayscale}%</span>
                 </div>
                 <input type="range" id="input-portrait-grayscale" class="form-range" min="0" max="100" value="${d.portrait_grayscale}" oninput="syncHbField('portrait_grayscale', Number(this.value)); document.getElementById('val-portrait-grayscale').innerText = this.value + '%';">
               </div>
 
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Độ sáng Brightness (%):</label>
-                  <span id="val-portrait-brightness" style="font-weight: bold; color: #68350B;">${d.portrait_brightness}%</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Độ sáng Brightness (%):</label>
+                  <span id="val-portrait-brightness" class="badge badge-primary">${d.portrait_brightness}%</span>
                 </div>
                 <input type="range" id="input-portrait-brightness" class="form-range" min="50" max="150" value="${d.portrait_brightness}" oninput="syncHbField('portrait_brightness', Number(this.value)); document.getElementById('val-portrait-brightness').innerText = this.value + '%';">
               </div>
 
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Độ tương phản Contrast (%):</label>
-                  <span id="val-portrait-contrast" style="font-weight: bold; color: #68350B;">${d.portrait_contrast}%</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Độ tương phản Contrast (%):</label>
+                  <span id="val-portrait-contrast" class="badge badge-primary">${d.portrait_contrast}%</span>
                 </div>
                 <input type="range" id="input-portrait-contrast" class="form-range" min="50" max="150" value="${d.portrait_contrast}" oninput="syncHbField('portrait_contrast', Number(this.value)); document.getElementById('val-portrait-contrast').innerText = this.value + '%';">
               </div>
 
               <div class="form-group">
-                <label style="font-weight: 600; font-size: 13px;">Chế độ hòa trộn (Mix Blend Mode):</label>
+                <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Chế độ hòa trộn (Mix Blend Mode):</label>
                 <select id="input-portrait-blend-mode" class="form-control" style="margin-top: 6px;" onchange="syncHbField('portrait_blend_mode', this.value)">
                   <option value="normal" ${d.portrait_blend_mode === 'normal' ? 'selected' : ''}>normal (Màu nguyên bản - Khuyên dùng)</option>
                   <option value="multiply" ${d.portrait_blend_mode === 'multiply' ? 'selected' : ''}>multiply (Hòa trộn vào nền)</option>
@@ -7766,13 +8044,13 @@ function renderTuTuongUI() {
                 </select>
               </div>
 
-              <div class="form-group" style="display: flex; align-items: center; gap: 20px; padding-top: 10px;">
-                <label style="font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+              <div class="form-group" style="display: flex; flex-direction: row; gap: 24px; padding-top: 14px; grid-column: 1 / -1;">
+                <label style="font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-primary);">
                   <input type="checkbox" id="input-portrait-flip" ${d.portrait_flip ? 'checked' : ''} onchange="syncHbField('portrait_flip', this.checked)">
                   Lật ngang ảnh chân dung (Flip X)
                 </label>
 
-                <label style="font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+                <label style="font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-primary);">
                   <input type="checkbox" id="input-portrait-mask" ${d.portrait_mask ? 'checked' : ''} onchange="syncHbField('portrait_mask', this.checked)">
                   Làm mờ biên chân dung (Feather Mask)
                 </label>
@@ -7782,75 +8060,75 @@ function renderTuTuongUI() {
 
           <!-- TAB 3: TIÊU ĐỀ & VĂN BẢN -->
           <div id="hb-tab-pane-3" class="hb-tab-pane" style="display: none;">
-            <div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
+            <div class="form-grid" style="margin-bottom: 25px;">
               <div class="form-group">
-                <label style="font-weight: 600; font-size: 13px;">Dòng chức vụ / Tiêu đề phụ:</label>
+                <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Dòng chức vụ / Tiêu đề phụ:</label>
                 <input type="text" class="form-control" value="${escapeHtml(d.subtitle || '')}" oninput="syncHbField('subtitle', this.value)" style="margin-top: 6px;">
               </div>
 
               <div class="form-group">
-                <label style="font-weight: 600; font-size: 13px;">Màu chữ chức vụ:</label>
+                <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Màu chữ chức vụ:</label>
                 <div style="display: flex; gap: 10px; align-items: center; margin-top: 6px;">
-                  <input type="color" value="${d.subtitle_color}" onchange="syncHbField('subtitle_color', this.value); document.getElementById('input-subtitle-color').value = this.value;" style="height: 38px; width: 50px; border-radius: 6px; border: 1px solid #ccc; cursor: pointer;">
+                  <input type="color" value="${d.subtitle_color}" onchange="syncHbField('subtitle_color', this.value); document.getElementById('input-subtitle-color').value = this.value;" style="height: 38px; width: 48px; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; background: var(--bg-input);">
                   <input type="text" id="input-subtitle-color" class="form-control" value="${d.subtitle_color}" oninput="syncHbField('subtitle_color', this.value)">
                 </div>
               </div>
 
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Cỡ chữ chức vụ (px):</label>
-                  <span id="val-subtitle-size" style="font-weight: bold; color: #68350B;">${d.subtitle_size}px</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Cỡ chữ chức vụ:</label>
+                  <span id="val-subtitle-size" class="badge badge-primary">${d.subtitle_size}px</span>
                 </div>
                 <input type="range" class="form-range" min="18" max="48" value="${d.subtitle_size}" oninput="syncHbField('subtitle_size', Number(this.value)); document.getElementById('val-subtitle-size').innerText = this.value + 'px';">
               </div>
             </div>
 
-            <div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
+            <div class="form-grid" style="margin-bottom: 25px;">
               <div class="form-group">
-                <label style="font-weight: 600; font-size: 13px;">Tên Lãnh tụ / Tiêu đề chính:</label>
+                <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Tên Lãnh tụ / Tiêu đề chính:</label>
                 <input type="text" class="form-control" value="${escapeHtml(d.title || '')}" oninput="syncHbField('title', this.value)" style="margin-top: 6px; font-weight: bold;">
               </div>
 
               <div class="form-group">
-                <label style="font-weight: 600; font-size: 13px;">Màu chữ tên lãnh tụ:</label>
+                <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Màu chữ tên lãnh tụ:</label>
                 <div style="display: flex; gap: 10px; align-items: center; margin-top: 6px;">
-                  <input type="color" value="${d.title_color}" onchange="syncHbField('title_color', this.value); document.getElementById('input-title-color').value = this.value;" style="height: 38px; width: 50px; border-radius: 6px; border: 1px solid #ccc; cursor: pointer;">
+                  <input type="color" value="${d.title_color}" onchange="syncHbField('title_color', this.value); document.getElementById('input-title-color').value = this.value;" style="height: 38px; width: 48px; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; background: var(--bg-input);">
                   <input type="text" id="input-title-color" class="form-control" value="${d.title_color}" oninput="syncHbField('title_color', this.value)">
                 </div>
               </div>
 
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Cỡ chữ tên lãnh tụ (px):</label>
-                  <span id="val-title-size" style="font-weight: bold; color: #68350B;">${d.title_size}px</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Cỡ chữ tên lãnh tụ:</label>
+                  <span id="val-title-size" class="badge badge-primary">${d.title_size}px</span>
                 </div>
                 <input type="range" class="form-range" min="26" max="64" value="${d.title_size}" oninput="syncHbField('title_size', Number(this.value)); document.getElementById('val-title-size').innerText = this.value + 'px';">
               </div>
             </div>
 
-            <div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+            <div class="form-grid">
               <div class="form-group" style="padding-top: 8px;">
-                <label style="font-weight: 600; font-size: 13.5px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer;">
+                <label style="font-weight: 600; font-size: 13.5px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; color: var(--text-primary);">
                   <input type="checkbox" id="input-show-stars" ${d.show_stars ? 'checked' : ''} onchange="syncHbField('show_stars', this.checked)">
                   Hiển thị 2 ngôi sao vàng bên cạnh tên
                 </label>
-                <div style="font-size: 12px; color: #7f8c8d; margin-top: 4px;">
+                <div class="form-help">
                   (Mặc định đã tắt để hoàn toàn đồng bộ với hình mẫu chuẩn)
                 </div>
               </div>
 
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Dịch chuyển cụm chữ X (px):</label>
-                  <span id="val-text-x" style="font-weight: bold; color: #68350B;">${d.text_x}px</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Dịch chuyển cụm chữ X:</label>
+                  <span id="val-text-x" class="badge badge-primary">${d.text_x}px</span>
                 </div>
                 <input type="range" class="form-range" min="-200" max="200" step="5" value="${d.text_x}" oninput="syncHbField('text_x', Number(this.value)); document.getElementById('val-text-x').innerText = this.value + 'px';">
               </div>
 
               <div class="form-group">
-                <div style="display: flex; justify-content: space-between;">
-                  <label style="font-weight: 600; font-size: 13px;">Dịch chuyển cụm chữ Y (px):</label>
-                  <span id="val-text-y" style="font-weight: bold; color: #68350B;">${d.text_y}px</span>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Dịch chuyển cụm chữ Y:</label>
+                  <span id="val-text-y" class="badge badge-primary">${d.text_y}px</span>
                 </div>
                 <input type="range" class="form-range" min="-150" max="150" step="5" value="${d.text_y}" oninput="syncHbField('text_y', Number(this.value)); document.getElementById('val-text-y').innerText = this.value + 'px';">
               </div>
@@ -7859,87 +8137,384 @@ function renderTuTuongUI() {
 
           <!-- TAB 4: MẪU CHUẨN & NÂNG CAO -->
           <div id="hb-tab-pane-4" class="hb-tab-pane" style="display: none;">
-            <div style="background: #fff; border: 1px solid #ebdcd0; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
-              <h4 style="font-size: 16px; font-weight: 700; color: #68350B; margin-top: 0;">
-                <i class="fas fa-magic"></i> Hình mẫu chuẩn tham chiếu
+            <div class="card" style="padding: 20px; margin-bottom: 25px; background: var(--bg-card); border: 1px solid var(--border);">
+              <h4 style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin-top: 0; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-magic" style="color: var(--accent-light);"></i> Hình mẫu chuẩn tham chiếu
               </h4>
-              <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
-                Tự động thiết lập đầy đủ tất cả thông số: Khung chữ nhật nền kem ấm (#F2DFCE), ảnh Bác giữ nguyên 100% màu sắc tự nhiên, font chữ trang nhã, và loại bỏ thanh trắng bên dưới theo đúng hình mẫu.
+              <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5;">
+                Tự động thiết lập đầy đủ tất cả thông số: Khung chữ nhật nền kem ấm (#FAF2E8), ảnh Bác giữ nguyên 100% màu sắc tự nhiên, font chữ trang nhã, và loại bỏ thanh trắng bên dưới theo đúng hình mẫu.
               </p>
               <button class="btn btn-primary" onclick="applyHbPreset('tolam')" style="font-weight: 600; padding: 10px 22px;">
                 <i class="fas fa-check-circle"></i> Khôi phục về Hình mẫu chuẩn
               </button>
             </div>
 
-            <div style="background: #faf8f5; border: 1px solid #e5ded5; border-radius: 12px; padding: 20px;">
-              <h4 style="font-size: 15px; font-weight: 700; color: #555; margin-top: 0; margin-bottom: 12px;">
-                <i class="fas fa-bars"></i> Thanh chữ trắng chân trang ("Vững bước dưới cờ Đảng")
+            <div class="card" style="padding: 20px; background: var(--bg-card); border: 1px solid var(--border);">
+              <h4 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-top: 0; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-bars" style="color: var(--accent-light);"></i> Thanh chữ trắng chân trang ("Vững bước dưới cờ Đảng")
               </h4>
               <div class="form-group" style="margin-bottom: 10px;">
-                <label style="font-weight: 600; font-size: 13.5px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer;">
+                <label style="font-weight: 600; font-size: 13.5px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; color: var(--text-primary);">
                   <input type="checkbox" id="input-bottom-bar-enabled" ${d.bottom_bar_enabled ? 'checked' : ''} onchange="syncHbField('bottom_bar_enabled', this.checked)">
                   Bật thanh chữ trắng ở góc dưới bên phải
                 </label>
               </div>
-              <div style="font-size: 12.5px; color: #888;">
-                <em>* Lưu ý: Mặc định tính năng này được Tắt để giống với hình mẫu chuẩn. Nếu cần bạn có thể tích chọn để bật lại.</em>
+              <div class="form-help">
+                * Mặc định tính năng này được Tắt để giống với hình mẫu chuẩn. Nếu cần bạn có thể tích chọn để bật lại.
               </div>
             </div>
           </div>
 
           <!-- TAB 5: BÀI THƠ PÁC BÓ -->
           <div id="hb-tab-pane-5" class="hb-tab-pane" style="display: none;">
-            <div style="background: #fdfaf7; border-left: 4px solid #68350B; padding: 14px 20px; border-radius: 6px; margin-bottom: 22px;">
-              <h4 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 700; color: #68350B;">
+            <div style="background: rgba(245, 158, 11, 0.08); border-left: 3px solid #fbbf24; padding: 14px 20px; border-radius: 8px; margin-bottom: 22px;">
+              <h4 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 700; color: #fbbf24;">
                 <i class="fas fa-feather-alt"></i> Section Bài Thơ: "Tức cảnh Pác Bó" (1941)
               </h4>
-              <p style="margin: 0; font-size: 13px; color: #5a3818;">
+              <p style="margin: 0; font-size: 13px; color: var(--text-secondary);">
                 Bài thơ bất hủ của Chủ tịch Hồ Chí Minh sáng tác vào tháng 2 năm 1941 tại hang Cốc Bó, Hà Quảng, Cao Bằng.
               </p>
             </div>
 
             <div class="form-group" style="margin-bottom: 22px;">
-              <label style="font-weight: 700; font-size: 13.5px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer;">
+              <label style="font-weight: 700; font-size: 13.5px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; color: var(--text-primary);">
                 <input type="checkbox" id="input-poem-enabled" ${d.poem_enabled !== false ? 'checked' : ''} onchange="syncHbField('poem_enabled', this.checked)">
                 Hiển thị Section bài thơ trên trang Chi bộ
               </label>
             </div>
 
-            <div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 22px;">
+            <div class="form-grid" style="margin-bottom: 22px;">
               <div class="form-group">
-                <label style="font-weight: 600; font-size: 13px;">Tên bài thơ:</label>
+                <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Tên bài thơ:</label>
                 <input type="text" class="form-control" value="${escapeHtml(d.poem_title || 'TỨC CẢNH PÁC BÓ')}" oninput="syncHbField('poem_title', this.value)" style="margin-top: 6px; font-weight: 700;">
               </div>
 
               <div class="form-group">
-                <label style="font-weight: 600; font-size: 13px;">Địa danh / Thời điểm sáng tác:</label>
+                <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Địa danh / Thời điểm sáng tác:</label>
                 <input type="text" class="form-control" value="${escapeHtml(d.poem_subtitle || 'Hang Cốc Bó, Pác Bó, Hà Quảng, Cao Bằng (Tháng 2 - 1941)')}" oninput="syncHbField('poem_subtitle', this.value)" style="margin-top: 6px; font-style: italic;">
               </div>
             </div>
 
-            <h5 style="font-size: 14px; font-weight: 700; color: #68350B; margin: 18px 0 12px 0;">Bốn câu thơ thất ngôn:</h5>
+            <h5 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 18px 0 12px 0;">Bốn câu thơ thất ngôn:</h5>
             <div style="display: grid; gap: 12px; margin-bottom: 24px;">
               <div class="form-group">
-                <label style="font-size: 12.5px; font-weight: 600; color: #555;">Câu 1:</label>
+                <label style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Câu 1:</label>
                 <input type="text" class="form-control" value="${escapeHtml(d.poem_line1 || '“Sáng ra bờ suối, tối vào hang,')}" oninput="syncHbField('poem_line1', this.value)">
               </div>
               <div class="form-group">
-                <label style="font-size: 12.5px; font-weight: 600; color: #555;">Câu 2:</label>
+                <label style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Câu 2:</label>
                 <input type="text" class="form-control" value="${escapeHtml(d.poem_line2 || 'Cháo bẹ rau măng vẫn sẵn sàng.')}" oninput="syncHbField('poem_line2', this.value)">
               </div>
               <div class="form-group">
-                <label style="font-size: 12.5px; font-weight: 600; color: #555;">Câu 3:</label>
+                <label style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Câu 3:</label>
                 <input type="text" class="form-control" value="${escapeHtml(d.poem_line3 || 'Bàn đá chông chênh dịch sử Đảng,')}" oninput="syncHbField('poem_line3', this.value)">
               </div>
               <div class="form-group">
-                <label style="font-size: 12.5px; font-weight: 600; color: #555;">Câu 4:</label>
-                <input type="text" class="form-control" value="${escapeHtml(d.poem_line4 || 'Cuộc đời cách mạng thật là sang.”')}" oninput="syncHbField('poem_line4', this.value)" style="color: #9A2617; font-weight: 600;">
+                <label style="font-size: 12px; font-weight: 600; color: var(--text-muted);">Câu 4:</label>
+                <input type="text" class="form-control" value="${escapeHtml(d.poem_line4 || 'Cuộc đời cách mạng thật là sang.”')}" oninput="syncHbField('poem_line4', this.value)" style="color: #f87171; font-weight: 600;">
               </div>
             </div>
 
             <div class="form-group" style="margin-bottom: 20px;">
-              <label style="font-weight: 600; font-size: 13px;">Ý nghĩa lịch sử / Lời bình:</label>
+              <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Ý nghĩa lịch sử / Lời bình:</label>
               <textarea class="form-control" rows="3" oninput="syncHbField('poem_note', this.value)" style="margin-top: 6px; font-size: 13.5px; line-height: 1.5;">${escapeHtml(d.poem_note || 'Mùa xuân năm 1941, sau 30 năm bôn ba tìm đường cứu nước, Bác Hồ trở về Tổ quốc trực tiếp lãnh đạo cách mạng Việt Nam. Giữa núi rừng Pác Bó muôn trùng gian lao, bài thơ thể hiện khí phách lạc quan và phong thái ung dung, tự tại của Người.')}</textarea>
+            </div>
+          </div>
+
+          <!-- TAB 6: DẢI ẢNH LÃNH TỤ & PHONG TRÀO QUỐC TẾ (MARQUEE) -->
+          <div id="hb-tab-pane-6" class="hb-tab-pane" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 14px; flex-wrap: wrap; gap: 12px;">
+              <div>
+                <h4 style="font-size: 16.5px; font-weight: 700; color: var(--text-primary); margin: 0 0 4px 0; display: flex; align-items: center; gap: 8px;">
+                  <i class="fas fa-users" style="color: #ef4444;"></i> Section Dải Ảnh Lãnh Tụ & Phong Trào Quốc Tế
+                </h4>
+                <p style="margin: 0; color: var(--text-muted); font-size: 13px;">
+                  Tùy chỉnh toàn diện: Huy hiệu ★, Tiêu đề lớn song ngữ, Link nguồn tư liệu văn kiện Đảng, thông số chạy và danh sách hình ảnh lãnh tụ.
+                </p>
+              </div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+                <div class="btn-group" style="border-radius: 6px; overflow: hidden; border: 1px solid var(--border);">
+                  <button class="btn btn-sm btn-secondary" onclick="applyMarqueePreset('leaders12')" title="Nạp 12 Lãnh tụ / Nhà Tư tưởng XHCN (WebP siêu nhẹ)">
+                    <i class="fas fa-users" style="color: #ef4444;"></i> 12 Lãnh tụ WebP
+                  </button>
+                  <button class="btn btn-sm btn-secondary" onclick="applyMarqueePreset('leaders21')" title="Nạp trọn bộ 21 Lãnh tụ ĐCSVN (gồm 9 vị hiển thị sẵn card để tải ảnh)">
+                    <i class="fas fa-star" style="color: #fbbf24;"></i> Trọn bộ 21 Lãnh tụ
+                  </button>
+                  <button class="btn btn-sm btn-secondary" onclick="applyMarqueePreset('congress7')" title="Nạp 7 mốc son Đại hội Đảng 1996 - 2026">
+                    <i class="fas fa-landmark" style="color: #f97316;"></i> 7 Mốc Đại hội Đảng
+                  </button>
+                  <button class="btn btn-sm btn-secondary" onclick="applyMarqueePreset('all19')" title="Gộp cả Lãnh tụ và 7 Mốc Đại hội">
+                    <i class="fas fa-layer-group" style="color: #38bdf8;"></i> Gộp cả dải ảnh
+                  </button>
+                </div>
+                <select class="form-select form-select-sm" onchange="if(this.value){addLeaderFromDatabase(this.value); this.value='';}" style="font-size: 12px; font-weight: 600; color: var(--text-primary); border: 1px solid var(--border); background: var(--bg-input); max-width: 250px; height: 32px; cursor: pointer;">
+                  <option value="">⚡ + Thêm nhanh từ 21 Lãnh tụ...</option>
+                  ${LEADERS_DATABASE_20.map((l, li) => `<option value="${l.id}">${li + 1}. ${escapeHtml(l.name)} (${escapeHtml(l.year)})</option>`).join('')}
+                </select>
+                <button class="btn btn-sm btn-primary" onclick="addMarqueeItem()" style="font-weight: 600; padding: 5px 14px;">
+                  <i class="fas fa-plus"></i> Thêm ảnh thủ công
+                </button>
+              </div>
+            </div>
+
+            <!-- KHỐI 1: TIÊU ĐỀ & NGUỒN TƯ LIỆU VĂN KIỆN ĐẢNG (SONG NGỮ VI - EN) -->
+            <div class="card" style="padding: 18px 20px; margin-bottom: 22px; background: var(--bg-card); border: 1px solid var(--border);">
+              <h5 style="font-size: 14.5px; font-weight: 700; color: var(--text-primary); margin: 0 0 14px 0; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-heading" style="color: var(--accent-light);"></i> 1. Tiêu Đề, Huy Hiệu & Chú Thích Nguồn (Song Ngữ VI / EN)
+              </h5>
+
+              <!-- Hàng Huy hiệu (Badge) -->
+              <div class="form-grid" style="margin-bottom: 14px;">
+                <div class="form-group">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">
+                    <span style="color: #ef4444;">★</span> Huy hiệu / Nhãn đỏ trên cùng (Tiếng Việt):
+                  </label>
+                  <input type="text" class="form-control" placeholder="Ví dụ: Phong trào cộng sản, công nhân quốc tế" value="${escapeHtml(d.marquee_badge || '')}" oninput="syncHbField('marquee_badge', this.value); updateMarqueeAdminPreview();" style="margin-top: 4px; font-weight: 600;">
+                </div>
+                <div class="form-group">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">
+                    <span style="color: #38bdf8;">★</span> Huy hiệu / Nhãn đỏ trên cùng (Tiếng Anh - EN):
+                  </label>
+                  <input type="text" class="form-control" placeholder="Ví dụ: International Communist and Workers' Movement" value="${escapeHtml(d.marquee_badge_en || '')}" oninput="syncHbField('marquee_badge_en', this.value)" style="margin-top: 4px;">
+                </div>
+              </div>
+
+              <!-- Hàng Tiêu đề chính (Title) -->
+              <div class="form-grid" style="margin-bottom: 14px;">
+                <div class="form-group">
+                  <label style="font-weight: 700; font-size: 13px; color: var(--text-primary);">
+                    Tiêu đề lớn Section (Tiếng Việt):
+                  </label>
+                  <input type="text" class="form-control" placeholder="Ví dụ: CÁC LÃNH TỤ VÀ CÁC NHÀ LÃNH ĐẠO NỔI TIẾNG" value="${escapeHtml(d.marquee_title || '')}" oninput="syncHbField('marquee_title', this.value); updateMarqueeAdminPreview();" style="margin-top: 4px; font-weight: 700; color: #fbbf24;">
+                </div>
+                <div class="form-group">
+                  <label style="font-weight: 700; font-size: 13px; color: var(--text-secondary);">
+                    Tiêu đề lớn Section (Tiếng Anh - EN):
+                  </label>
+                  <input type="text" class="form-control" placeholder="Ví dụ: Prominent Leaders and Figures" value="${escapeHtml(d.marquee_title_en || '')}" oninput="syncHbField('marquee_title_en', this.value)" style="margin-top: 4px;">
+                </div>
+              </div>
+
+              <!-- Hàng Nguồn tư liệu & URL -->
+              <div class="form-grid" style="margin-bottom: 14px;">
+                <div class="form-group">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">
+                    <i class="fas fa-bookmark" style="color: #f59e0b;"></i> Chú thích nguồn tư liệu (VI):
+                  </label>
+                  <input type="text" class="form-control" placeholder="Ví dụ: Nguồn từ Tư liệu Văn kiện của Đảng" value="${escapeHtml(d.marquee_source_text || '')}" oninput="syncHbField('marquee_source_text', this.value); updateMarqueeAdminPreview();" style="margin-top: 4px;">
+                </div>
+                <div class="form-group">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">
+                    <i class="fas fa-bookmark" style="color: #38bdf8;"></i> Chú thích nguồn tư liệu (EN):
+                  </label>
+                  <input type="text" class="form-control" placeholder="Ví dụ: Source: Documents & Archives of the Party" value="${escapeHtml(d.marquee_source_text_en || '')}" oninput="syncHbField('marquee_source_text_en', this.value)" style="margin-top: 4px;">
+                </div>
+                <div class="form-group full-width">
+                  <label style="font-weight: 700; font-size: 13px; color: var(--accent-light); display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-link"></i> Đường dẫn liên kết nguồn (URL khi click vào nút Nguồn):
+                  </label>
+                  <div style="display: flex; gap: 8px; margin-top: 4px;">
+                    <input type="text" class="form-control" placeholder="https://tulieuvankien.dangcongsan.vn/..." value="${escapeHtml(d.marquee_source_url || '')}" oninput="syncHbField('marquee_source_url', this.value); updateMarqueeAdminPreview();" style="flex: 1;">
+                    ${d.marquee_source_url ? `
+                      <a href="${escapeHtml(d.marquee_source_url)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; white-space: nowrap;">
+                        <i class="fas fa-external-link-alt"></i> Mở link
+                      </a>
+                    ` : ''}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Phụ đề (tùy chọn) -->
+              <div class="form-group">
+                <label style="font-weight: 600; font-size: 13px; color: var(--text-muted);">Phụ đề Section (Tùy chọn, để trống nếu không dùng):</label>
+                <input type="text" class="form-control" placeholder="Ví dụ: Dấu ấn phát triển và chặng đường vinh quang của Đảng" value="${escapeHtml(d.marquee_subtitle || '')}" oninput="syncHbField('marquee_subtitle', this.value); updateMarqueeAdminPreview();" style="margin-top: 4px;">
+              </div>
+            </div>
+
+            <!-- KHỐI 2: CẤU HÌNH HIỂN THỊ & TỐC ĐỘ CHẠY -->
+            <div class="card" style="padding: 18px 20px; margin-bottom: 22px; background: var(--bg-card); border: 1px solid var(--border);">
+              <h5 style="font-size: 14.5px; font-weight: 700; color: var(--text-primary); margin: 0 0 14px 0; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-sliders-h" style="color: var(--accent-light);"></i> 2. Thông Số Hiển Thị & Chuyển Động
+              </h5>
+
+              <div class="form-grid" style="margin-bottom: 18px;">
+                <div class="form-group">
+                  <label style="font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; color: var(--text-primary);">
+                    <input type="checkbox" id="input-marquee-enabled" ${d.marquee_enabled !== false ? 'checked' : ''} onchange="syncHbField('marquee_enabled', this.checked); updateMarqueeAdminPreview();">
+                    Hiển thị Section Dải ảnh trên trang Chi bộ
+                  </label>
+                </div>
+
+                <div class="form-group">
+                  <label style="font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; color: var(--text-primary);">
+                    <input type="checkbox" id="input-marquee-pause" ${d.marquee_pause_hover !== false ? 'checked' : ''} onchange="syncHbField('marquee_pause_hover', this.checked); updateMarqueeAdminPreview();">
+                    Tạm dừng chạy khi rê chuột vào (Pause on Hover)
+                  </label>
+                </div>
+
+                <div class="form-group">
+                  <label style="font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; color: #ef4444;">
+                    <input type="checkbox" id="input-marquee-paused" ${d.marquee_paused === true ? 'checked' : ''} onchange="syncHbField('marquee_paused', this.checked); updateMarqueeAdminPreview();">
+                    <span>⏸️ <strong>Tạm dừng chạy luôn</strong> (Dải ảnh đứng yên, chỉ kéo qua lại bằng tay/chuột)</span>
+                  </label>
+                </div>
+
+                <div class="form-group">
+                  <label style="font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; color: var(--text-primary);">
+                    <input type="checkbox" id="input-marquee-show-labels" ${d.marquee_show_labels === true ? 'checked' : ''} onchange="syncHbField('marquee_show_labels', this.checked); updateMarqueeAdminPreview();">
+                    Hiển thị chữ số Năm/Nhãn trên ảnh (Label Overlay)
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Chiều cao dải ảnh:</label>
+                    <span id="val-marquee-height" class="badge badge-primary">${d.marquee_height || 260}px</span>
+                  </div>
+                  <input type="range" class="form-range" min="150" max="380" step="5" value="${d.marquee_height || 260}" oninput="syncHbField('marquee_height', Number(this.value)); document.getElementById('val-marquee-height').innerText = this.value + 'px'; updateMarqueeAdminPreview();">
+                </div>
+
+                <div class="form-group">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Tốc độ chạy (giây/vòng):</label>
+                    <span id="val-marquee-speed" class="badge badge-primary">${d.marquee_speed || 35}s</span>
+                  </div>
+                  <input type="range" class="form-range" min="10" max="150" step="1" value="${d.marquee_speed || 35}" oninput="syncHbField('marquee_speed', Number(this.value)); document.getElementById('val-marquee-speed').innerText = this.value + 's'; updateMarqueeAdminPreview();">
+                </div>
+
+                <div class="form-group">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Khoảng cách giữa các ảnh:</label>
+                    <span id="val-marquee-gap" class="badge badge-primary">${d.marquee_gap || 0}px</span>
+                  </div>
+                  <input type="range" class="form-range" min="0" max="30" step="2" value="${d.marquee_gap || 0}" oninput="syncHbField('marquee_gap', Number(this.value)); document.getElementById('val-marquee-gap').innerText = this.value + 'px'; updateMarqueeAdminPreview();">
+                </div>
+
+                <div class="form-group">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Màu chữ số Năm / Nhãn:</label>
+                  <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
+                    <input type="color" id="input-marquee-label-color-picker" value="${d.marquee_label_color || '#8B0000'}" onchange="syncHbField('marquee_label_color', this.value); document.getElementById('input-marquee-label-color').value = this.value; updateMarqueeAdminPreview();" style="height: 36px; width: 44px; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; background: var(--bg-input);">
+                    <input type="text" id="input-marquee-label-color" class="form-control" value="${d.marquee_label_color || '#8B0000'}" oninput="syncHbField('marquee_label_color', this.value); document.getElementById('input-marquee-label-color-picker').value = this.value; updateMarqueeAdminPreview();" style="font-size: 13px;">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- KHỐI 3: XEM TRƯỚC TRỰC TIẾP CHUẨN GIAO DIỆN THẬT -->
+            <div class="card" style="margin-bottom: 25px; overflow: hidden; border: 1px solid var(--border);">
+              <div class="card-header" style="background: var(--bg-secondary); padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 8px; color: var(--text-primary); font-weight: 700; font-size: 14px;">
+                  <i class="fas fa-play-circle" style="color: #fbbf24;"></i>
+                  <span>3. Xem trước dải ảnh trực tiếp (Mô phỏng 100% giao diện trang Chi bộ)</span>
+                </div>
+                <span style="font-size: 11.5px; color: var(--text-muted);">Tự động cập nhật tức thì</span>
+              </div>
+              <div style="background: #090e1a; padding: 16px;">
+                <div id="marquee-admin-preview-box" style="width: 100%; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; background: #FFF1E5; padding: 18px 0; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
+                  <!-- Populated by updateMarqueeAdminPreview() -->
+                </div>
+              </div>
+            </div>
+
+            <!-- KHỐI 4: DANH SÁCH TỪNG MỐC ẢNH / LÃNH TỤ -->
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                <h5 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 8px;">
+                  <i class="fas fa-list-ol" style="color: var(--accent-light);"></i> 
+                  <span>4. Danh Sách Hình Ảnh Chi Tiết</span>
+                  <span class="badge badge-primary" id="marquee-items-count">${(d.marquee_items || []).length}</span>
+                </h5>
+                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                  <button class="btn btn-sm btn-secondary" onclick="addAllMissingLeadersToMarquee()" title="Nạp toàn bộ lãnh tụ còn thiếu thành card để bạn tải ảnh lên" style="display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-user-plus" style="color: #fbbf24;"></i> Nạp đủ 21 Lãnh tụ
+                  </button>
+                  <select class="form-select form-select-sm" onchange="if(this.value){addLeaderFromDatabase(this.value); this.value='';}" style="font-size: 12px; font-weight: 600; color: var(--text-primary); border: 1px solid var(--border); background: var(--bg-input); max-width: 250px; height: 32px; cursor: pointer;">
+                    <option value="">⚡ + Thêm nhanh từng vị...</option>
+                    ${LEADERS_DATABASE_20.map((l, li) => `<option value="${l.id}">${li + 1}. ${escapeHtml(l.name)} (${escapeHtml(l.year)})</option>`).join('')}
+                  </select>
+                  <button class="btn btn-sm btn-primary" onclick="addMarqueeItem()">
+                    <i class="fas fa-plus"></i> Thêm ảnh khác
+                  </button>
+                </div>
+              </div>
+
+              <!-- Dedicated Missing Leaders Card Shelf -->
+              <div id="missing-leaders-container" style="margin-bottom: 22px;">
+                <!-- Populated by renderMarqueeItemsList() -->
+              </div>
+
+              <div id="marquee-items-container" style="display: flex; flex-direction: column; gap: 14px;">
+                <!-- Populated by renderMarqueeItemsList() -->
+              </div>
+            </div>
+
+          </div>
+
+          <!-- TAB 7: CHI BỘ ẤP GÒ CAO -->
+          <div id="hb-tab-pane-7" class="hb-tab-pane" style="display: none;">
+            <div style="background: rgba(56, 189, 248, 0.08); border-left: 3px solid #38bdf8; padding: 14px 20px; border-radius: 8px; margin-bottom: 22px;">
+              <h4 style="margin: 0 0 6px 0; font-size: 15.5px; font-weight: 700; color: #38bdf8;">
+                <i class="fas fa-sitemap"></i> Section: Chi Bộ Ấp Gò Cao (Tổ chức cơ sở Đảng)
+              </h4>
+              <p style="margin: 0; font-size: 13px; color: var(--text-secondary);">
+                Tổ chức cơ sở Đảng tại địa bàn dân cư, hạt nhân chính trị lãnh đạo toàn diện thuộc Đảng bộ xã Hậu Nghĩa.
+              </p>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 22px;">
+              <label style="font-weight: 700; font-size: 13.5px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; color: var(--text-primary);">
+                <input type="checkbox" id="input-gocao-enabled" ${d.gocao_enabled !== false ? 'checked' : ''} onchange="syncHbField('gocao_enabled', this.checked)">
+                Hiển thị Section Chi bộ Ấp Gò Cao trên trang Chi bộ
+              </label>
+            </div>
+
+            <!-- Huy hiệu & Tiêu đề -->
+            <div class="form-grid" style="margin-bottom: 18px;">
+              <div class="form-group">
+                <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Huy hiệu / Badge (Tiếng Việt):</label>
+                <input type="text" class="form-control" value="${escapeHtml(d.gocao_badge || 'TỔ CHỨC CƠ SỞ ĐẢNG • ĐỊA BÀN DÂN CƯ')}" oninput="syncHbField('gocao_badge', this.value)" style="margin-top: 4px; font-weight: 600;">
+              </div>
+              <div class="form-group">
+                <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Huy hiệu / Badge (Tiếng Anh - EN):</label>
+                <input type="text" class="form-control" value="${escapeHtml(d.gocao_badge_en || 'GRASSROOTS PARTY ORGANIZATION')}" oninput="syncHbField('gocao_badge_en', this.value)" style="margin-top: 4px;">
+              </div>
+            </div>
+
+            <div class="form-grid" style="margin-bottom: 18px;">
+              <div class="form-group">
+                <label style="font-weight: 700; font-size: 13px; color: var(--text-primary);">Tên Chi bộ (Tiếng Việt):</label>
+                <input type="text" class="form-control" value="${escapeHtml(d.gocao_title || 'CHI BỘ ẤP GÒ CAO')}" oninput="syncHbField('gocao_title', this.value)" style="margin-top: 4px; font-weight: 700; color: #fbbf24;">
+              </div>
+              <div class="form-group">
+                <label style="font-weight: 700; font-size: 13px; color: var(--text-secondary);">Tên Chi bộ (Tiếng Anh - EN):</label>
+                <input type="text" class="form-control" value="${escapeHtml(d.gocao_title_en || 'GO CAO HAMLET PARTY CELL')}" oninput="syncHbField('gocao_title_en', this.value)" style="margin-top: 4px;">
+              </div>
+            </div>
+
+            <!-- Phụ đề giới thiệu -->
+            <div class="form-grid" style="margin-bottom: 18px;">
+              <div class="form-group">
+                <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Phụ đề giới thiệu vai trò (Tiếng Việt):</label>
+                <textarea class="form-control" rows="2" oninput="syncHbField('gocao_subtitle', this.value)" style="margin-top: 4px;">${escapeHtml(d.gocao_subtitle || '')}</textarea>
+              </div>
+              <div class="form-group">
+                <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Phụ đề giới thiệu vai trò (Tiếng Anh - EN):</label>
+                <textarea class="form-control" rows="2" oninput="syncHbField('gocao_subtitle_en', this.value)" style="margin-top: 4px;">${escapeHtml(d.gocao_subtitle_en || '')}</textarea>
+              </div>
+            </div>
+
+            <!-- Lịch sử / Ghi chú -->
+            <div class="form-grid" style="margin-bottom: 18px;">
+              <div class="form-group">
+                <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Ghi chú lịch sử / Địa giới cũ (Tiếng Việt):</label>
+                <input type="text" class="form-control" value="${escapeHtml(d.gocao_history_note || '')}" oninput="syncHbField('gocao_history_note', this.value)" style="margin-top: 4px;">
+              </div>
+              <div class="form-group">
+                <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Ghi chú lịch sử / Địa giới cũ (Tiếng Anh - EN):</label>
+                <input type="text" class="form-control" value="${escapeHtml(d.gocao_history_note_en || '')}" oninput="syncHbField('gocao_history_note_en', this.value)" style="margin-top: 4px;">
+              </div>
             </div>
           </div>
 
@@ -7954,23 +8529,803 @@ function renderTuTuongUI() {
 }
 
 function switchHbTab(tabIndex) {
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 1; i <= 7; i++) {
     const pane = document.getElementById(`hb-tab-pane-${i}`);
     const btn = document.getElementById(`tab-btn-${i}`);
     if (pane && btn) {
       if (i === tabIndex) {
         pane.style.display = 'block';
         btn.classList.add('active');
-        btn.style.color = '#68350B';
-        btn.style.borderBottom = '3px solid #68350B';
+        if (i === 6) {
+          updateMarqueeAdminPreview();
+          renderMarqueeItemsList();
+        }
       } else {
         pane.style.display = 'none';
         btn.classList.remove('active');
-        btn.style.color = '#7f8c8d';
-        btn.style.borderBottom = '3px solid transparent';
       }
     }
   }
+}
+
+function updateMarqueeAdminPreview() {
+  const box = document.getElementById('marquee-admin-preview-box');
+  if (!box) return;
+  const d = currentHbData;
+  const items = (Array.isArray(d.marquee_items) && d.marquee_items.length > 0)
+    ? d.marquee_items
+    : DEFAULT_HB_CONFIG.marquee_items;
+
+  let seq = items;
+  if (seq.length > 0 && seq.length < 8) {
+    seq = [...seq, ...seq];
+  }
+
+  const h = d.marquee_height || 260;
+  const speed = d.marquee_speed || 35;
+  const gap = d.marquee_gap || 0;
+  const showLabels = d.marquee_show_labels === true;
+  const labelColor = d.marquee_label_color || '#8B0000';
+  const pauseHover = d.marquee_pause_hover !== false;
+
+  const badgeText = d.marquee_badge !== undefined ? d.marquee_badge : 'Phong trào cộng sản, công nhân quốc tế';
+  const mainTitle = d.marquee_title !== undefined ? d.marquee_title : 'Các lãnh tụ và các nhà lãnh đạo nổi tiếng';
+  const sourceText = d.marquee_source_text || 'Nguồn từ Tư liệu Văn kiện của Đảng';
+  const sourceUrl = d.marquee_source_url || '';
+  const subtitle = d.marquee_subtitle || '';
+
+  box.innerHTML = `
+    <!-- Header preview -->
+    <div style="text-align: center; padding: 10px 15px 16px 15px;">
+      ${badgeText ? `
+        <div style="
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: rgba(192, 57, 43, 0.08);
+          border: 1px solid rgba(192, 57, 43, 0.25);
+          color: #A93226;
+          padding: 3px 14px;
+          border-radius: 20px;
+          font-size: 11.5px;
+          font-weight: 700;
+          letter-spacing: 0.8px;
+          text-transform: uppercase;
+          margin-bottom: 8px;
+        ">
+          <span style="color: #D4AC0D; font-size: 10px;">★</span>
+          <span>${escapeHtml(badgeText)}</span>
+          <span style="color: #D4AC0D; font-size: 10px;">★</span>
+        </div>
+      ` : ''}
+
+      ${mainTitle ? `
+        <h3 style="
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: 20px;
+          font-weight: 800;
+          color: #68350B;
+          letter-spacing: 1px;
+          margin: 0 0 6px 0;
+          text-transform: uppercase;
+        ">
+          ${escapeHtml(mainTitle)}
+        </h3>
+      ` : ''}
+
+      ${sourceUrl ? `
+        <div style="margin-bottom: 6px;">
+          <a href="${escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer" style="
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #8A5A36;
+            text-decoration: none;
+            font-style: italic;
+            padding: 3px 12px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(220, 200, 185, 0.75);
+          ">
+            <span>${escapeHtml(sourceText)} —</span>
+            <strong style="font-style: normal; color: #B03A2E;">${escapeHtml(mainTitle || 'Liên kết nguồn')}</strong>
+            <i class="fas fa-external-link-alt" style="font-size: 10px; color: #c0392b;"></i>
+          </a>
+        </div>
+      ` : ''}
+
+      ${subtitle ? `
+        <p style="font-size: 12.5px; color: #8A5A36; font-style: italic; margin: 0;">
+          ${escapeHtml(subtitle)}
+        </p>
+      ` : ''}
+    </div>
+
+    <!-- Running track preview (Interactive Draggable) -->
+    <div 
+      id="admin-marquee-scroll-container"
+      style="
+        width: 100%; 
+        overflow-x: scroll; 
+        overflow-y: hidden; 
+        position: relative; 
+        height: ${h}px; 
+        mask-image: linear-gradient(to right, transparent 0%, black 24px, black calc(100% - 24px), transparent 100%); 
+        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 24px, black calc(100% - 24px), transparent 100%);
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        cursor: grab;
+        user-select: none;
+        touch-action: pan-y;
+      "
+    >
+      <div 
+        id="admin-marquee-track-el"
+        class="admin-marquee-track ${pauseHover ? 'pause-on-hover' : ''}" 
+        style="
+          display: flex; 
+          width: max-content; 
+          height: 100%; 
+          gap: ${gap}px;
+        "
+      >
+        ${[...seq, ...seq, ...seq].map((it, idx) => `
+          <div style="position: relative; display: inline-flex; height: 100%; flex-shrink: 0; overflow: hidden; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+            <img src="${escapeHtml(it.image)}" alt="" draggable="false" style="height: 100%; width: auto; display: block; object-fit: cover; pointer-events: none;" onerror="this.src='/assets/img/timeline_1996.png'">
+            ${showLabels && (it.name || it.year) ? `
+              <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 18px 6px 4px 6px; background: linear-gradient(to top, rgba(255,241,229,0.96) 0%, rgba(255,241,229,0.7) 60%, transparent 100%); text-align: center; pointer-events: none;">
+                ${it.name ? `<div style="font-family: Georgia, serif; font-weight: 700; font-size: 12.5px; color: #3B291A; line-height: 1.15; margin-bottom: 2px; text-shadow: 0 1px 2px #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(it.name)}</div>` : ''}
+                ${it.year ? `<span style="font-family: serif; font-weight: 800; font-size: 13.5px; color: ${labelColor}; text-shadow: 0 1px 2px #fff;">${escapeHtml(it.year)}</span>` : ''}
+              </div>
+            ` : ''}
+            ${it.url && it.url.trim() ? `
+              <div style="position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.6); color: #fff; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px;" title="Có liên kết: ${escapeHtml(it.url)}">
+                <i class="fas fa-link"></i>
+              </div>
+            ` : ''}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 10px; font-size: 11.5px; color: var(--text-muted);">
+      <i class="fas fa-arrows-alt-h" style="color: var(--accent-light);"></i>
+      <span>Dùng chuột kéo qua kéo lại hoặc vuốt tay trên điện thoại để xem toàn bộ danh sách</span>
+    </div>
+  `;
+
+  const isPaused = Boolean(d.marquee_paused === true || d.marquee_auto_scroll === false);
+  initAdminMarqueeDraggable(speed, pauseHover, isPaused);
+}
+
+let adminMarqueeAnimId = null;
+
+function initAdminMarqueeDraggable(speed, pauseHover, isPaused) {
+  if (adminMarqueeAnimId) {
+    cancelAnimationFrame(adminMarqueeAnimId);
+    adminMarqueeAnimId = null;
+  }
+  const container = document.getElementById('admin-marquee-scroll-container');
+  const track = document.getElementById('admin-marquee-track-el');
+  if (!container || !track) return;
+
+  const centerCopy = () => {
+    const oneThird = track.scrollWidth / 3;
+    if (oneThird > 0 && (container.scrollLeft === 0 || container.scrollLeft < oneThird / 2)) {
+      container.scrollLeft = oneThird;
+    }
+  };
+
+  setTimeout(centerCopy, 100);
+  setTimeout(centerCopy, 400);
+
+  let isDragging = false;
+  let startX = 0;
+  let scrollStart = 0;
+  let isHovered = false;
+  let lastTime = performance.now();
+
+  const loop = (now) => {
+    const dt = (now - lastTime) / 1000;
+    lastTime = now;
+
+    const oneThird = track.scrollWidth / 3;
+    if (oneThird > 0) {
+      if (!isDragging) {
+        if (container.scrollLeft >= 2 * oneThird) {
+          container.scrollLeft -= oneThird;
+        } else if (container.scrollLeft <= oneThird / 2) {
+          container.scrollLeft += oneThird;
+        }
+
+        if (!isPaused && (!pauseHover || !isHovered)) {
+          const pxPerSec = speed > 0 ? (oneThird / speed) : 35;
+          container.scrollLeft += pxPerSec * dt;
+        }
+      }
+    }
+    adminMarqueeAnimId = requestAnimationFrame(loop);
+  };
+  adminMarqueeAnimId = requestAnimationFrame(loop);
+
+  container.onmouseenter = () => { isHovered = true; };
+  container.onmouseleave = () => { isHovered = false; };
+  container.ondragstart = (e) => { e.preventDefault(); return false; };
+  track.ondragstart = (e) => { e.preventDefault(); return false; };
+
+  container.onpointerdown = (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    isDragging = true;
+    startX = e.clientX;
+    scrollStart = container.scrollLeft;
+    container.style.cursor = 'grabbing';
+    track.style.pointerEvents = 'none';
+    try { container.setPointerCapture(e.pointerId); } catch (_) {}
+  };
+
+  container.onpointermove = (e) => {
+    if (!isDragging) return;
+    const dx = e.clientX - startX;
+    container.scrollLeft = scrollStart - dx;
+    const oneThird = track.scrollWidth / 3;
+    if (oneThird > 0) {
+      if (container.scrollLeft >= 2 * oneThird) {
+        container.scrollLeft -= oneThird;
+        scrollStart -= oneThird;
+      } else if (container.scrollLeft <= oneThird / 2) {
+        container.scrollLeft += oneThird;
+        scrollStart += oneThird;
+      }
+    }
+  };
+
+  container.onpointerup = (e) => {
+    isDragging = false;
+    container.style.cursor = 'grab';
+    track.style.pointerEvents = 'auto';
+    try {
+      if (container.hasPointerCapture(e.pointerId)) {
+        container.releasePointerCapture(e.pointerId);
+      }
+    } catch (_) {}
+  };
+
+  container.onpointercancel = () => {
+    isDragging = false;
+    container.style.cursor = 'grab';
+    track.style.pointerEvents = 'auto';
+  };
+}
+
+function renderMarqueeItemsList() {
+  const container = document.getElementById('marquee-items-container');
+  if (!container) return;
+  const d = currentHbData;
+  if (!Array.isArray(d.marquee_items)) {
+    d.marquee_items = JSON.parse(JSON.stringify(DEFAULT_HB_CONFIG.marquee_items));
+  }
+
+  // Update dynamic count badge
+  const countBadge = document.getElementById('marquee-items-count');
+  if (countBadge) {
+    countBadge.innerText = d.marquee_items.length;
+  }
+
+  // 1. Identify missing leaders from LEADERS_DATABASE_20
+  const existingNames = new Set(
+    d.marquee_items.map(it => (it.name || '').trim().toLowerCase())
+  );
+  const existingUrls = new Set(
+    d.marquee_items.filter(it => it.url).map(it => it.url.trim().toLowerCase())
+  );
+
+  const missingLeaders = LEADERS_DATABASE_20.filter(l => {
+    const byName = existingNames.has(l.name.trim().toLowerCase());
+    const byUrl = l.url && existingUrls.has(l.url.trim().toLowerCase());
+    return !byName && !byUrl;
+  });
+
+  const needingPhotoInItems = d.marquee_items.filter(it => {
+    return !it.image || it.image.includes('timeline_1996.png') || it.image.includes('template_error.png');
+  });
+
+  // 2. Render Dedicated Shelf for Missing Leaders
+  const missingBox = document.getElementById('missing-leaders-container');
+  if (missingBox) {
+    if (missingLeaders.length === 0) {
+      missingBox.innerHTML = `
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 10px; color: #34d399; font-weight: 700; font-size: 13.5px;">
+            <i class="fas fa-check-circle" style="font-size: 20px; color: #10b981;"></i>
+            <span>Toàn bộ 21 Lãnh tụ trong Hồ sơ Tư liệu Văn kiện Đảng đã có mặt đầy đủ trong dải ảnh!</span>
+          </div>
+          ${needingPhotoInItems.length > 0 ? `
+            <span class="badge badge-warning">
+              ⚠️ Còn ${needingPhotoInItems.length} vị đang chờ tải ảnh chân dung bên dưới
+            </span>
+          ` : `
+            <span class="badge badge-success">
+              ✓ Dải ảnh đã hoàn thiện 100%
+            </span>
+          `}
+        </div>
+      `;
+    } else {
+      missingBox.innerHTML = `
+        <div class="card" style="background: rgba(245, 158, 11, 0.03); border: 1.5px dashed rgba(245, 158, 11, 0.35); border-radius: 12px; padding: 18px 20px; margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <span class="badge badge-warning">SẴN SÀNG TẢI ẢNH</span>
+                <h6 style="margin: 0; font-size: 15px; font-weight: 700; color: #fbbf24; display: flex; align-items: center; gap: 8px;">
+                  <i class="fas fa-user-clock"></i> Các Lãnh Tụ Còn Thiếu (${missingLeaders.length} vị) — Bấm Tải Ảnh Lên Ngay
+                </h6>
+              </div>
+              <p style="margin: 6px 0 0 0; font-size: 12.5px; color: var(--text-muted); max-width: 800px; line-height: 1.45;">
+                Dưới đây là các vị lãnh tụ theo Tư liệu Văn kiện ĐCSVN chưa có trong dải ảnh. Bạn chỉ cần bấm nút <strong>"📷 Tải ảnh lên ngay"</strong> tại từng card để chọn ảnh từ máy tính, hệ thống sẽ tự động nạp ảnh kèm tên, năm sinh năm mất và link chính thức.
+              </p>
+            </div>
+            <button class="btn btn-sm btn-primary" onclick="addAllMissingLeadersToMarquee()" title="Tạo sẵn tất cả ${missingLeaders.length} card lãnh tụ vào dải ảnh để tải ảnh lần lượt" style="display: inline-flex; align-items: center; gap: 6px;">
+              <i class="fas fa-layer-group"></i> Nạp đủ ${missingLeaders.length} Card vào dải ảnh
+            </button>
+          </div>
+
+          <!-- Cards Grid for Missing Leaders -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px;">
+            ${missingLeaders.map(l => `
+              <div class="card" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 0;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span class="badge badge-warning" style="font-size: 10px;">CHƯA CÓ ẢNH</span>
+                    ${l.url ? `
+                      <a href="${escapeHtml(l.url)}" target="_blank" rel="noopener noreferrer" style="font-size: 11px; color: var(--accent-light); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;" title="Mở trang Tư liệu Văn kiện của Đảng">
+                        <i class="fas fa-external-link-alt"></i> Tư liệu
+                      </a>
+                    ` : ''}
+                  </div>
+
+                  <!-- Silhouette avatar with upload click -->
+                  <div 
+                    onclick="document.getElementById('missing-file-${l.id}').click()" 
+                    style="height: 110px; border-radius: 8px; background: var(--bg-input); border: 1.5px dashed var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 10px; transition: all 0.2s;"
+                    onmouseover="this.style.borderColor='var(--accent)';" 
+                    onmouseout="this.style.borderColor='var(--border)';"
+                    title="Bấm để chọn file ảnh trên máy tính cho ${escapeHtml(l.name)}"
+                  >
+                    <i class="fas fa-camera" style="font-size: 26px; color: var(--text-muted); margin-bottom: 4px;"></i>
+                    <span style="font-size: 11px; font-weight: 700; color: var(--text-primary);">Bấm chọn ảnh</span>
+                    <span style="font-size: 10px; color: var(--text-muted);">(WebP, PNG, JPG)</span>
+                  </div>
+
+                  <div style="font-weight: 700; font-size: 14.5px; color: var(--text-primary); line-height: 1.25; margin-bottom: 2px;">
+                    ${escapeHtml(l.name)}
+                  </div>
+                  <div style="font-size: 12.5px; font-weight: 700; color: #fbbf24; font-family: serif; margin-bottom: 6px;">
+                    ${escapeHtml(l.year)}
+                  </div>
+                  <div style="font-size: 11.5px; color: var(--text-muted); line-height: 1.35; margin-bottom: 12px; min-height: 32px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;" title="${escapeHtml(l.title || '')}">
+                    ${escapeHtml(l.title || 'Nhà tư tưởng / Lãnh đạo phong trào vô sản')}
+                  </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 6px; padding-top: 10px; border-top: 1px dashed var(--border);">
+                  <input type="file" id="missing-file-${l.id}" accept="image/*" style="display: none;" onchange="uploadMissingLeaderImage('${l.id}', this)">
+                  <button class="btn btn-sm btn-primary" onclick="document.getElementById('missing-file-${l.id}').click()" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <i class="fas fa-upload"></i> Tải ảnh lên ngay
+                  </button>
+                  <button class="btn btn-sm btn-secondary" onclick="addLeaderFromDatabase('${l.id}')" style="width: 100%;">
+                    <i class="fas fa-plus"></i> Thêm card trước
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  // 3. Render Main Active Marquee Cards List
+  if (d.marquee_items.length === 0) {
+    container.innerHTML = `
+      <div class="card" style="padding: 30px; text-align: center; border: 1.5px dashed var(--border);">
+        <p style="color: var(--text-muted); margin-bottom: 14px;">Chưa có ảnh nào trong dải ảnh.</p>
+        <button class="btn btn-primary btn-sm" onclick="addMarqueeItem()">+ Thêm ảnh đầu tiên</button>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = d.marquee_items.map((it, idx) => {
+    const hasRealImage = it.image && !it.image.includes('timeline_1996.png') && !it.image.includes('template_error.png');
+
+    return `
+    <div class="card" style="border: 1px solid ${hasRealImage ? 'var(--border)' : 'rgba(245, 158, 11, 0.4)'}; background: var(--bg-card); margin-bottom: 14px; border-radius: 12px; overflow: hidden;">
+      
+      <!-- Card Header: Index, Title, Status & Controls -->
+      <div style="padding: 10px 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <span class="badge badge-primary" style="font-size: 12px;">#${idx + 1}</span>
+          <span style="font-weight: 700; font-size: 14px; color: var(--text-primary);">${escapeHtml(it.name || 'Ảnh chưa đặt tên')}</span>
+          ${it.year ? `<span style="font-size: 12.5px; font-weight: 700; color: #fbbf24;">(${escapeHtml(it.year)})</span>` : ''}
+          ${hasRealImage ? `
+            <span class="badge badge-success"><i class="fas fa-check-circle"></i> Đã có ảnh</span>
+          ` : `
+            <span class="badge badge-warning"><i class="fas fa-exclamation-triangle"></i> Cần tải ảnh</span>
+          `}
+        </div>
+
+        <!-- Quick-Fill Preset & Reorder/Delete buttons -->
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <select class="form-select form-select-sm" style="font-size: 11.5px; padding: 2px 8px; width: auto; max-width: 240px; height: 28px; background: var(--bg-input); border-color: var(--border); color: var(--text-secondary);" onchange="applyLeaderPresetToItem(${idx}, this.value)">
+            <option value="">⚡ Chọn từ 21 Lãnh tụ...</option>
+            ${LEADERS_DATABASE_20.map((l, li) => `
+              <option value="${l.id}" ${(it.name && it.name.trim().toLowerCase() === l.name.trim().toLowerCase()) ? 'selected' : ''}>
+                ${li + 1}. ${escapeHtml(l.name)} (${escapeHtml(l.year)})
+              </option>
+            `).join('')}
+          </select>
+
+          ${it.url ? `
+            <a href="${escapeHtml(it.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success" style="padding: 3px 8px; font-size: 11px;" title="Mở trang tư liệu gốc">
+              <i class="fas fa-external-link-alt"></i>
+            </a>
+          ` : ''}
+
+          <div class="btn-group" style="display: inline-flex; border-radius: 6px; overflow: hidden; border: 1px solid var(--border);">
+            <button class="btn btn-sm btn-secondary" onclick="moveMarqueeItem(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} title="Di chuyển lên" style="padding: 4px 8px;">
+              <i class="fas fa-arrow-up"></i>
+            </button>
+            <button class="btn btn-sm btn-secondary" onclick="moveMarqueeItem(${idx}, 1)" ${idx === d.marquee_items.length - 1 ? 'disabled' : ''} title="Di chuyển xuống" style="padding: 4px 8px;">
+              <i class="fas fa-arrow-down"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteMarqueeItem(${idx})" title="Xoá ảnh này" style="padding: 4px 8px;">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Body: Thumbnail & Form fields -->
+      <div style="padding: 16px 18px; display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap;">
+        
+        <!-- Thumbnail & Upload -->
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+          <div 
+            onclick="document.getElementById('marquee-file-${idx}').click()" 
+            style="width: 80px; height: 80px; border-radius: 8px; overflow: hidden; background: var(--bg-input); border: 1.5px solid ${hasRealImage ? 'var(--border)' : '#fbbf24'}; flex-shrink: 0; cursor: pointer; position: relative;"
+            title="Bấm để tải ảnh chân dung mới từ máy tính"
+          >
+            <img src="${escapeHtml(it.image)}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='/assets/img/timeline_1996.png'">
+            ${!hasRealImage ? `
+              <div style="position: absolute; inset: 0; background: rgba(245, 158, 11, 0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #1c1917;">
+                <i class="fas fa-camera" style="font-size: 16px; margin-bottom: 2px;"></i>
+                <span style="font-size: 9px; font-weight: 800; text-transform: uppercase;">Tải ảnh</span>
+              </div>
+            ` : ''}
+          </div>
+          <input type="file" id="marquee-file-${idx}" accept="image/*" style="display: none;" onchange="uploadMarqueeItemImage(${idx}, this)">
+          <button class="btn btn-sm ${hasRealImage ? 'btn-secondary' : 'btn-primary'}" onclick="document.getElementById('marquee-file-${idx}').click()" style="width: 80px; padding: 3px 0; font-size: 11px; font-weight: 600;">
+            <i class="fas fa-upload"></i> ${hasRealImage ? 'Đổi ảnh' : 'Tải ảnh'}
+          </button>
+        </div>
+
+        <!-- Fields Grid -->
+        <div style="flex: 1; min-width: 280px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+          <!-- Image URL -->
+          <div style="min-width: 220px;">
+            <label style="font-size: 11.5px; font-weight: 600; color: var(--text-secondary); margin-bottom: 3px; display: block;">
+              Đường dẫn ảnh:
+            </label>
+            <input type="text" class="form-control form-control-sm" value="${escapeHtml(it.image)}" oninput="updateMarqueeItem(${idx}, 'image', this.value)" style="font-size: 12px;">
+          </div>
+
+          <!-- Name / Person Label -->
+          <div>
+            <label style="font-size: 11.5px; font-weight: 600; color: var(--text-secondary); margin-bottom: 3px; display: block;">Tên nhân vật / Nhãn chính:</label>
+            <input type="text" class="form-control form-control-sm" placeholder="VD: Karl Marx" value="${escapeHtml(it.name || '')}" oninput="updateMarqueeItem(${idx}, 'name', this.value)" style="font-size: 12px; font-weight: 700; color: var(--text-primary);">
+          </div>
+
+          <!-- Year / Sub-Label -->
+          <div style="max-width: 160px;">
+            <label style="font-size: 11.5px; font-weight: 600; color: var(--text-secondary); margin-bottom: 3px; display: block;">Năm / Mốc thời gian:</label>
+            <input type="text" class="form-control form-control-sm" placeholder="VD: 1818 – 1883" value="${escapeHtml(it.year || '')}" oninput="updateMarqueeItem(${idx}, 'year', this.value)" style="font-weight: 700; color: #fbbf24; font-size: 12px;">
+          </div>
+
+          <!-- Title / Tooltip -->
+          <div>
+            <label style="font-size: 11.5px; font-weight: 600; color: var(--text-secondary); margin-bottom: 3px; display: block;">Tiêu đề / Chú thích tooltip:</label>
+            <input type="text" class="form-control form-control-sm" placeholder="VD: Nhà triết học và kinh tế học" value="${escapeHtml(it.title || '')}" oninput="updateMarqueeItem(${idx}, 'title', this.value)" style="font-size: 12px;">
+          </div>
+
+          <!-- Destination URL -->
+          <div style="grid-column: 1 / -1;">
+            <label style="font-size: 11.5px; font-weight: 600; color: var(--accent-light); margin-bottom: 3px; display: flex; align-items: center; gap: 5px;">
+              <i class="fas fa-link"></i>
+              <span>Đường dẫn liên kết khi bấm vào ảnh (URL):</span>
+              <span style="font-size: 11px; color: var(--text-muted); font-weight: normal;">(Để trống nếu chưa có link)</span>
+            </label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" class="form-control form-control-sm" placeholder="VD: https://tulieuvankien.dangcongsan.vn/..." value="${escapeHtml(it.url || '')}" oninput="updateMarqueeItem(${idx}, 'url', this.value)" style="font-size: 12px; flex: 1;">
+              <select class="form-select form-select-sm" onchange="updateMarqueeItem(${idx}, 'target', this.value)" style="width: 120px; font-size: 12px; background: var(--bg-input); border-color: var(--border); color: var(--text-secondary);">
+                <option value="_blank" ${it.target !== '_self' ? 'selected' : ''}>Mở tab mới</option>
+                <option value="_self" ${it.target === '_self' ? 'selected' : ''}>Cùng tab</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+    `;
+  }).join('');
+}
+
+function updateMarqueeItem(idx, field, val) {
+  if (!currentHbData.marquee_items || !currentHbData.marquee_items[idx]) return;
+  currentHbData.marquee_items[idx][field] = val;
+  updateMarqueeAdminPreview();
+}
+
+function applyLeaderPresetToItem(idx, leaderId) {
+  if (!currentHbData.marquee_items || !currentHbData.marquee_items[idx]) return;
+  const leader = LEADERS_DATABASE_20.find(l => l.id === leaderId);
+  if (!leader) return;
+
+  const item = currentHbData.marquee_items[idx];
+  item.name = leader.name;
+  item.year = leader.year;
+  item.title = leader.title;
+  item.url = leader.url;
+  item.target = '_blank';
+
+  if ((!item.image || item.image.includes('timeline_1996.png')) && leader.defaultImage) {
+    item.image = leader.defaultImage;
+  }
+
+  renderMarqueeItemsList();
+  updateMarqueeAdminPreview();
+  showToast(`Đã tự điền tên, năm và link cho "${leader.name}"!`, "success");
+}
+
+function addLeaderFromDatabase(leaderId) {
+  const leader = LEADERS_DATABASE_20.find(l => l.id === leaderId);
+  if (!leader) return;
+
+  if (!Array.isArray(currentHbData.marquee_items)) {
+    currentHbData.marquee_items = [];
+  }
+  const nextId = currentHbData.marquee_items.length + 1;
+  currentHbData.marquee_items.push({
+    id: nextId,
+    image: leader.defaultImage || '/assets/img/timeline_1996.png',
+    name: leader.name,
+    year: leader.year,
+    title: leader.title,
+    url: leader.url,
+    target: '_blank'
+  });
+
+  renderMarqueeItemsList();
+  updateMarqueeAdminPreview();
+  showToast(`Đã thêm card "${leader.name}" vào dải ảnh! Bạn có thể bấm "Tải ảnh ngay" để chọn ảnh.`, "success");
+}
+
+function addAllMissingLeadersToMarquee() {
+  if (!Array.isArray(currentHbData.marquee_items)) {
+    currentHbData.marquee_items = [];
+  }
+  const existingNames = new Set(
+    currentHbData.marquee_items.map(it => (it.name || '').trim().toLowerCase())
+  );
+  const existingUrls = new Set(
+    currentHbData.marquee_items.filter(it => it.url).map(it => it.url.trim().toLowerCase())
+  );
+  
+  let addedCount = 0;
+  LEADERS_DATABASE_20.forEach(l => {
+    const byName = existingNames.has(l.name.trim().toLowerCase());
+    const byUrl = l.url && existingUrls.has(l.url.trim().toLowerCase());
+    if (!byName && !byUrl) {
+      currentHbData.marquee_items.push({
+        id: currentHbData.marquee_items.length + 1,
+        image: l.defaultImage || '/assets/img/timeline_1996.png',
+        name: l.name,
+        year: l.year,
+        title: l.title,
+        url: l.url,
+        target: '_blank'
+      });
+      existingNames.add(l.name.trim().toLowerCase());
+      addedCount++;
+    }
+  });
+
+  renderMarqueeItemsList();
+  updateMarqueeAdminPreview();
+  if (addedCount > 0) {
+    showToast(`Đã thêm ${addedCount} card lãnh tụ còn thiếu vào dải ảnh! Bạn có thể bấm "Tải ảnh ngay" cho từng vị.`, "success");
+  } else {
+    showToast("Tất cả 21 Lãnh tụ đã có sẵn card trong dải ảnh!", "info");
+  }
+}
+
+function addMarqueeItem() {
+  if (!Array.isArray(currentHbData.marquee_items)) {
+    currentHbData.marquee_items = [];
+  }
+  const nextId = currentHbData.marquee_items.length + 1;
+  currentHbData.marquee_items.push({
+    id: nextId,
+    image: '/assets/img/timeline_1996.png',
+    year: '2026',
+    title: 'Mốc sự kiện mới',
+    url: '',
+    target: '_blank'
+  });
+  renderMarqueeItemsList();
+  updateMarqueeAdminPreview();
+  showToast("Đã thêm mốc ảnh mới vào danh sách!", "success");
+}
+
+function deleteMarqueeItem(idx) {
+  if (!confirm("Bạn có chắc chắn muốn xóa mốc ảnh này khỏi dải ảnh?")) return;
+  currentHbData.marquee_items.splice(idx, 1);
+  renderMarqueeItemsList();
+  updateMarqueeAdminPreview();
+  showToast("Đã xóa ảnh!", "info");
+}
+
+function moveMarqueeItem(idx, dir) {
+  const targetIdx = idx + dir;
+  if (targetIdx < 0 || targetIdx >= currentHbData.marquee_items.length) return;
+  const temp = currentHbData.marquee_items[idx];
+  currentHbData.marquee_items[idx] = currentHbData.marquee_items[targetIdx];
+  currentHbData.marquee_items[targetIdx] = temp;
+  renderMarqueeItemsList();
+  updateMarqueeAdminPreview();
+}
+
+async function uploadMarqueeItemImage(idx, input) {
+  if (!input.files || input.files.length === 0) return;
+  const file = input.files[0];
+  const formData = new FormData();
+  formData.append('image', file);
+
+  showLoading();
+  try {
+    const res = await fetch(`${API}/upload`, {
+      method: 'POST',
+      body: formData
+    }).then(r => r.json());
+
+    if (res.success) {
+      updateMarqueeItem(idx, 'image', res.path);
+      renderMarqueeItemsList();
+      showToast("Tải ảnh lên thành công!", "success");
+    } else {
+      showToast("Lỗi tải ảnh: " + (res.error || "Unknown"), "error");
+    }
+  } catch (err) {
+    showToast("Lỗi mạng khi tải ảnh", "error");
+  } finally {
+    hideLoading();
+  }
+}
+
+async function uploadMissingLeaderImage(leaderId, input) {
+  if (!input.files || input.files.length === 0) return;
+  const file = input.files[0];
+  const formData = new FormData();
+  formData.append('image', file);
+
+  showLoading();
+  try {
+    const res = await fetch(`${API}/upload`, {
+      method: 'POST',
+      body: formData
+    }).then(r => r.json());
+
+    if (res.success) {
+      const leader = LEADERS_DATABASE_20.find(l => l.id === leaderId);
+      if (!leader) return;
+
+      if (!Array.isArray(currentHbData.marquee_items)) {
+        currentHbData.marquee_items = [];
+      }
+
+      const existingIdx = currentHbData.marquee_items.findIndex(it => 
+        (it.name && it.name.trim().toLowerCase() === leader.name.trim().toLowerCase()) ||
+        (it.url && it.url === leader.url)
+      );
+
+      if (existingIdx >= 0) {
+        currentHbData.marquee_items[existingIdx].image = res.path;
+      } else {
+        currentHbData.marquee_items.push({
+          id: currentHbData.marquee_items.length + 1,
+          image: res.path,
+          name: leader.name,
+          year: leader.year,
+          title: leader.title,
+          url: leader.url,
+          target: '_blank'
+        });
+      }
+
+      renderMarqueeItemsList();
+      updateMarqueeAdminPreview();
+      showToast(`Đã tải ảnh lên thành công cho lãnh tụ "${leader.name}"!`, "success");
+    } else {
+      showToast("Lỗi tải ảnh: " + (res.error || "Unknown"), "error");
+    }
+  } catch (err) {
+    showToast("Lỗi mạng khi tải ảnh", "error");
+  } finally {
+    hideLoading();
+  }
+}
+
+function applyMarqueePreset(type) {
+  if (type === 'leaders12' || type === 'leaders10' || type === 'leaders5') {
+    if (!confirm("Chuyển dải ảnh sang bộ 12 Lãnh tụ / Nhà Tư tưởng XHCN (định dạng WebP siêu nhẹ)?")) return;
+    currentHbData.marquee_items = JSON.parse(JSON.stringify(MARQUEE_PRESET_LEADERS));
+    currentHbData.marquee_height = 260;
+    currentHbData.marquee_gap = 0;
+    currentHbData.marquee_show_labels = true;
+    showToast("Đã áp dụng bộ 12 Lãnh tụ WebP!", "success");
+  } else if (type === 'leaders21' || type === 'leaders21_full') {
+    if (!confirm("Chuyển dải ảnh sang trọn bộ 21 Lãnh tụ ĐCSVN (gồm 12 vị có sẵn WebP + 9 vị hiển thị sẵn card để bạn tải ảnh lên)?")) return;
+    currentHbData.marquee_items = LEADERS_DATABASE_20.map((l, i) => ({
+      id: i + 1,
+      image: l.defaultImage || '/assets/img/timeline_1996.png',
+      name: l.name,
+      year: l.year,
+      title: l.title,
+      url: l.url,
+      target: '_blank'
+    }));
+    currentHbData.marquee_height = 260;
+    currentHbData.marquee_gap = 0;
+    currentHbData.marquee_show_labels = true;
+    showToast("Đã nạp trọn bộ 21 Lãnh tụ! Các card còn thiếu đã sẵn sàng để tải ảnh.", "success");
+  } else if (type === 'congress7') {
+    if (!confirm("Chuyển dải ảnh sang bộ 7 Mốc son Đại hội Đảng (1996 – 2026)?")) return;
+    currentHbData.marquee_items = JSON.parse(JSON.stringify(MARQUEE_PRESET_CONGRESS));
+    currentHbData.marquee_height = 215;
+    currentHbData.marquee_gap = 0;
+    currentHbData.marquee_show_labels = false;
+    showToast("Đã áp dụng bộ 7 mốc Đại hội Đảng!", "success");
+  } else if (type === 'all19' || type === 'all17' || type === 'all12' || type === 'all28') {
+    if (!confirm("Gộp cả Lãnh tụ và 7 Mốc Đại hội thành chuỗi dải ảnh tự chạy?")) return;
+    const baseLeaders = (currentHbData.marquee_items && currentHbData.marquee_items.length >= 21)
+      ? currentHbData.marquee_items
+      : LEADERS_DATABASE_20.map((l, i) => ({
+          id: i + 1,
+          image: l.defaultImage || '/assets/img/timeline_1996.png',
+          name: l.name,
+          year: l.year,
+          title: l.title,
+          url: l.url,
+          target: '_blank'
+        }));
+    const combined = [
+      ...JSON.parse(JSON.stringify(baseLeaders)),
+      ...JSON.parse(JSON.stringify(MARQUEE_PRESET_CONGRESS))
+    ].map((it, i) => ({ ...it, id: i + 1 }));
+    currentHbData.marquee_items = combined;
+    currentHbData.marquee_height = 250;
+    currentHbData.marquee_gap = 0;
+    currentHbData.marquee_show_labels = true;
+    showToast(`Đã gộp toàn bộ ${combined.length} ảnh!`, "success");
+  }
+  renderTuTuongUI();
+  switchHbTab(6);
+}
+
+function resetMarqueeToDefault() {
+  applyMarqueePreset('leaders12');
 }
 
 function setHbDragTarget(target) {
@@ -7983,24 +9338,26 @@ function setHbDragTarget(target) {
   
   [btnP, btnD, btnM].forEach(b => {
     if (b) {
-      b.style.background = '#fff';
-      b.style.color = '#555';
+      b.classList.remove('btn-primary');
+      b.classList.add('btn-secondary');
+      b.style.background = '';
+      b.style.color = '';
     }
   });
 
   if (target === 'portrait' && btnP) {
-    btnP.style.background = '#68350B';
-    btnP.style.color = '#fff';
+    btnP.classList.remove('btn-secondary');
+    btnP.classList.add('btn-primary');
     if (drumBox) drumBox.style.cursor = 'default';
     if (container) container.style.cursor = 'default';
   } else if (target === 'drum' && btnD) {
-    btnD.style.background = '#68350B';
-    btnD.style.color = '#fff';
+    btnD.classList.remove('btn-secondary');
+    btnD.classList.add('btn-primary');
     if (drumBox) drumBox.style.cursor = 'crosshair';
     if (container) container.style.cursor = 'default';
   } else if (target === 'master' && btnM) {
-    btnM.style.background = '#68350B';
-    btnM.style.color = '#fff';
+    btnM.classList.remove('btn-secondary');
+    btnM.classList.add('btn-primary');
     if (drumBox) drumBox.style.cursor = 'ew-resize';
     if (container) container.style.cursor = 'ew-resize';
   }

@@ -4,7 +4,9 @@ import * as yaml from 'js-yaml';
 import matter from 'gray-matter';
 
 // Root of the Jekyll site (one level up from portfolio-react)
-const ROOT = path.join(process.cwd(), '..');
+const ROOT = fs.existsSync(path.join(process.cwd(), '_pages'))
+  ? process.cwd()
+  : path.join(process.cwd(), '..');
 
 export function getConfig(lang = 'vi') {
   const fileContents = fs.readFileSync(path.join(ROOT, '_config.yml'), 'utf8');

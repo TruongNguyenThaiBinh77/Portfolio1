@@ -53,27 +53,6 @@ cv:
         highlights_en:
           - Major in Software Engineering (K18)
           - GPA 3.5/4.0
-      - institution: Đại học Bách Khoa - ĐHQGHCM
-        institution_en: Ho Chi Minh City University of Technology (HCMUT)
-        location: Thành phố Hồ Chí Minh
-        location_en: Ho Chi Minh City
-        area: ""
-        area_en: ""
-        studyType: Khóa học ngắn hạn Robotics
-        studyType_en: Short course in Robotics
-        start_date: 09-2023
-        start_date_en: Sep 2023
-        end_date: 12-2023
-        end_date_en: Dec 2023
-        logo: 01_logobachkhoasang.png
-        logo_size: "110"
-        url: ""
-        highlights:
-          - Nghiên cứu chế tạo xe Mecanum ứng dụng IoT
-          - Xếp loại Giỏi cuối khóa
-        highlights_en:
-          - Researched and built a Mecanum robot with IoT applications
-          - Achieved an Honorable grade for the final project
       - institution: Đại học Tunku Abdul Rahman
         institution_en: Tunku Abdul Rahman University
         location: bang Penang, Malaysia
@@ -91,6 +70,27 @@ cv:
         url: ""
         highlights: []
         highlights_en: []
+      - institution: Trường Đại học Bách Khoa - ĐHQG TP.HCM
+        institution_en: Ho Chi Minh City University of Technology (HCMUT)
+        location: ""
+        location_en: ""
+        area: ""
+        area_en: ""
+        studyType: Khóa đào tạo ngắn hạn về IoT và Hệ thống nhúng
+        studyType_en: Short-term Training on IoT and Embedded Systems
+        start_date: 09-2023
+        start_date_en: Sep 2023
+        end_date: 12-2023
+        end_date_en: Dec 2023
+        logo: 01_logobachkhoasang.png
+        logo_size: "110"
+        url: ""
+        highlights:
+          - Nghiên cứu chế tạo xe Mecanum ứng dụng IoT
+          - Đạt điểm A đồ án cuối khóa
+        highlights_en:
+          - Researched and built a Mecanum robot with IoT applications
+          - Achieved an A grade for the final project
     Experience:
       - company: Công ty TNHH Amazon Web Services Việt Nam
         company_en: Amazon Web Services Vietnam Co., Ltd.
