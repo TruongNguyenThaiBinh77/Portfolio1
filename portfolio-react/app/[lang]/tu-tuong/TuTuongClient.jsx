@@ -18,6 +18,7 @@ function DraggableTimelineMarquee({
 
   const isDraggingRef = React.useRef(false);
   const hasMovedRef = React.useRef(false);
+  const isCapturedRef = React.useRef(false);
   const startXRef = React.useRef(0);
   const startYRef = React.useRef(0);
   const scrollStartRef = React.useRef(0);
@@ -93,14 +94,14 @@ function DraggableTimelineMarquee({
 
     isDraggingRef.current = true;
     hasMovedRef.current = false;
+    isCapturedRef.current = false;
     startXRef.current = e.clientX;
     startYRef.current = e.clientY;
     scrollStartRef.current = container.scrollLeft;
-    setIsGrabbing(true);
 
-    try {
-      container.setPointerCapture(e.pointerId);
-    } catch (_) {}
+    // NOTE: Do NOT setPointerCapture or setIsGrabbing here!
+    // Setting pointer capture or disabling pointer events on pointerdown prevents
+    // click events from being synthesized on child <a> elements on both desktop and mobile.
   };
 
   const handlePointerMove = (e) => {
@@ -114,20 +115,26 @@ function DraggableTimelineMarquee({
 
     // If on touch and moving vertically more than horizontally initially, allow page scroll
     if (e.pointerType === 'touch' && !hasMovedRef.current) {
-      if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 7) {
+      if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8) {
         isDraggingRef.current = false;
         setIsGrabbing(false);
-        try {
-          if (container.hasPointerCapture(e.pointerId)) {
-            container.releasePointerCapture(e.pointerId);
-          }
-        } catch (_) {}
         return;
       }
     }
 
-    if (Math.abs(dx) > 3) {
-      hasMovedRef.current = true;
+    // Standard drag threshold (8px for touch, 5px for mouse)
+    const threshold = e.pointerType === 'touch' ? 8 : 5;
+    if (!hasMovedRef.current) {
+      if (Math.abs(dx) > threshold) {
+        hasMovedRef.current = true;
+        setIsGrabbing(true);
+        try {
+          container.setPointerCapture(e.pointerId);
+          isCapturedRef.current = true;
+        } catch (_) {}
+      } else {
+        return;
+      }
     }
 
     container.scrollLeft = scrollStartRef.current - dx;
@@ -146,29 +153,38 @@ function DraggableTimelineMarquee({
   };
 
   const handlePointerUp = (e) => {
+    const didDrag = hasMovedRef.current;
     isDraggingRef.current = false;
     setIsGrabbing(false);
+
     try {
-      if (containerRef.current?.hasPointerCapture(e.pointerId)) {
+      if (isCapturedRef.current && containerRef.current?.hasPointerCapture(e.pointerId)) {
         containerRef.current.releasePointerCapture(e.pointerId);
       }
     } catch (_) {}
-    setTimeout(() => {
+    isCapturedRef.current = false;
+
+    if (didDrag) {
+      // Keep hasMovedRef.current = true briefly so the trailing click event from dragging is blocked
+      setTimeout(() => {
+        hasMovedRef.current = false;
+      }, 50);
+    } else {
+      // Pure click / tap: immediately false
       hasMovedRef.current = false;
-    }, 60);
+    }
   };
 
   const handlePointerCancel = (e) => {
     isDraggingRef.current = false;
+    hasMovedRef.current = false;
+    isCapturedRef.current = false;
     setIsGrabbing(false);
     try {
       if (containerRef.current?.hasPointerCapture(e.pointerId)) {
         containerRef.current.releasePointerCapture(e.pointerId);
       }
     } catch (_) {}
-    setTimeout(() => {
-      hasMovedRef.current = false;
-    }, 60);
   };
 
   const handleDragStart = (e) => {
@@ -176,11 +192,25 @@ function DraggableTimelineMarquee({
     return false;
   };
 
-  const handleLinkClick = (e) => {
+  const handleLinkClick = (e, item) => {
     if (hasMovedRef.current) {
       e.preventDefault();
       e.stopPropagation();
       return false;
+    }
+
+    // Direct click/tap: ensure smooth navigation across all desktop & mobile browsers
+    if (item && item.url) {
+      const url = String(item.url).trim();
+      if (url && url !== '#') {
+        const target = item.target || '_blank';
+        if (target === '_blank') {
+          const opened = window.open(url, '_blank', 'noopener,noreferrer');
+          if (opened) {
+            e.preventDefault();
+          }
+        }
+      }
     }
   };
 
@@ -284,7 +314,7 @@ function DraggableTimelineMarquee({
               style={{ height: '100%' }}
               draggable="false"
               onDragStart={handleDragStart}
-              onClick={handleLinkClick}
+              onClick={(e) => handleLinkClick(e, item)}
             >
               {itemContent}
             </a>
@@ -477,7 +507,6 @@ export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
         }
         .timeline-marquee-container.is-grabbing * {
           cursor: grabbing !important;
-          pointer-events: none !important;
           user-select: none !important;
           -webkit-user-select: none !important;
         }
