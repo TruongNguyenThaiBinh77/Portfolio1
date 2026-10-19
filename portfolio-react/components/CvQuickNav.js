@@ -10,13 +10,18 @@ export default function CvQuickNav({ sections = [], lang = 'vi' }) {
   useEffect(() => {
     const handleScroll = () => {
       const isMobile = window.innerWidth < 768;
-      const scrollPosition = window.scrollY + (isMobile ? 120 : 130);
-      
+      const offsetThreshold = isMobile ? 140 : 120;
+
+      if (window.scrollY < 80 && sections.length > 0) {
+        setActiveSection(sections[0].id);
+        return;
+      }
+
       for (let i = sections.length - 1; i >= 0; i--) {
         const el = document.getElementById(sections[i].id);
         if (el) {
-          const top = el.offsetTop;
-          if (scrollPosition >= top) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= offsetThreshold) {
             setActiveSection(sections[i].id);
             break;
           }
@@ -30,17 +35,21 @@ export default function CvQuickNav({ sections = [], lang = 'vi' }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [sections]);
 
-  // Keep active button visible in mobile horizontal pill bar
+  // Keep active button visible in mobile horizontal pill bar without scrolling the window
   useEffect(() => {
-    if (activeSection && buttonRefs.current[activeSection]) {
-      const btn = buttonRefs.current[activeSection];
-      if (btn && pillBarRef.current) {
-        btn.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest',
-          inline: 'center'
-        });
-      }
+    if (!activeSection) return;
+    const container = pillBarRef.current;
+    const btn = buttonRefs.current[activeSection];
+
+    if (container && btn && container.offsetWidth > 0) {
+      const containerRect = container.getBoundingClientRect();
+      const btnRect = btn.getBoundingClientRect();
+      const targetScrollLeft = container.scrollLeft + (btnRect.left - containerRect.left) - (container.clientWidth / 2) + (btn.offsetWidth / 2);
+
+      container.scrollTo({
+        left: Math.max(0, targetScrollLeft),
+        behavior: 'smooth'
+      });
     }
   }, [activeSection]);
 
