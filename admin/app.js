@@ -7060,7 +7060,7 @@ const DEFAULT_HB_CONFIG = {
   drum_box_radius: 16,
   drum_box_height: 410,
   drum_box_margin_left: 140,
-  drum_image: "/assets/img/background-trong-dong-png_095238288.png",
+  drum_image: "/assets/img/background-trong-dong-png_095238288.webp",
   drum_x: 47,
   drum_y: 71,
   drum_size: 560,
@@ -7070,7 +7070,7 @@ const DEFAULT_HB_CONFIG = {
   drum_sepia: 35,
   drum_saturate: 115,
   drum_blend_mode: "normal",
-  portrait_image: "/assets/img/BacHo.png",
+  portrait_image: "/assets/img/BacHo.webp",
   portrait_x: 0,
   portrait_y: 0,
   portrait_scale: 100,
@@ -7343,13 +7343,13 @@ const MARQUEE_PRESET_LEADERS = [
 ];
 
 const MARQUEE_PRESET_CONGRESS = [
-  { id: 1, image: "/assets/img/timeline_1996.png", name: "Đại hội VIII", year: "1996", title: "Đại hội Đảng VIII (1996)", url: "", target: "_blank" },
-  { id: 2, image: "/assets/img/timeline_2001.png", name: "Đại hội IX", year: "2001", title: "Đại hội Đảng IX (2001)", url: "", target: "_blank" },
-  { id: 3, image: "/assets/img/timeline_2006.png", name: "Đại hội X", year: "2006", title: "Đại hội Đảng X (2006)", url: "", target: "_blank" },
-  { id: 4, image: "/assets/img/timeline_2011.png", name: "Đại hội XI", year: "2011", title: "Đại hội Đảng XI (2011)", url: "", target: "_blank" },
-  { id: 5, image: "/assets/img/timeline_2016.png", name: "Đại hội XII", year: "2016", title: "Đại hội Đảng XII (2016)", url: "", target: "_blank" },
-  { id: 6, image: "/assets/img/timeline_2021.png", name: "Đại hội XIII", year: "2021", title: "Đại hội Đảng XIII (2021)", url: "", target: "_blank" },
-  { id: 7, image: "/assets/img/timeline_2026.png", name: "Đại hội XIV", year: "2026", title: "Đại hội Đảng XIV (2026)", url: "", target: "_blank" }
+  { id: 1, image: "/assets/img/timeline_1996.webp", name: "Đại hội VIII", year: "1996", title: "Đại hội Đảng VIII (1996)", url: "", target: "_blank" },
+  { id: 2, image: "/assets/img/timeline_2001.webp", name: "Đại hội IX", year: "2001", title: "Đại hội Đảng IX (2001)", url: "", target: "_blank" },
+  { id: 3, image: "/assets/img/timeline_2006.webp", name: "Đại hội X", year: "2006", title: "Đại hội Đảng X (2006)", url: "", target: "_blank" },
+  { id: 4, image: "/assets/img/timeline_2011.webp", name: "Đại hội XI", year: "2011", title: "Đại hội Đảng XI (2011)", url: "", target: "_blank" },
+  { id: 5, image: "/assets/img/timeline_2016.webp", name: "Đại hội XII", year: "2016", title: "Đại hội Đảng XII (2016)", url: "", target: "_blank" },
+  { id: 6, image: "/assets/img/timeline_2021.webp", name: "Đại hội XIII", year: "2021", title: "Đại hội Đảng XIII (2021)", url: "", target: "_blank" },
+  { id: 7, image: "/assets/img/timeline_2026.webp", name: "Đại hội XIV", year: "2026", title: "Đại hội Đảng XIV (2026)", url: "", target: "_blank" }
 ];
 
 let currentHbData = { ...DEFAULT_HB_CONFIG };

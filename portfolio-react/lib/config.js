@@ -3,18 +3,50 @@ import path from 'path';
 import * as yaml from 'js-yaml';
 import matter from 'gray-matter';
 
-// Root of the Jekyll site (one level up from portfolio-react)
-const ROOT = fs.existsSync(path.join(process.cwd(), '_pages'))
-  ? process.cwd()
-  : path.join(process.cwd(), '..');
+// Robust content root resolver across local development and Vercel serverless deployment
+export function getResolvedRoot() {
+  const candidates = [
+    // 1. Bundled content inside portfolio-react (used in Vercel production)
+    path.join(process.cwd(), 'content'),
+    path.join(process.cwd(), 'portfolio-react', 'content'),
+    // 2. Parent directory (local development where admin panel modifies files)
+    path.join(process.cwd(), '..'),
+    // 3. Current working directory
+    process.cwd(),
+  ];
+
+  for (const candidate of candidates) {
+    try {
+      if (fs.existsSync(path.join(candidate, '_config.yml'))) {
+        return candidate;
+      }
+    } catch (e) {
+      // Ignore permission or file check errors
+    }
+  }
+
+  return path.join(process.cwd(), '..');
+}
+
+export const ROOT = getResolvedRoot();
 
 export function getConfig(lang = 'vi') {
-  const fileContents = fs.readFileSync(path.join(ROOT, '_config.yml'), 'utf8');
-  let config = yaml.load(fileContents) || {};
-  config = JSON.parse(JSON.stringify(config));
+  let config = {};
+  const rootDir = getResolvedRoot();
+  const cfgPath = path.join(rootDir, '_config.yml');
+
+  try {
+    if (fs.existsSync(cfgPath)) {
+      const fileContents = fs.readFileSync(cfgPath, 'utf8');
+      config = yaml.load(fileContents) || {};
+      config = JSON.parse(JSON.stringify(config));
+    }
+  } catch (err) {
+    console.error('Error reading _config.yml:', err);
+  }
 
   // Merge _data/socials.yml if exists
-  const socialsPath = path.join(ROOT, '_data', 'socials.yml');
+  const socialsPath = path.join(rootDir, '_data', 'socials.yml');
   if (fs.existsSync(socialsPath)) {
     try {
       const socialsData = yaml.load(fs.readFileSync(socialsPath, 'utf8')) || {};
@@ -42,10 +74,22 @@ export function getConfig(lang = 'vi') {
 }
 
 export function getPageContent(fileName, lang = 'vi') {
-  const filePath = path.join(ROOT, '_pages', fileName);
-  const fileContents = fs.readFileSync(filePath, 'utf8');
-  let { data, content } = matter(fileContents);
-  data = JSON.parse(JSON.stringify(data || {}));
+  let data = {};
+  let content = '';
+  const rootDir = getResolvedRoot();
+  const filePath = path.join(rootDir, '_pages', fileName);
+
+  try {
+    if (fs.existsSync(filePath)) {
+      const fileContents = fs.readFileSync(filePath, 'utf8');
+      const parsed = matter(fileContents);
+      data = JSON.parse(JSON.stringify(parsed.data || {}));
+      content = parsed.content || '';
+    }
+  } catch (err) {
+    console.error(`Error reading page content ${fileName}:`, err);
+  }
+
   if (lang === 'en') {
     Object.keys(data).forEach(key => {
       if (key.endsWith('_en')) {
@@ -59,124 +103,143 @@ export function getPageContent(fileName, lang = 'vi') {
 }
 
 export function getNews(lang = 'vi') {
-  const newsDir = path.join(ROOT, '_news');
-  if (!fs.existsSync(newsDir)) return [];
-  const files = fs.readdirSync(newsDir);
-  const news = files
-    .filter(f => f.endsWith('.md'))
-    .map(fileName => {
-      const fileContents = fs.readFileSync(path.join(newsDir, fileName), 'utf8');
-      let { data, content } = matter(fileContents);
-      data = JSON.parse(JSON.stringify(data || {}));
-      if (lang === 'en') {
-        Object.keys(data).forEach(key => {
-          if (key.endsWith('_en')) {
-            const baseKey = key.replace('_en', '');
-            if (data[key]) data[baseKey] = data[key];
-          }
-        });
-        if (data.content_en) content = data.content_en;
-      }
-      let date = data.date;
-      if (!date && fileName.match(/^\d{4}-\d{2}-\d{2}/)) {
-        date = fileName.substring(0, 10);
-      }
-      return {
-        slug: fileName.replace('.md', ''),
-        frontMatter: data,
-        date: date,
-        content: content
-      };
-    })
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
-  return news;
+  try {
+    const rootDir = getResolvedRoot();
+    const newsDir = path.join(rootDir, '_news');
+    if (!fs.existsSync(newsDir)) return [];
+    const files = fs.readdirSync(newsDir);
+    const news = files
+      .filter(f => f.endsWith('.md'))
+      .map(fileName => {
+        const fileContents = fs.readFileSync(path.join(newsDir, fileName), 'utf8');
+        let { data, content } = matter(fileContents);
+        data = JSON.parse(JSON.stringify(data || {}));
+        if (lang === 'en') {
+          Object.keys(data).forEach(key => {
+            if (key.endsWith('_en')) {
+              const baseKey = key.replace('_en', '');
+              if (data[key]) data[baseKey] = data[key];
+            }
+          });
+          if (data.content_en) content = data.content_en;
+        }
+        let date = data.date;
+        if (!date && fileName.match(/^\d{4}-\d{2}-\d{2}/)) {
+          date = fileName.substring(0, 10);
+        }
+        return {
+          slug: fileName.replace('.md', ''),
+          frontMatter: data,
+          date: date,
+          content: content
+        };
+      })
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+    return news;
+  } catch (err) {
+    console.error('Error in getNews:', err);
+    return [];
+  }
 }
 
 export function getCvData(lang = 'vi') {
-  const filePath = path.join(ROOT, '_data', 'cv.yml');
-  if (!fs.existsSync(filePath)) return null;
-  const fileContents = fs.readFileSync(filePath, 'utf8');
-  let data = yaml.load(fileContents);
-  if (lang === 'en' && data && data.cv) {
-    const cv = data.cv;
-    // Translate root level fields in cv
-    Object.keys(cv).forEach(key => {
-      if (key.endsWith('_en')) {
-        const baseKey = key.replace('_en', '');
-        if (cv[key]) cv[baseKey] = cv[key];
-      }
-    });
-
-    const translateArray = (arr) => {
-      if (!Array.isArray(arr)) return;
-      arr.forEach(item => {
-        Object.keys(item).forEach(key => {
-          if (key.endsWith('_en')) {
-            const baseKey = key.replace('_en', '');
-            if (item[key]) item[baseKey] = item[key];
-          }
-        });
+  try {
+    const rootDir = getResolvedRoot();
+    const filePath = path.join(rootDir, '_data', 'cv.yml');
+    if (!fs.existsSync(filePath)) return null;
+    const fileContents = fs.readFileSync(filePath, 'utf8');
+    let data = yaml.load(fileContents);
+    if (lang === 'en' && data && data.cv) {
+      const cv = data.cv;
+      // Translate root level fields in cv
+      Object.keys(cv).forEach(key => {
+        if (key.endsWith('_en')) {
+          const baseKey = key.replace('_en', '');
+          if (cv[key]) cv[baseKey] = cv[key];
+        }
       });
-    };
-    if (cv.sections?.Education) translateArray(cv.sections.Education);
-    if (cv.sections?.Experience) translateArray(cv.sections.Experience);
-    if (cv.sections?.['Honors and Awards']) translateArray(cv.sections['Honors and Awards']);
-    if (cv.sections?.Languages) translateArray(cv.sections.Languages);
-    if (cv.sections?.Skills) translateArray(cv.sections.Skills);
-    if (cv.custom_info) translateArray(cv.custom_info);
+
+      const translateArray = (arr) => {
+        if (!Array.isArray(arr)) return;
+        arr.forEach(item => {
+          Object.keys(item).forEach(key => {
+            if (key.endsWith('_en')) {
+              const baseKey = key.replace('_en', '');
+              if (item[key]) item[baseKey] = item[key];
+            }
+          });
+        });
+      };
+      if (cv.sections?.Education) translateArray(cv.sections.Education);
+      if (cv.sections?.Experience) translateArray(cv.sections.Experience);
+      if (cv.sections?.['Honors and Awards']) translateArray(cv.sections['Honors and Awards']);
+      if (cv.sections?.Languages) translateArray(cv.sections.Languages);
+      if (cv.sections?.Skills) translateArray(cv.sections.Skills);
+      if (cv.custom_info) translateArray(cv.custom_info);
+    }
+    return data;
+  } catch (err) {
+    console.error('Error in getCvData:', err);
+    return null;
   }
-  return data;
 }
 
 export function getTeachings(lang = 'vi') {
-  const dirPath = path.join(ROOT, '_teachings');
-  if (!fs.existsSync(dirPath)) return [];
-  const files = fs.readdirSync(dirPath);
-  const teachings = files
-    .filter(f => f.endsWith('.md'))
-    .map(fileName => {
-      const fileContents = fs.readFileSync(path.join(dirPath, fileName), 'utf8');
-      let { data, content } = matter(fileContents);
-      data = JSON.parse(JSON.stringify(data || {}));
-      if (lang === 'en') {
-        Object.keys(data).forEach(key => {
-          if (key.endsWith('_en')) {
-            const baseKey = key.replace('_en', '');
-            if (data[key]) data[baseKey] = data[key];
-          }
-        });
-        if (data.content_en) content = data.content_en;
+  try {
+    const rootDir = getResolvedRoot();
+    const dirPath = path.join(rootDir, '_teachings');
+    if (!fs.existsSync(dirPath)) return [];
+    const files = fs.readdirSync(dirPath);
+    const teachings = files
+      .filter(f => f.endsWith('.md'))
+      .map(fileName => {
+        const fileContents = fs.readFileSync(path.join(dirPath, fileName), 'utf8');
+        let { data, content } = matter(fileContents);
+        data = JSON.parse(JSON.stringify(data || {}));
+        if (lang === 'en') {
+          Object.keys(data).forEach(key => {
+            if (key.endsWith('_en')) {
+              const baseKey = key.replace('_en', '');
+              if (data[key]) data[baseKey] = data[key];
+            }
+          });
+          if (data.content_en) content = data.content_en;
+        }
+        return {
+          slug: fileName.replace('.md', ''),
+          frontMatter: data,
+          content: content
+        };
+      });
+    teachings.sort((a, b) => {
+      if (b.frontMatter.year !== a.frontMatter.year) {
+        return (b.frontMatter.year || 0) - (a.frontMatter.year || 0);
       }
-      return {
-        slug: fileName.replace('.md', ''),
-        frontMatter: data,
-        content: content
-      };
+      const terms = { 'Fall': 3, 'Summer': 2, 'Spring': 1, 'Winter': 0 };
+      return (terms[b.frontMatter.term] || 0) - (terms[a.frontMatter.term] || 0);
     });
-  teachings.sort((a, b) => {
-    if (b.frontMatter.year !== a.frontMatter.year) {
-      return (b.frontMatter.year || 0) - (a.frontMatter.year || 0);
-    }
-    const terms = { 'Fall': 3, 'Summer': 2, 'Spring': 1, 'Winter': 0 };
-    return (terms[b.frontMatter.term] || 0) - (terms[a.frontMatter.term] || 0);
-  });
-  return teachings;
+    return teachings;
+  } catch (err) {
+    console.error('Error in getTeachings:', err);
+    return [];
+  }
 }
 
 export function getPublications(lang = 'vi') {
-  const filePath = path.join(ROOT, '_bibliography', 'papers.bib');
-  if (!fs.existsSync(filePath)) return [];
-  let fileContents = fs.readFileSync(filePath, 'utf8');
-  
-  // Sanitize for bibtex-parse-js
-  // 1. Remove YAML frontmatter
-  fileContents = fileContents.replace(/^---[\s\S]*?---\n/g, '');
-  // 2. Remove @string definitions as they can cause issues
-  fileContents = fileContents.replace(/@string\{.*?\}/gi, '');
-  // 3. Fix unquoted values (e.g., publisher = aps,) which bibtex-parse-js chokes on if @string is missing
-  fileContents = fileContents.replace(/^\s*([a-zA-Z0-9_-]+)\s*=\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*(,?\s*)$/gm, '  $1 = "{$2}"$3');
-
   try {
+    const rootDir = getResolvedRoot();
+    const filePath = path.join(rootDir, '_bibliography', 'papers.bib');
+    if (!fs.existsSync(filePath)) return [];
+    let fileContents = fs.readFileSync(filePath, 'utf8');
+    
+    // Sanitize for bibtex-parse-js
+    // 1. Remove YAML frontmatter
+    fileContents = fileContents.replace(/^---[\s\S]*?---\n/g, '');
+    // 2. Remove @string definitions as they can cause issues
+    fileContents = fileContents.replace(/@string\{.*?\}/gi, '');
+    // 3. Fix unquoted values (e.g., publisher = aps,) which bibtex-parse-js chokes on if @string is missing
+    fileContents = fileContents.replace(/^\s*([a-zA-Z0-9_-]+)\s*=\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*(,?\s*)$/gm, '  $1 = "{$2}"$3');
+
     const bibtexParse = require('bibtex-parse-js');
     const parsed = bibtexParse.toJSON(fileContents);
     
@@ -205,9 +268,10 @@ export function getPublications(lang = 'vi') {
 }
 
 export function getRepositories() {
-  const filePath = path.join(ROOT, '_data', 'repositories.yml');
-  if (!fs.existsSync(filePath)) return {};
   try {
+    const rootDir = getResolvedRoot();
+    const filePath = path.join(rootDir, '_data', 'repositories.yml');
+    if (!fs.existsSync(filePath)) return {};
     const fileContents = fs.readFileSync(filePath, 'utf8');
     return yaml.load(fileContents) || {};
   } catch (e) {
@@ -303,7 +367,7 @@ export function getAllArticles(lang = 'vi') {
       dateParts: dateParts,
       url: fm.external_url || fm.link,
       pdf: fm.pdf || fm.pdf_url,
-      preview: fm.preview || (item.slug.includes('quan-ly-nha-nuoc') ? 'TCQLNC.jpg' : (item.slug.includes('cong-nghiep-van-hoa') ? 'TCTN.jpg' : '')),
+      preview: fm.preview || (item.slug.includes('quan-ly-nha-nuoc') ? 'TCQLNC.webp' : (item.slug.includes('cong-nghiep-van-hoa') ? 'TCTN.webp' : '')),
       badge_name: fm.badge_name || (lang === 'vi' ? 'TẠP CHÍ' : 'JOURNAL'),
       badge_name_en: fm.badge_name_en || 'JOURNAL',
       badge_color: fm.badge_color || (item.slug.includes('quan-ly-nha-nuoc') ? '#b91c1c' : '#1e3a8a'),
@@ -311,7 +375,7 @@ export function getAllArticles(lang = 'vi') {
       sidebox_text: fm.sidebox_text !== undefined ? fm.sidebox_text : (fm.badge_name || (item.slug.includes('quan-ly-nha-nuoc') ? 'APIN' : 'TẠP CHÍ')),
       sidebox_bg_color: fm.sidebox_bg_color || fm.badge_color || (item.slug.includes('quan-ly-nha-nuoc') ? '#800000' : '#1e3a8a'),
       sidebox_text_color: fm.sidebox_text_color || fm.badge_text_color || '#ffffff',
-      sidebox_image: fm.sidebox_image || fm.preview || (item.slug.includes('quan-ly-nha-nuoc') ? 'TCQLNC.jpg' : (item.slug.includes('cong-nghiep-van-hoa') ? 'TCTN.jpg' : '')),
+      sidebox_image: fm.sidebox_image || fm.preview || (item.slug.includes('quan-ly-nha-nuoc') ? 'TCQLNC.webp' : (item.slug.includes('cong-nghiep-van-hoa') ? 'TCTN.webp' : '')),
       sidebox_width: fm.sidebox_width || 115,
       metric_badges: fm.metric_badges || item.metric_badges || (
         item.slug && item.slug.includes('quan-ly-nha-nuoc')
@@ -347,7 +411,7 @@ export function getAllArticles(lang = 'vi') {
         sidebox_text: fm.sidebox_text !== undefined ? fm.sidebox_text : (fm.badge_name || (item.slug.includes('quan-ly-nha-nuoc') ? 'APIN' : 'TẠP CHÍ')),
         sidebox_bg_color: fm.sidebox_bg_color || fm.badge_color || (item.slug.includes('quan-ly-nha-nuoc') ? '#800000' : '#1e3a8a'),
         sidebox_text_color: fm.sidebox_text_color || fm.badge_text_color || '#ffffff',
-        sidebox_image: fm.sidebox_image || fm.preview || (item.slug.includes('quan-ly-nha-nuoc') ? 'TCQLNC.jpg' : (item.slug.includes('cong-nghiep-van-hoa') ? 'TCTN.jpg' : '')),
+        sidebox_image: fm.sidebox_image || fm.preview || (item.slug.includes('quan-ly-nha-nuoc') ? 'TCQLNC.webp' : (item.slug.includes('cong-nghiep-van-hoa') ? 'TCTN.webp' : '')),
         sidebox_width: fm.sidebox_width || 115,
         metric_badges: fm.metric_badges || item.metric_badges || (
           item.slug && item.slug.includes('quan-ly-nha-nuoc')

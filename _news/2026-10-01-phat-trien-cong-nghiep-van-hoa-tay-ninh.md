@@ -10,7 +10,7 @@ related_posts: false
 external_url: >-
   https://drive.google.com/file/d/1BBw0j1vdRZHRFXnwFqlWVrHdI9TItxnU/view?usp=sharing
 pdf: /assets/pdf/phat-trien-cong-nghiep-van-hoa-tay-ninh.pdf
-preview: TCTN.jpg
+preview: TCTN.webp
 badge_name: TẠP CHÍ
 badge_name_en: JOURNAL
 badge_color: '#1e3a8a'

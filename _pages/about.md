@@ -7,7 +7,7 @@ subtitle_en: 'Software Engineering Student, FPT University'
 profile:
   align: right
   image: >-
-    1788881916439_182076946761013925_4401139420092723248_ede41a0d53191ed44337ac945213c1dd.jpg
+    1788881916439_182076946761013925_4401139420092723248_ede41a0d53191ed44337ac945213c1dd.webp
   image_circular: false
   more_info: |
     <p>Đoàn viên Chi đoàn ấp Gò Cao, xã Hậu Nghĩa, tỉnh Tây Ninh</p>
@@ -19,7 +19,7 @@ profile:
 profile_en:
   align: right
   image: >-
-    1788881916439_182076946761013925_4401139420092723248_ede41a0d53191ed44337ac945213c1dd.jpg
+    1788881916439_182076946761013925_4401139420092723248_ede41a0d53191ed44337ac945213c1dd.webp
   image_circular: false
   more_info: >
     <p>Member of Go Cao Hamlet Youth Union branch, Hau Nghia Commune, Tay Ninh

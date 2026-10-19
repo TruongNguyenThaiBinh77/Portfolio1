@@ -334,7 +334,7 @@ export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
   const drumBlendMode = hb.drum_blend_mode || 'normal';
 
   // Ảnh Bác Hồ
-  const portraitImg = hb.portrait_image || '/assets/img/ho_chi_minh_1946.jpg';
+  const portraitImg = hb.portrait_image || '/assets/img/ho_chi_minh_1946.webp';
   const portraitX = hb.portrait_x || 0;
   const portraitY = hb.portrait_y || 0;
   const portraitScale = (hb.portrait_scale !== undefined ? hb.portrait_scale : 100) / 100;

@@ -1,0 +1,10 @@
+nav:
+  about: "about"
+  blog: "blog"
+  publications: "publications"
+  projects: "projects"
+  repositories: "repositories"
+  CV: "CV"
+  teaching: "teaching"
+  people: "people"
+  submenus: "submenus"

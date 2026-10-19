@@ -1,0 +1,200 @@
+cv:
+  name: Trương Nguyễn Thái Bình
+  name_en: Truong Nguyen Thai Binh
+  name_icon: fa-solid fa-user
+  label: Kỹ sư Phần mềm
+  label_en: Software Engineer
+  label_icon: fa-solid fa-id-badge
+  email: |-
+    truongnguyenthaibinh1050@gmail.com
+    binhtntse182370@fpt.edu.vn
+  email_icon: fa-solid fa-envelope
+  location: TP. Hồ Chí Minh, Việt Nam
+  location_en: Ho Chi Minh City, Vietnam
+  location_icon: fa-solid fa-location-dot
+  languages_icon: fa-solid fa-language
+  custom_info:
+    - name: Tổ chức
+      name_en: Organization
+      value: Chi bộ Ấp Gò Cao
+      value_en: Go Cao Hamlet Party Cell
+      icon: Group_1000004135_53109.png
+      icon_size: 24
+  image: ""
+  summary: Là một Kỹ sư Phần mềm trẻ đam mê công nghệ, mình luôn không ngừng học hỏi và thử thách bản thân với những công nghệ mới nhất. Thế mạnh của mình là khả năng tư duy logic tốt, xây dựng kiến trúc hệ thống ổn định và phát triển các giao diện người dùng thân thiện. Mình đặc biệt yêu thích việc tối ưu hóa hiệu suất ứng dụng và nghiên cứu các giải pháp Trí tuệ Nhân tạo để mang lại trải nghiệm tốt nhất cho người dùng.
+  summary_en: As a young and passionate Software Engineer, I am constantly learning and challenging myself with the latest technologies. My strengths lie in strong logical thinking, building stable system architectures, and developing user-friendly interfaces. I am particularly passionate about optimizing application performance and researching Artificial Intelligence solutions to deliver the best user experience.
+  social_networks: null
+  address:
+    street: null
+    city: null
+    region: null
+    postalCode: null
+    countryCode: VN
+  sections:
+    Education:
+      - institution: Đại học FPT
+        institution_en: FPT University
+        location: Thành phố Hồ Chí Minh
+        location_en: Ho Chi Minh City
+        area: ""
+        area_en: ""
+        studyType: Cử nhân Công nghệ thông tin
+        studyType_en: Bachelor of Information Technology
+        start_date: "2022"
+        start_date_en: "2022"
+        end_date: "2026"
+        end_date_en: "2026"
+        logo: logo-dai-hoc-fpt-tach-nen_043150877.webp
+        logo_size: "130"
+        url: ""
+        highlights:
+          - Chuyên ngành Kỹ thuật phần mềm (K18)
+          - GPA 3.5/4.0
+        highlights_en:
+          - Major in Software Engineering (K18)
+          - GPA 3.5/4.0
+      - institution: Đại học Tunku Abdul Rahman
+        institution_en: Tunku Abdul Rahman University
+        location: bang Penang, Malaysia
+        location_en: Penang, Malaysia
+        area: ""
+        area_en: ""
+        studyType: Học tiếng Anh chuyên sâu
+        studyType_en: English language training course
+        start_date: 09-2023
+        start_date_en: Sep 2023
+        end_date: 10-2023
+        end_date_en: Oct 2023
+        logo: 1d45e-tarumt-logo-1-.webp
+        logo_size: "100"
+        url: ""
+        highlights: []
+        highlights_en: []
+      - institution: Trường Đại học Bách Khoa - ĐHQG TP.HCM
+        institution_en: Ho Chi Minh City University of Technology (HCMUT)
+        location: ""
+        location_en: ""
+        area: ""
+        area_en: ""
+        studyType: Khóa đào tạo ngắn hạn về IoT và Hệ thống nhúng
+        studyType_en: Short-term Training on IoT and Embedded Systems
+        start_date: 09-2023
+        start_date_en: Sep 2023
+        end_date: 12-2023
+        end_date_en: Dec 2023
+        logo: 01_logobachkhoasang.webp
+        logo_size: "110"
+        url: ""
+        highlights:
+          - Nghiên cứu chế tạo xe Mecanum ứng dụng IoT
+          - Đạt điểm A đồ án cuối khóa
+        highlights_en:
+          - Researched and built a Mecanum robot with IoT applications
+          - Achieved an A grade for the final project
+    Experience:
+      - company: Công ty TNHH Amazon Web Services Việt Nam
+        company_en: Amazon Web Services Vietnam Co., Ltd.
+        position: Thực tập sinh FCJ Cloud
+        position_en: FCJ Cloud Intern
+        location: TP. Hồ Chí Minh
+        location_en: Ho Chi Minh City
+        start_date: 08-2025
+        start_date_en: Aug 2025
+        end_date: 12-2025
+        end_date_en: Dec 2025
+        logo: aws.svg
+        logo_size: "100"
+        summary: Thực tập tại Amazon Web Services Việt Nam trong chương trình FCJ Cloud Intern.
+        summary_en: Interned at Amazon Web Services Vietnam in the FCJ Cloud Intern program.
+        highlights: []
+        highlights_en: []
+      - company: CLB Học thuật (Academic Club)
+        company_en: Academic Club FPTU
+        position: Trưởng ban Chuyên môn
+        position_en: Head of Academic Department
+        location: Đại học FPT
+        location_en: FPT University
+        start_date: 09-2023
+        start_date_en: Sep 2023
+        end_date: 12-2024
+        end_date_en: Dec 2024
+        logo: ""
+        logo_size: "100"
+        summary: Tổ chức các buổi workshop chia sẻ kiến thức lập trình cho sinh viên.
+        summary_en: Organized workshops to share programming knowledge with students.
+        highlights:
+          - Dẫn dắt đội ngũ 15 thành viên tổ chức chuỗi sự kiện "Code Your Future".
+          - Mentor trực tiếp cho hơn 50 sinh viên khóa dưới làm quen với lập trình Web.
+        highlights_en:
+          - Led a 15-member team to organize the "Code Your Future" event series.
+          - Directly mentored over 50 junior students to get started with Web programming.
+    Honors and Awards:
+      - title: Học bổng Sáng tạo khởi nghiệp Đại học FPT
+        title_en: FPT University Startup Innovation Scholarship
+        date: "2026"
+        date_en: "2026"
+        issuer: Đại học FPT
+        issuer_en: FPT University
+        location: TP. Hồ Chí Minh
+        location_en: Ho Chi Minh City
+      - title: Giấy khen có thành tích trong công tác bầu cử đại biểu Quốc hội khóa XVI và HĐND các cấp nhiệm kỳ 2026–2031
+        title_en: Certificate of Merit for achievements in the election of deputies to the 16th National Assembly and People's Councils at all levels for the 2026–2031 term
+        date: "2026"
+        date_en: "2026"
+        issuer: UBND xã Hậu Nghĩa
+        issuer_en: People's Committee of Hau Nghia Commune
+        location: Xã Hậu Nghĩa
+        location_en: Hau Nghia Commune
+    Languages:
+      - name: Tiếng Việt
+        name_en: Vietnamese
+        summary: Tiếng mẹ đẻ
+        summary_en: Native
+      - name: Tiếng Anh
+        name_en: English
+        summary: IELTS 7.0 (Giao tiếp lưu loát)
+        summary_en: IELTS 7.0 (Fluent)
+      - name: Tiếng Nhật
+        name_en: Japanese
+        summary: Trình độ N4
+        summary_en: N4 Level
+    Skills:
+      - name: Lập trình Frontend
+        name_en: Frontend Development
+        level: Thành thạo
+        level_en: Advanced
+        icon: fa-laptop-code
+        keywords:
+          - HTML/CSS
+          - JavaScript
+          - ReactJS
+          - Next.js
+          - TailwindCSS
+        keywords_en:
+          - HTML/CSS
+          - JavaScript
+          - ReactJS
+          - Next.js
+          - TailwindCSS
+      - name: Lập trình Backend
+        name_en: Backend Development
+        level: Khá
+        level_en: Intermediate
+        icon: fa-server
+        keywords:
+          - Node.js
+          - Express
+          - Python
+          - MongoDB
+          - PostgreSQL
+        keywords_en:
+          - Node.js
+          - Express
+          - Python
+          - MongoDB
+          - PostgreSQL
+  name_icon_size: 18
+  label_icon_size: 18
+  email_icon_size: 18
+  location_icon_size: 18
+  languages_icon_size: 18

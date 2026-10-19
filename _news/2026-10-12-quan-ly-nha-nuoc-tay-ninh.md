@@ -12,7 +12,7 @@ related_posts: false
 external_url: >-
   https://www.quanlynhanuoc.vn/2026/10/12/quan-ly-nha-nuoc-doi-voi-nguon-luc-van-hoa-phuc-vu-phat-trien-du-lich-ben-vung-o-mot-so-nuoc-chau-a-kinh-nghiem-cho-tinh-tay-ninh/
 pdf: /assets/pdf/quan-ly-nha-nuoc-tay-ninh.pdf
-preview: TCQLNC.jpg
+preview: TCQLNC.webp
 badge_name: TẠP CHÍ
 badge_name_en: JOURNAL
 badge_color: '#b91c1c'

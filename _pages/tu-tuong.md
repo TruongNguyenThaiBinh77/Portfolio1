@@ -16,7 +16,7 @@ page_title_bold: true
 hero_banner:
   banner_scale: 80
   banner_offset_x: 47
-  drum_image: /assets/img/background-trong-dong-png_095238288.png
+  drum_image: /assets/img/background-trong-dong-png_095238288.webp
   drum_x: 16
   drum_y: 81
   drum_size: 670
@@ -26,7 +26,7 @@ hero_banner:
   drum_sepia: 35
   drum_saturate: 115
   drum_blend_mode: normal
-  portrait_image: /assets/img/BacHo2.png
+  portrait_image: /assets/img/BacHo2.webp
   portrait_x: -55
   portrait_y: 0
   portrait_scale: 156
@@ -223,7 +223,7 @@ hero_banner:
         https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/cac-mac-1818-1883-3132?categoryId=104000084
       target: _blank
     - id: 14
-      image: /assets/img/G.V. Plekhanov.jpg
+      image: /assets/img/G.V. Plekhanov.webp
       name: G.V. Plekhanov
       year: 1856 – 1918
       title: G.V. Plekhanov (1856 – 1918)
@@ -247,7 +247,7 @@ hero_banner:
         https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/jawaharlal-nehru-1889-1964-109?categoryId=104000084
       target: _blank
     - id: 17
-      image: /assets/img/fad4fce945da7a0f8d7c1d26e4f79ba4.jpg
+      image: /assets/img/fad4fce945da7a0f8d7c1d26e4f79ba4.webp
       name: Hồ Chí Minh
       year: 1890 – 1969
       title: Hồ Chí Minh (1890 – 1969)

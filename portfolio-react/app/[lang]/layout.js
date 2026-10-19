@@ -509,7 +509,7 @@ export default async function RootLayout({ children, params }) {
                 transform: 'translate(-50%, -50%)',
                 width: '750px',
                 height: '750px',
-                backgroundImage: "url('/assets/img/background-trong-dong-png_095238288.png')",
+                backgroundImage: "url('/assets/img/background-trong-dong-png_095238288.webp')",
                 backgroundSize: 'contain',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center',
@@ -557,7 +557,7 @@ export default async function RootLayout({ children, params }) {
               className="navbar-bg-overlay"
               style={{
                 position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0,
-                backgroundImage: `${getOverlayGradient(config.navbar_bg_overlay, config.navbar_bg_overlay_opacity)}url('/assets/img/${config.navbar_bg_image || 'background-trong-dong-png_095238288.png'}')`,
+                backgroundImage: `${getOverlayGradient(config.navbar_bg_overlay, config.navbar_bg_overlay_opacity)}url('/assets/img/${config.navbar_bg_image || 'background-trong-dong-png_095238288.webp'}')`,
                 backgroundPosition: 'center', backgroundRepeat: 'repeat-x',
                 backgroundSize: config.navbar_bg_image_size ? `${config.navbar_bg_image_size}%` : 'auto 100%',
                 filter: `hue-rotate(${config.navbar_bg_hue || 0}deg)`,
