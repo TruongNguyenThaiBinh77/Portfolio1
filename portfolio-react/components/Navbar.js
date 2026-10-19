@@ -12,6 +12,25 @@ export default function Navbar({ config }) {
   
   const navNames = lang === 'en' ? (config.nav_names_en || config.nav_names || {}) : (config.nav_names || {});
 
+  const isPartyCell = 
+    currentPath === '/chibo' || 
+    currentPath.toLowerCase() === '/partycell' || 
+    currentPath === '/tu-tuong';
+
+  const partyCellHref = lang === 'vi' ? `/${lang}/chibo` : `/${lang}/partycell`;
+
+  // Determine language toggle target
+  let toggleTarget = currentPath === '/' ? '' : currentPath;
+  if (lang === 'vi') {
+    if (toggleTarget === '/chibo' || toggleTarget === '/tu-tuong') {
+      toggleTarget = '/partycell';
+    }
+  } else {
+    if (toggleTarget.toLowerCase() === '/partycell' || toggleTarget === '/tu-tuong') {
+      toggleTarget = '/chibo';
+    }
+  }
+
   return (
     <ul className="navbar-nav navbar-menu-list flex-nowrap align-items-center">
       <li className={`nav-item ${currentPath === '/' ? 'active' : ''}`}>
@@ -44,17 +63,17 @@ export default function Navbar({ config }) {
           {currentPath === '/repositories' && <span className="sr-only">(current)</span>}
         </Link>
       </li>
-      <li className={`nav-item ${currentPath === '/tu-tuong' ? 'active' : ''}`}>
-        <Link className="nav-link" href={`/${lang}/tu-tuong`}>
-          {navNames.tu_tuong || (lang === 'vi' ? 'Chi bộ' : 'Party Cell')}
-          {currentPath === '/tu-tuong' && <span className="sr-only">(current)</span>}
+      <li className={`nav-item ${isPartyCell ? 'active' : ''}`}>
+        <Link className="nav-link" href={partyCellHref}>
+          {navNames.chibo || navNames.tu_tuong || (lang === 'vi' ? 'Chi bộ' : 'Party Cell')}
+          {isPartyCell && <span className="sr-only">(current)</span>}
         </Link>
       </li>
       
       {/* Language Toggle */}
       <li className="nav-item ml-3 pl-3" style={{ display: 'flex', alignItems: 'center' }}>
         <Link 
-          href={lang === 'vi' ? `/en${currentPath === '/' ? '' : currentPath}` : `/vi${currentPath === '/' ? '' : currentPath}`} 
+          href={lang === 'vi' ? `/en${toggleTarget}` : `/vi${toggleTarget}`} 
           className="btn btn-sm btn-lang-toggle" 
           style={{ 
             fontWeight: 'bold',

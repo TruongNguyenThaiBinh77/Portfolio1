@@ -18,11 +18,29 @@ const nextConfig = {
       '../_bibliography/**/*',
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/:lang/PARTYCELL',
+        destination: '/:lang/partycell',
+      },
+    ];
+  },
   async redirects() {
     return [
       {
         source: '/',
         destination: '/vi',
+        permanent: false,
+      },
+      {
+        source: '/vi/tu-tuong',
+        destination: '/vi/chibo',
+        permanent: false,
+      },
+      {
+        source: '/en/tu-tuong',
+        destination: '/en/partycell',
         permanent: false,
       },
     ];

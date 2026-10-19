@@ -44,7 +44,14 @@ export default async function Home({ params }) {
     <div className="container mt-5" role="main">
       <div className="post">
         <header className="post-header">
-          <h1 className="post-title">
+          <h1 
+            className="post-title"
+            style={{
+              fontFamily: '"Playfair Display", "Roboto Slab", "Times New Roman", serif',
+              fontWeight: '800',
+              letterSpacing: '1px',
+            }}
+          >
             <span className={config.first_name_bold ? "font-weight-bold" : ""}>{config.first_name}</span>{" "}
             <span className={config.middle_name_bold ? "font-weight-bold" : ""}>{config.middle_name}</span>{" "}
             <span className={config.last_name_bold ? "font-weight-bold" : ""}>{config.last_name}</span>

@@ -1,6 +1,7 @@
 ---
 layout: page
-permalink: /tu-tuong/
+permalink: /chibo/
+permalink_en: /partycell/
 title: Chi bộ
 title_en: Party Cell
 description: 'Chi bộ là nền tảng của Đảng, hạt nhân chính trị lãnh đạo ở cơ sở.'
