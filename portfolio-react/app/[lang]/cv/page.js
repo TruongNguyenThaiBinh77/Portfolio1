@@ -2,6 +2,8 @@ export const dynamic = 'force-dynamic';
 import { getPageContent, getCvData, getConfig } from '../../../lib/config';
 import PrintButton from '../../../components/PrintButton';
 import CvQuickNav from '../../../components/CvQuickNav';
+import CountryFlag from '../../../components/CountryFlag';
+import CvEmailList from '../../../components/CvEmailList';
 
 const getLogoSize = (size) => {
   if (!size) return '100px';
@@ -84,7 +86,8 @@ export default async function CV({ params }) {
   });
   if (cvData.email) generalInfo.push({ 
     name: 'Email', 
-    value: cvData.email,
+    type: 'email',
+    value: <CvEmailList emailText={cvData.email} lang={lang} />,
     icon: cvData.email_icon || 'fa-solid fa-envelope',
     icon_size: cvData.email_icon_size
   });
@@ -98,13 +101,38 @@ export default async function CV({ params }) {
   // Add languages from the Languages section if they exist
   const languages = cvData.sections?.Languages || [];
   if (languages.length > 0) {
-    const langNames = languages.map(l => l.name).filter(Boolean).join(', ');
-    if (langNames) generalInfo.push({ 
-      name: lang === 'vi' ? 'Ngôn ngữ' : 'Languages', 
-      value: langNames,
-      icon: cvData.languages_icon || 'fa-solid fa-language',
-      icon_size: cvData.languages_icon_size
-    });
+    const validLanguages = languages.filter(l => l && l.name);
+    if (validLanguages.length > 0) {
+      generalInfo.push({ 
+        name: lang === 'vi' ? 'Ngôn ngữ' : 'Languages', 
+        type: 'languages',
+        value: (
+          <span style={{ display: 'inline-flex', flexWrap: 'wrap', alignItems: 'center' }}>
+            {validLanguages.map((l, idx) => (
+              <span 
+                key={idx} 
+                style={{ 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  marginRight: idx < validLanguages.length - 1 ? '10px' : '0',
+                }}
+                title={l.summary ? `${l.name} - ${l.summary}` : l.name}
+              >
+                <span>{l.name}</span>
+                <span style={{ marginLeft: '5px', display: 'inline-flex', alignItems: 'center' }}>
+                  <CountryFlag name={l.name} />
+                </span>
+                {idx < validLanguages.length - 1 && (
+                  <span style={{ color: 'var(--global-text-color-light, #94a3b8)', marginLeft: '1px' }}>,</span>
+                )}
+              </span>
+            ))}
+          </span>
+        ),
+        icon: cvData.languages_icon || 'fa-solid fa-language',
+        icon_size: cvData.languages_icon_size
+      });
+    }
   }
 
   // Add custom info fields (e.g. Tổ chức / Organization, Đơn vị, v.v.)
@@ -282,7 +310,7 @@ export default async function CV({ params }) {
                                 <span style={{ flex: 1, alignSelf: 'center' }}>{info.name}</span>
                               </div>
                             </td>
-                            <td className="p-1 pl-2 font-weight-light cv-general-val" style={{ color: 'var(--global-text-color)', verticalAlign: 'middle', whiteSpace: 'pre-line' }}>
+                            <td className="p-1 pl-2 font-weight-light cv-general-val" style={{ color: 'var(--global-text-color)', verticalAlign: 'middle', whiteSpace: info.type ? 'normal' : 'pre-line' }}>
                               {info.value}
                             </td>
                           </tr>

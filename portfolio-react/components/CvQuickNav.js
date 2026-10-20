@@ -89,6 +89,27 @@ export default function CvQuickNav({ sections = [], lang = 'vi' }) {
           boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
         }}
       >
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          padding: '0 4px 6px 4px',
+          fontSize: '0.74rem',
+          textTransform: 'uppercase',
+          letterSpacing: '0.8px',
+          fontWeight: '700',
+          color: 'var(--global-text-color)',
+        }}>
+          <i className="fa-solid fa-compass" style={{ fontSize: '0.8rem', color: 'var(--global-theme-color)' }}></i>
+          <span style={{
+            textDecoration: 'underline',
+            textUnderlineOffset: '4px',
+            textDecorationThickness: '2px',
+            textDecorationColor: 'var(--global-theme-color)',
+          }}>
+            {lang === 'vi' ? 'Thao tác nhanh' : 'Quick Navigation'}
+          </span>
+        </div>
         <div 
           ref={pillBarRef}
           className="cv-pill-scroll"
@@ -148,18 +169,26 @@ export default function CvQuickNav({ sections = [], lang = 'vi' }) {
         }}
       >
         <div style={{
-          fontSize: '0.78rem',
+          fontSize: '0.82rem',
           textTransform: 'uppercase',
           letterSpacing: '1px',
           fontWeight: '700',
-          color: 'var(--global-text-color-light, #94a3b8)',
+          color: 'var(--global-text-color)',
           marginBottom: '16px',
           display: 'flex',
           alignItems: 'center',
-          gap: '7px'
+          gap: '8px'
         }}>
-          <i className="fa-solid fa-compass" style={{ fontSize: '0.85rem', color: 'var(--global-theme-color)' }}></i>
-          <span>{lang === 'vi' ? 'Thao tác nhanh' : 'Quick Navigation'}</span>
+          <i className="fa-solid fa-compass" style={{ fontSize: '0.9rem', color: 'var(--global-theme-color)' }}></i>
+          <span style={{
+            textDecoration: 'underline',
+            textUnderlineOffset: '5px',
+            textDecorationThickness: '2px',
+            textDecorationColor: 'var(--global-theme-color)',
+            letterSpacing: '0.8px',
+          }}>
+            {lang === 'vi' ? 'Thao tác nhanh' : 'Quick Navigation'}
+          </span>
         </div>
 
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

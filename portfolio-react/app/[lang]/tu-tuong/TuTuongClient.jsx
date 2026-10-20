@@ -1,6 +1,9 @@
 'use client';
 
 import React from 'react';
+import { ribbonTornTopPath, ribbonTornBottomPath, ribbonPaintSplattersPath } from '../../../lib/ribbonTornPaths';
+
+const tornPaperPath = "M 0,24 L 6.4,34.7 L 12.5,20.6 L 21.6,32.2 L 30.7,25.9 L 37.8,35.5 L 44.4,25.3 L 51.5,27.4 L 58.3,33.2 L 68,33.7 L 76.5,27.9 L 86.2,29.4 L 96,31.6 L 105.7,32.4 L 112.1,31 L 119.1,26.7 L 126.3,29.4 L 134.7,27.2 L 143.1,26.8 L 149.6,26 L 157.9,24.8 L 167.6,26.6 L 175.5,21.6 L 183.7,21.8 L 191.4,24.1 L 199.7,25.1 L 208.1,27.1 L 217.6,25.5 L 226.2,37.3 L 234.2,34.2 L 241.1,28.3 L 250.2,30.8 L 257.7,29.9 L 264.2,32.3 L 270.4,25.8 L 279,32.3 L 285.3,32.1 L 294.4,36.8 L 303.1,27.9 L 312.2,36.1 L 319.8,24 L 326.9,31.4 L 334.7,34.2 L 342.1,29.6 L 348.2,33.8 L 357.8,25.6 L 365.6,22.7 L 374.9,28.4 L 383,27.4 L 392.6,20.4 L 401.3,22.1 L 409.1,24.3 L 415.1,13.9 L 422.2,18.8 L 431.9,18.5 L 438.3,10.7 L 444.9,9.6 L 453.8,12.6 L 461.1,17.9 L 468.2,11.4 L 477.9,8.8 L 487.4,14.2 L 495.5,12.3 L 503.8,16 L 511.1,13.4 L 520.5,18.8 L 528.2,13.6 L 536.3,18.7 L 545.2,11.4 L 554.9,17.1 L 563.7,19.6 L 572,12.6 L 580.9,13.4 L 590.5,15.1 L 599.3,16.8 L 608.2,22.9 L 614.2,23.1 L 622.2,25 L 629.3,16 L 637.5,26.1 L 644.1,25.5 L 650.8,23.2 L 657.2,26.6 L 663.5,20.2 L 672.9,23.9 L 679,28.2 L 688.2,23 L 698.1,26 L 705.7,18.3 L 714.2,16.3 L 721.2,24 L 728.8,24.5 L 736.6,27.3 L 744.3,26.5 L 751.1,25.2 L 757.4,20.2 L 765.5,22.3 L 773.3,22.9 L 780.1,20.5 L 789.2,27.8 L 797.6,21.2 L 804.1,18.6 L 812.8,31.5 L 820.5,24 L 829.5,34.9 L 835.6,31.5 L 843.3,30.8 L 850.6,30.2 L 857.2,32.7 L 865.9,33.5 L 873.2,35.7 L 880.8,32.8 L 889.1,39.3 L 898.6,29.2 L 907.3,28.4 L 915.4,38.4 L 925.3,31.7 L 934,28.2 L 941.7,37.4 L 949.2,35.9 L 956.9,31.8 L 966.7,33.5 L 975,30.5 L 982.4,38.4 L 991.9,34.2 L 998.4,33.4 L 1005.5,25.7 L 1015.5,34.3 L 1022.1,29.8 L 1029,27.5 L 1037.2,22.7 L 1043.4,30.2 L 1050.5,22.2 L 1057.6,28.4 L 1065.1,21.6 L 1071.1,24.3 L 1077.8,22.3 L 1087.5,14.2 L 1095,15.2 L 1102.4,20.1 L 1110.8,23.5 L 1119.5,18 L 1126.5,22.3 L 1136.4,20.8 L 1145,21.2 L 1153.1,12.6 L 1160.9,17.9 L 1170.4,20.9 L 1178.2,13.1 L 1185.5,12.6 L 1192.5,10.5 L 1202.4,16.8 L 1210.3,13.7 L 1216.9,16.3 L 1224.6,14.4 L 1232.3,20 L 1238.7,18.3 L 1245,12.8 L 1252.6,13.6 L 1258.9,24.8 L 1265.5,18.6 L 1272.7,27.3 L 1282.5,20.6 L 1290.9,18.6 L 1299.8,25.6 L 1308.4,15.2 L 1318.2,18.8 L 1325.5,19 L 1334.5,17.7 L 1342.2,20.2 L 1349,13.4 L 1356.8,15.6 L 1366,20.5 L 1373.3,17.7 L 1382.8,22.5 L 1391.4,21 L 1398.5,14.1 L 1404.5,23.3 L 1413.2,23.8 L 1419.6,17.2 L 1429.3,19.7 L 1435.6,18.6 L 1440,25.8 L 1440,60 L 0,60 Z";
 
 function DraggableTimelineMarquee({
   marqueeHeight,
@@ -338,14 +341,22 @@ function DraggableTimelineMarquee({
 
 export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
   const isVi = lang === 'vi';
+  const hb = fm?.hero_banner || {};
 
-  // Câu nói kinh điển của Bác Hồ về Chi bộ
-  const quoteText = isVi
-    ? '“Chi bộ là nền móng của Đảng, chi bộ tốt thì mọi việc sẽ tốt. Đảng mạnh là do chi bộ tốt, chi bộ tốt là do các đảng viên đều tốt.”'
-    : '“The Party cell is the foundation of the Party; if the Party cell is good, all work will succeed. A strong Party stems from good Party cells, and good Party cells stem from exemplary Party members.”';
+  // Câu nói kinh điển của Bác Hồ về Chi bộ (bỏ dấu ngoặc kép đen ở đầu/cuối vì đã có 2 dấu ngoặc kép đỏ lớn trang trí)
+  const defaultQuoteVi = 'Chi bộ là nền móng của Đảng, chi bộ tốt thì mọi việc sẽ tốt. Đảng mạnh là do chi bộ tốt, chi bộ tốt là do các đảng viên đều tốt.';
+  const defaultQuoteEn = 'The Party cell is the foundation of the Party; if the Party cell is good, all work will succeed. A strong Party stems from good Party cells, and good Party cells stem from exemplary Party members.';
+
+  const rawQuote = isVi
+    ? (hb.quote_text || fm.quote_text || defaultQuoteVi)
+    : (hb.quote_text_en || fm.quote_text_en || defaultQuoteEn);
+
+  const quoteText = rawQuote
+    .trim()
+    .replace(/^[“"”]+/, '')
+    .replace(/[“"”]+$/, '');
 
   // Cấu hình Banner Bác Hồ & Trống Đồng từ admin
-  const hb = fm?.hero_banner || {};
 
   // Tỉ lệ thu phóng Section Mẹ (Banner Scale) cấu hình từ Admin Panel
   const scaleFactor = (hb.banner_scale !== undefined ? Number(hb.banner_scale) : 100) / 100;
@@ -1171,6 +1182,190 @@ export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
       </div>
 
       {/* ========================================================
+          TRANSITION RIBBON: DẢI CHUYỂN TIẾP XANH VỚI HIỆU ỨNG VẾT RÁCH GIẤY CHÂN THỰC
+          Chứa 3 dòng tiêu đề của mục Phong trào cộng sản, công nhân quốc tế
+          ======================================================== */}
+      {(marqueeBadge || marqueeTitle) && (
+        <div 
+          className="chibo-torn-paper-ribbon"
+          style={{
+            width: '100%',
+            position: 'relative',
+            backgroundColor: '#0D7680',
+            backgroundImage: 'linear-gradient(90deg, #095961 0%, #0D7680 25%, #108894 50%, #0D7680 75%, #095961 100%)',
+            minHeight: '240px',
+            margin: '35px 0 15px 0',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '70px 20px 65px 20px',
+            boxSizing: 'border-box',
+          }}
+        >
+          {/* Mép rách giấy phía trên: Nền be bên trên rách vào dải xanh */}
+          <div style={{
+            position: 'absolute',
+            top: '-1px',
+            left: 0,
+            width: '100%',
+            height: '65px',
+            zIndex: 4,
+            lineHeight: 0,
+            pointerEvents: 'none',
+          }}>
+            <svg viewBox="0 0 1440 100" preserveAspectRatio="none" style={{ width: '100%', height: '100%', display: 'block' }}>
+              {/* Đổ bóng tự nhiên cho mép rách giấy phía trên */}
+              <path d={ribbonTornTopPath} fill="rgba(0, 0, 0, 0.22)" transform="translate(0, 3)" />
+              {/* Vệt xơ giấy trắng/sáng dọc mép rách */}
+              <path d={ribbonTornTopPath} fill="rgba(255, 255, 255, 0.28)" transform="translate(0, 1.5)" />
+              {/* Nền be cắt vào dải xanh */}
+              <path d={ribbonTornTopPath} fill={config.global_bg_color || '#FFF1E5'} />
+            </svg>
+          </div>
+
+          {/* 3 dòng chữ chuyển lên nằm giữa dải xanh */}
+          <div style={{
+            position: 'relative',
+            zIndex: 6,
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '8px',
+            maxWidth: '1000px',
+          }}>
+            {/* Dòng 1: Phong trào cộng sản, công nhân quốc tế */}
+            {marqueeBadge && (
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: 'rgba(0, 0, 0, 0.28)',
+                border: '1px solid rgba(244, 208, 63, 0.65)',
+                padding: '5px 18px',
+                borderRadius: '20px',
+                backdropFilter: 'blur(4px)',
+                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.25)',
+              }}>
+                <span style={{ color: '#F4D03F', fontSize: '11px', lineHeight: 1 }}>★</span>
+                <span style={{
+                  color: '#FFE885',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  letterSpacing: '1px',
+                  textTransform: 'uppercase',
+                  textShadow: '0 1px 3px rgba(0, 0, 0, 0.7)',
+                  lineHeight: 1.4,
+                }}>
+                  {marqueeBadge}
+                </span>
+                <span style={{ color: '#F4D03F', fontSize: '11px', lineHeight: 1 }}>★</span>
+              </div>
+            )}
+
+            {/* Dòng 2: Các lãnh tụ và các nhà lãnh đạo nổi tiếng */}
+            {marqueeTitle && (
+              <h3 style={{
+                fontFamily: '"Playfair Display", "Roboto Slab", "Times New Roman", Georgia, serif',
+                fontSize: 'clamp(22px, 3.5vw, 32px)',
+                fontWeight: '800',
+                color: '#FFFFFF',
+                letterSpacing: '1.2px',
+                margin: '2px 0',
+                textTransform: 'uppercase',
+                lineHeight: 1.25,
+                textShadow: '0 2px 8px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.6)',
+              }}>
+                {marqueeTitle}
+              </h3>
+            )}
+
+            {/* Dòng 3: Nguồn từ tư liệu văn kiện của Đảng kèm Link */}
+            {marqueeSourceUrl && (
+              <div style={{ marginTop: '2px' }}>
+                <a
+                  href={marqueeSourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Mở hồ sơ Tư liệu Văn kiện Đảng"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontSize: '13px',
+                    color: '#0A4A52',
+                    textDecoration: 'none',
+                    fontStyle: 'italic',
+                    padding: '5px 14px',
+                    borderRadius: '6px',
+                    background: 'rgba(255, 255, 255, 0.94)',
+                    border: '1px solid rgba(255, 255, 255, 0.95)',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.18)',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#FFFFFF';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.25)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.94)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.18)';
+                  }}
+                >
+                  <span>{marqueeSourceText || 'Nguồn từ Tư liệu Văn kiện của Đảng'} —</span>
+                  <strong style={{ fontStyle: 'normal', color: '#B03A2E' }}>
+                    {marqueeTitle || 'Các lãnh tụ và các nhà lãnh đạo nổi tiếng'}
+                  </strong>
+                  <i className="fa-solid fa-arrow-up-right-from-square" style={{ fontSize: '11px', marginLeft: '3px', color: '#c0392b' }}></i>
+                </a>
+              </div>
+            )}
+
+            {marqueeSubtitle && (
+              <p style={{
+                fontSize: '14px',
+                color: 'rgba(255, 255, 255, 0.92)',
+                fontStyle: 'italic',
+                margin: '4px 0 0 0',
+                textShadow: '0 1px 3px rgba(0, 0, 0, 0.35)',
+              }}>
+                {marqueeSubtitle}
+              </p>
+            )}
+          </div>
+
+          {/* Mép rách giấy phía dưới: Dải xanh rách vào nền be bên dưới */}
+          <div style={{
+            position: 'absolute',
+            bottom: '-1px',
+            left: 0,
+            width: '100%',
+            height: '65px',
+            zIndex: 4,
+            lineHeight: 0,
+            pointerEvents: 'none',
+          }}>
+            <svg viewBox="0 0 1440 100" preserveAspectRatio="none" style={{ width: '100%', height: '100%', display: 'block' }}>
+              {/* Đổ bóng tự nhiên cho mép rách giấy phía dưới */}
+              <path d={ribbonTornBottomPath} fill="rgba(0, 0, 0, 0.22)" transform="translate(0, -3)" />
+              {/* Vệt xơ giấy trắng/sáng dọc mép rách */}
+              <path d={ribbonTornBottomPath} fill="rgba(255, 255, 255, 0.28)" transform="translate(0, -1.5)" />
+              {/* Nền be cắt vào dải xanh */}
+              <path d={ribbonTornBottomPath} fill={config.global_bg_color || '#FFF1E5'} />
+              {/* Vết chấm sơn màu be bắn ngược lên dải xanh */}
+              {ribbonPaintSplattersPath && (
+                <path d={ribbonPaintSplattersPath} fill={config.global_bg_color || '#FFF1E5'} opacity="0.95" />
+              )}
+            </svg>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
           SECTION: DẢI ẢNH TỰ CHẠY TOÀN CHIỀU NGANG (FULL-WIDTH MARQUEE TIMELINE)
           Chuỗi hình ảnh tự chạy mượt mà theo hình mẫu
           Khi click vào ảnh sẽ chuyển đến đường dẫn liên kết
@@ -1181,109 +1376,13 @@ export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
           style={{
             width: '100%',
             overflow: 'hidden',
-            padding: '24px 0 28px 0',
-            marginTop: '10px',
+            padding: '8px 0 28px 0',
+            marginTop: '0px',
             marginBottom: '35px',
             position: 'relative',
             backgroundColor: 'transparent',
           }}
         >
-          {/* Header Section: 2 dòng chữ theo yêu cầu & nguồn Tư liệu Văn kiện Đảng */}
-          {(marqueeBadge || marqueeTitle) && (
-            <div style={{ 
-              textAlign: 'center', 
-              marginBottom: '20px', 
-              padding: '0 20px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '6px'
-            }}>
-              {/* Dòng 1: Phong trào cộng sản, công nhân quốc tế */}
-              {marqueeBadge && (
-                <div style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  background: 'rgba(192, 57, 43, 0.08)',
-                  border: '1px solid rgba(192, 57, 43, 0.24)',
-                  color: '#A93226',
-                  padding: '4px 16px',
-                  borderRadius: '20px',
-                  fontSize: '13px',
-                  fontWeight: '700',
-                  letterSpacing: '0.8px',
-                  textTransform: 'uppercase',
-                  boxShadow: '0 2px 6px rgba(169, 50, 38, 0.04)'
-                }}>
-                  <span style={{ color: '#D4AC0D', fontSize: '11px' }}>★</span>
-                  <span>{marqueeBadge}</span>
-                  <span style={{ color: '#D4AC0D', fontSize: '11px' }}>★</span>
-                </div>
-              )}
-
-              {/* Dòng 2: Các lãnh tụ và các nhà lãnh đạo nổi tiếng */}
-              {marqueeTitle && (
-                <h3 style={{
-                  fontFamily: '"Playfair Display", "Roboto Slab", "Times New Roman", Georgia, serif',
-                  fontSize: 'clamp(21px, 3.4vw, 29px)',
-                  fontWeight: '800',
-                  color: '#68350B',
-                  letterSpacing: '1.2px',
-                  margin: '4px 0 2px 0',
-                  textTransform: 'uppercase',
-                  lineHeight: 1.25,
-                  textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)',
-                }}>
-                  {marqueeTitle}
-                </h3>
-              )}
-
-              {/* Nguồn từ tư liệu văn kiện của Đảng kèm Link */}
-              {marqueeSourceUrl && (
-                <div style={{ marginTop: '2px' }}>
-                  <a
-                    href={marqueeSourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title="Mở hồ sơ Tư liệu Văn kiện Đảng"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      fontSize: '13px',
-                      color: '#8A5A36',
-                      textDecoration: 'none',
-                      fontStyle: 'italic',
-                      padding: '3px 12px',
-                      borderRadius: '6px',
-                      background: 'rgba(255, 255, 255, 0.75)',
-                      border: '1px solid rgba(220, 200, 185, 0.75)',
-                      boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
-                      transition: 'all 0.2s ease',
-                    }}
-                  >
-                    <span>{marqueeSourceText || 'Nguồn từ Tư liệu Văn kiện của Đảng'} —</span>
-                    <strong style={{ fontStyle: 'normal', color: '#B03A2E' }}>
-                      {marqueeTitle || 'Các lãnh tụ và các nhà lãnh đạo nổi tiếng'}
-                    </strong>
-                    <i className="fa-solid fa-arrow-up-right-from-square" style={{ fontSize: '11px', marginLeft: '3px', color: '#c0392b' }}></i>
-                  </a>
-                </div>
-              )}
-
-              {marqueeSubtitle && (
-                <p style={{
-                  fontSize: '14px',
-                  color: '#8A5A36',
-                  fontStyle: 'italic',
-                  margin: '4px 0 0 0',
-                }}>
-                  {marqueeSubtitle}
-                </p>
-              )}
-            </div>
-          )}
 
           <DraggableTimelineMarquee
             marqueeHeight={marqueeHeight}
