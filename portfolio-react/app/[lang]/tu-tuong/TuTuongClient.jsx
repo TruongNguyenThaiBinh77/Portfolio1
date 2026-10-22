@@ -918,7 +918,6 @@ export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
               />
 
               {/* Cụm Tiêu Đề & Tên trên Trống Đồng */}
-{/* Cụm Tiêu Đề & Tên trên Trống Đồng */}
 
               {/* Cụm Tiêu Đề & Tên trên Trống Đồng */}
               <div 
