@@ -626,10 +626,17 @@ export default async function Home({ params }) {
                       )}
                       {(config.scholar_userid || config.google_scholar_id) && (
                         <a
-                          href={getSocialUrl(
-                            config.scholar_userid || config.google_scholar_id,
-                            'https://scholar.google.com/citations?user='
-                          )}
+                          href={
+                            config.scholar_userid && config.scholar_userid.startsWith('http')
+                              ? config.scholar_userid
+                              : (config.scholar_userid && config.scholar_userid !== 'your_id')
+                                ? getSocialUrl(config.scholar_userid, 'https://scholar.google.com/citations?user=')
+                                : (config.google_scholar_id && config.google_scholar_id.startsWith('http'))
+                                  ? config.google_scholar_id
+                                  : (config.google_scholar_id && config.google_scholar_id !== 'your_id')
+                                    ? getSocialUrl(config.google_scholar_id, 'https://scholar.google.com/citations?user=')
+                                    : 'https://scholar.google.com/citations?view_op=list_works&hl=vi&authuser=1&hl=vi&user=PT85N90AAAAJ&authuser=1'
+                          }
                           title="Google Scholar"
                           className="social-icon-scholar"
                           target="_blank"

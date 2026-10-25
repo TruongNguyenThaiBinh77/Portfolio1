@@ -113,7 +113,7 @@ hero_banner:
     https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng
   marquee_subtitle: ''
   marquee_height: 260
-  marquee_speed: 85
+  marquee_speed: 111
   marquee_pause_hover: true
   marquee_paused: false
   marquee_gap: 0

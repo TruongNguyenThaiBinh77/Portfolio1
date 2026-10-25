@@ -56,7 +56,7 @@ pinterest_id: null
 publons_id: null
 quora_username: null
 research_gate_profile: your_profile
-scholar_userid: your_id
+scholar_userid: "https://scholar.google.com/citations?view_op=list_works&hl=vi&authuser=1&hl=vi&user=PT85N90AAAAJ&authuser=1"
 scopus_id: "1111111111"
 semanticscholar_id: null
 spotify_id: null
@@ -601,7 +601,7 @@ section_titles_en:
   about_news: News
 section_titles_color: "#000000"
 rss_url: /feed.xml
-google_scholar_id: your_id
+google_scholar_id: "PT85N90AAAAJ"
 inspirehep_id: null
 cv_pdf: null
 cv_pdf_en: null

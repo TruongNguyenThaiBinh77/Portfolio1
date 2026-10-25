@@ -2,10 +2,10 @@ github_users:
   - TruongNguyenThaiBinh77
 repo_description_lines_max: 2
 total_repos_count: 21
-stats_theme: light
-card_bg_color: "#ffffff"
-card_border_color: "#e2e8f0"
-card_text_color: "#334155"
+stats_theme: transparent
+card_bg_color: "00000000"
+card_border_color: "#e5dcd0"
+card_text_color: "#292524"
 github_repos:
   - TruongNguyenThaiBinh77/Portfolio1
   - TruongNguyenThaiBinh77/Portfolio
@@ -52,4 +52,4 @@ repos_title: Kho lưu trữ nổi bật
 repos_title_en: Featured Repositories
 repos_title_bold: false
 repos_title_color: "#15803d"
-card_title_color: "#15803d"
+card_title_color: "#6f3706"

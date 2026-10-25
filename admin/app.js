@@ -3261,14 +3261,16 @@ async function loadRepositories() {
               <i class="fas fa-magic text-info mr-1"></i> Giao diện Thẻ GitHub (Theme & Nền)
             </label>
             <select id="repo-stats-theme" class="form-control" style="width:100%">
-              <option value="light" ${(data.stats_theme || 'light') === 'light' ? 'selected' : ''}>⚪ Nền Trắng Sáng Hiện Đại (Khuyên dùng - Chuẩn B+, đồng bộ trang web)</option>
-              <option value="soft_gray" ${data.stats_theme === 'soft_gray' ? 'selected' : ''}>🌫️ Xám Sáng Tinh Tế (#f8fafc - Chuẩn B+)</option>
+              <option value="transparent" ${data.stats_theme === 'transparent' ? 'selected' : ''}>💎 Nền Trong Suốt (Khuyên dùng - Hòa quyện tuyệt đối nền trang web, chữ & icon tone ấm)</option>
+              <option value="warm_white" ${data.stats_theme === 'warm_white' ? 'selected' : ''}>⚪ Nền Trắng Sáng Thanh Lịch (Card trắng viền ấm tinh tế, chuẩn sang trọng)</option>
+              <option value="calm" ${(data.stats_theme === 'calm' || !data.stats_theme) ? 'selected' : ''}>🌟 Calm Slate (Card tối - Nền xanh xám, cam ấm, huy hiệu GitHub)</option>
+              <option value="light" ${data.stats_theme === 'light' ? 'selected' : ''}>⚪ Nền Tùy Chỉnh Màu (Sử dụng bảng chọn màu bên dưới)</option>
               <option value="radical" ${data.stats_theme === 'radical' ? 'selected' : ''}>⚫ Radical Dark (Nền đen neon tím/hồng)</option>
               <option value="tokyonight" ${data.stats_theme === 'tokyonight' ? 'selected' : ''}>Tokyo Night (Tối)</option>
               <option value="dracula" ${data.stats_theme === 'dracula' ? 'selected' : ''}>Dracula (Tối)</option>
             </select>
             <small class="text-muted" style="display:block;margin-top:4px;">
-              Theme <strong>Nền Trắng Sáng</strong> giúp các card hoà hợp hoàn hảo với website, đồng thời vẫn giữ nguyên xếp hạng <strong>B+</strong>.
+              Theme <strong>Nền Trong Suốt</strong> giúp loại bỏ hộp đen, giúp thẻ hòa nhập 100% vào nền giấy kem của website.
             </small>
           </div>
         </div>

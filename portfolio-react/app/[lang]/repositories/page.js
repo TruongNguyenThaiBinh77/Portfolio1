@@ -43,53 +43,90 @@ export default async function Repositories({ params }) {
   const reposTitleBold = repoData.repos_title_bold !== false;
   const reposTitleColor = repoData.repos_title_color || '';
 
-  const statsTheme = repoData.stats_theme || 'light';
+  const statsTheme = repoData.stats_theme || 'calm';
   const totalReposCount = repoData.total_repos_count || visibleRepos.length || 21;
 
   // Colors for light/custom cards (defaults match site palette)
   const cardBgColor = (repoData.card_bg_color || '#ffffff').replace('#', '');
   const cardBorderColor = (repoData.card_border_color || '#e2e8f0').replace('#', '');
-  const cardTitleColor = (repoData.card_title_color || repoData.repos_title_color || '#15803d').replace('#', '');
+  const cardTitleColor = (repoData.card_title_color || repoData.repos_title_color || '#e07a5f').replace('#', '');
   const cardTextColor = (repoData.card_text_color || '#334155').replace('#', '');
 
   const getStatsUrl = (user) => {
-    if (statsTheme === 'radical') {
-      return `https://github-readme-stats.vercel.app/api/?username=${user}&show_icons=true&theme=radical`;
+    const extraParams = '&show_icons=true&include_all_commits=true&show=reviews,prs_merged_percentage&rank_icon=github';
+    if (statsTheme === 'transparent') {
+      return `/api/github-stats?username=${user}&bg_color=00000000&border_color=e5dcd0&title_color=6f3706&icon_color=d97706&text_color=292524${extraParams}`;
     }
-    if (statsTheme === 'tokyonight' || statsTheme === 'dracula' || statsTheme === 'dark') {
-      return `https://github-readme-stats.vercel.app/api/?username=${user}&show_icons=true&theme=${statsTheme}`;
+    if (statsTheme === 'warm_white') {
+      return `/api/github-stats?username=${user}&bg_color=ffffff&border_color=e8e0d5&title_color=6f3706&icon_color=d97706&text_color=292524${extraParams}`;
     }
-    return `https://github-readme-stats.vercel.app/api/?username=${user}&show_icons=true&bg_color=${cardBgColor}&border_color=${cardBorderColor}&title_color=${cardTitleColor}&icon_color=${cardTitleColor}&text_color=${cardTextColor}`;
+    if (statsTheme === 'calm') {
+      return `/api/github-stats?username=${user}&theme=calm${extraParams}`;
+    }
+    if (statsTheme === 'radical' || statsTheme === 'tokyonight' || statsTheme === 'dracula' || statsTheme === 'dark') {
+      return `/api/github-stats?username=${user}&theme=${statsTheme}${extraParams}`;
+    }
+    if (statsTheme === 'light') {
+      return `/api/github-stats?username=${user}&bg_color=${cardBgColor}&border_color=${cardBorderColor}&title_color=${cardTitleColor}&icon_color=${cardTitleColor}&text_color=${cardTextColor}${extraParams}`;
+    }
+    return `/api/github-stats?username=${user}&theme=calm${extraParams}`;
   };
 
   const getTopLangsUrl = (user) => {
-    if (statsTheme === 'radical') {
-      return `https://github-readme-stats.vercel.app/api/top-langs/?username=${user}&layout=compact&theme=radical`;
+    if (statsTheme === 'transparent') {
+      return `https://github-readme-stats.vercel.app/api/top-langs/?username=${user}&layout=compact&bg_color=00000000&border_color=e5dcd0&title_color=6f3706&text_color=292524`;
     }
-    if (statsTheme === 'tokyonight' || statsTheme === 'dracula' || statsTheme === 'dark') {
+    if (statsTheme === 'warm_white') {
+      return `https://github-readme-stats.vercel.app/api/top-langs/?username=${user}&layout=compact&bg_color=ffffff&border_color=e8e0d5&title_color=6f3706&text_color=292524`;
+    }
+    if (statsTheme === 'calm') {
+      return `https://github-readme-stats.vercel.app/api/top-langs/?username=${user}&layout=compact&theme=calm`;
+    }
+    if (statsTheme === 'radical' || statsTheme === 'tokyonight' || statsTheme === 'dracula' || statsTheme === 'dark') {
       return `https://github-readme-stats.vercel.app/api/top-langs/?username=${user}&layout=compact&theme=${statsTheme}`;
     }
-    return `https://github-readme-stats.vercel.app/api/top-langs/?username=${user}&layout=compact&bg_color=${cardBgColor}&border_color=${cardBorderColor}&title_color=${cardTitleColor}&text_color=${cardTextColor}`;
+    if (statsTheme === 'light') {
+      return `https://github-readme-stats.vercel.app/api/top-langs/?username=${user}&layout=compact&bg_color=${cardBgColor}&border_color=${cardBorderColor}&title_color=${cardTitleColor}&text_color=${cardTextColor}`;
+    }
+    return `https://github-readme-stats.vercel.app/api/top-langs/?username=${user}&layout=compact&theme=calm`;
   };
 
   const getStreakUrl = (user) => {
-    if (statsTheme === 'radical') {
-      return `https://github-readme-streak-stats.herokuapp.com/?user=${user}&theme=radical`;
+    if (statsTheme === 'transparent') {
+      return `https://github-readme-streak-stats.herokuapp.com/?user=${user}&background=00000000&border=e5dcd0&stroke=e5dcd0&ring=6f3706&fire=d97706&currStreakNum=6f3706&sideNums=292524&currStreakLabel=6f3706&sideLabels=78716c&dates=78716c`;
     }
-    if (statsTheme === 'tokyonight' || statsTheme === 'dracula' || statsTheme === 'dark') {
+    if (statsTheme === 'warm_white') {
+      return `https://github-readme-streak-stats.herokuapp.com/?user=${user}&background=ffffff&border=e8e0d5&stroke=e8e0d5&ring=6f3706&fire=d97706&currStreakNum=6f3706&sideNums=292524&currStreakLabel=6f3706&sideLabels=78716c&dates=78716c`;
+    }
+    if (statsTheme === 'calm') {
+      return `https://github-readme-streak-stats.herokuapp.com/?user=${user}&theme=calm`;
+    }
+    if (statsTheme === 'radical' || statsTheme === 'tokyonight' || statsTheme === 'dracula' || statsTheme === 'dark') {
       return `https://github-readme-streak-stats.herokuapp.com/?user=${user}&theme=${statsTheme}`;
     }
-    return `https://github-readme-streak-stats.herokuapp.com/?user=${user}&background=${cardBgColor}&border=${cardBorderColor}&stroke=${cardBorderColor}&ring=${cardTitleColor}&fire=${cardTitleColor}&currStreakNum=${cardTitleColor}&sideNums=${cardTextColor}&currStreakLabel=${cardTitleColor}&sideLabels=64748b&dates=64748b`;
+    if (statsTheme === 'light') {
+      return `https://github-readme-streak-stats.herokuapp.com/?user=${user}&background=${cardBgColor}&border=${cardBorderColor}&stroke=${cardBorderColor}&ring=${cardTitleColor}&fire=${cardTitleColor}&currStreakNum=${cardTitleColor}&sideNums=${cardTextColor}&currStreakLabel=${cardTitleColor}&sideLabels=64748b&dates=64748b`;
+    }
+    return `https://github-readme-streak-stats.herokuapp.com/?user=${user}&theme=calm`;
   };
 
   const getPinUrl = (username, reponame) => {
-    if (statsTheme === 'radical') {
-      return `https://github-readme-stats.vercel.app/api/pin/?username=${username}&repo=${reponame}&show_icons=true&theme=radical`;
+    if (statsTheme === 'transparent') {
+      return `https://github-readme-stats.vercel.app/api/pin/?username=${username}&repo=${reponame}&show_icons=true&bg_color=00000000&border_color=e5dcd0&title_color=6f3706&text_color=292524&icon_color=d97706`;
     }
-    if (statsTheme === 'tokyonight' || statsTheme === 'dracula' || statsTheme === 'dark') {
+    if (statsTheme === 'warm_white') {
+      return `https://github-readme-stats.vercel.app/api/pin/?username=${username}&repo=${reponame}&show_icons=true&bg_color=ffffff&border_color=e8e0d5&title_color=6f3706&text_color=292524&icon_color=d97706`;
+    }
+    if (statsTheme === 'calm') {
+      return `https://github-readme-stats.vercel.app/api/pin/?username=${username}&repo=${reponame}&show_icons=true&theme=calm`;
+    }
+    if (statsTheme === 'radical' || statsTheme === 'tokyonight' || statsTheme === 'dracula' || statsTheme === 'dark') {
       return `https://github-readme-stats.vercel.app/api/pin/?username=${username}&repo=${reponame}&show_icons=true&theme=${statsTheme}`;
     }
-    return `https://github-readme-stats.vercel.app/api/pin/?username=${username}&repo=${reponame}&show_icons=true&bg_color=${cardBgColor}&border_color=${cardBorderColor}&title_color=${cardTitleColor}&text_color=${cardTextColor}&icon_color=${cardTitleColor}`;
+    if (statsTheme === 'light') {
+      return `https://github-readme-stats.vercel.app/api/pin/?username=${username}&repo=${reponame}&show_icons=true&bg_color=${cardBgColor}&border_color=${cardBorderColor}&title_color=${cardTitleColor}&text_color=${cardTextColor}&icon_color=${cardTitleColor}`;
+    }
+    return `https://github-readme-stats.vercel.app/api/pin/?username=${username}&repo=${reponame}&show_icons=true&theme=calm`;
   };
 
   return (
@@ -164,8 +201,8 @@ export default async function Repositories({ params }) {
                         style={{
                           width: '100%',
                           borderRadius: '12px',
-                          boxShadow: '0 4px 14px rgba(0, 0, 0, 0.05)',
-                          border: '1px solid rgba(0, 0, 0, 0.06)',
+                          boxShadow: statsTheme === 'calm' ? '0 8px 24px rgba(0, 0, 0, 0.18)' : (statsTheme === 'transparent' ? 'none' : '0 4px 14px rgba(111, 55, 6, 0.05)'),
+                          border: statsTheme === 'calm' ? '1px solid rgba(255, 255, 255, 0.08)' : (statsTheme === 'transparent' ? 'none' : '1px solid rgba(111, 55, 6, 0.08)'),
                           transition: 'transform 0.22s ease, box-shadow 0.22s ease'
                         }}
                         className="hover-card"
@@ -188,8 +225,8 @@ export default async function Repositories({ params }) {
                         style={{
                           width: '100%',
                           borderRadius: '12px',
-                          boxShadow: '0 4px 14px rgba(0, 0, 0, 0.05)',
-                          border: '1px solid rgba(0, 0, 0, 0.06)',
+                          boxShadow: statsTheme === 'calm' ? '0 8px 24px rgba(0, 0, 0, 0.18)' : (statsTheme === 'transparent' ? 'none' : '0 4px 14px rgba(111, 55, 6, 0.05)'),
+                          border: statsTheme === 'calm' ? '1px solid rgba(255, 255, 255, 0.08)' : (statsTheme === 'transparent' ? 'none' : '1px solid rgba(111, 55, 6, 0.08)'),
                           transition: 'transform 0.22s ease, box-shadow 0.22s ease'
                         }}
                         className="hover-card"
@@ -212,8 +249,8 @@ export default async function Repositories({ params }) {
                         style={{
                           width: '100%',
                           borderRadius: '12px',
-                          boxShadow: '0 4px 14px rgba(0, 0, 0, 0.05)',
-                          border: '1px solid rgba(0, 0, 0, 0.06)',
+                          boxShadow: statsTheme === 'calm' ? '0 8px 24px rgba(0, 0, 0, 0.18)' : (statsTheme === 'transparent' ? 'none' : '0 4px 14px rgba(111, 55, 6, 0.05)'),
+                          border: statsTheme === 'calm' ? '1px solid rgba(255, 255, 255, 0.08)' : (statsTheme === 'transparent' ? 'none' : '1px solid rgba(111, 55, 6, 0.08)'),
                           transition: 'transform 0.22s ease, box-shadow 0.22s ease'
                         }}
                         className="hover-card"
@@ -266,8 +303,8 @@ export default async function Repositories({ params }) {
                           style={{
                             width: '100%',
                             borderRadius: '12px',
-                            boxShadow: '0 4px 14px rgba(0, 0, 0, 0.05)',
-                            border: '1px solid rgba(0, 0, 0, 0.06)',
+                            boxShadow: statsTheme === 'calm' ? '0 8px 24px rgba(0, 0, 0, 0.18)' : (statsTheme === 'transparent' ? 'none' : '0 4px 14px rgba(111, 55, 6, 0.05)'),
+                            border: statsTheme === 'calm' ? '1px solid rgba(255, 255, 255, 0.08)' : (statsTheme === 'transparent' ? 'none' : '1px solid rgba(111, 55, 6, 0.08)'),
                             transition: 'transform 0.22s ease, box-shadow 0.22s ease'
                           }}
                           className="hover-card"
