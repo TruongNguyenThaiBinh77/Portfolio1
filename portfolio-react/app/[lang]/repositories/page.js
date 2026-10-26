@@ -53,7 +53,7 @@ export default async function Repositories({ params }) {
   const cardTextColor = (repoData.card_text_color || '#334155').replace('#', '');
 
   const getStatsUrl = (user) => {
-    const extraParams = '&show_icons=true&include_all_commits=true&show=reviews,prs_merged_percentage&rank_icon=github';
+    const extraParams = '&show_icons=true&show=reviews,prs_merged_percentage&rank_icon=github';
     if (statsTheme === 'transparent') {
       return `/api/github-stats?username=${user}&bg_color=00000000&border_color=e5dcd0&title_color=6f3706&icon_color=d97706&text_color=292524${extraParams}`;
     }
