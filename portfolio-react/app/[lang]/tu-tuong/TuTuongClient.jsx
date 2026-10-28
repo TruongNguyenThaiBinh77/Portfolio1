@@ -919,7 +919,7 @@ export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
 
               {/* Cụm Tiêu Đề & Tên trên Trống Đồnggggggg hhhh*/}
 
-              {/* Cụm Tiêu Đề & Tên trên Trống Đồng */}
+              {/* Cụm Tiêu Đềggg & Tên trên Trống Đồng */}
               <div 
                 className="hb-text-container"
                 style={{
