@@ -287,6 +287,9 @@ hero_banner:
       url: >-
         https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/che-ghevara-1928-1967-3063?categoryId=104000084
       target: _blank
+  poem_overlay_strength: 40
+  poem_overlay_blur: 7
+  poem_band_enabled: true
 ---
 
 # Hành Trình Cứu Nước Của Chủ Tịch Hồ Chí Minh (1911 – 1941)
