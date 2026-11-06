@@ -2,6 +2,8 @@ import { getConfig, getCvData } from '../../lib/config';
 import LiveReload from '../LiveReload';
 import NavbarWrapper from '../../components/NavbarWrapper';
 import Footer from '../../components/Footer';
+import HeaderEmbroideryDivider from '../../components/HeaderEmbroideryDivider';
+import { Analytics } from '@vercel/analytics/next';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,7 +33,6 @@ export async function generateMetadata({ params }) {
   };
 }
 
-const tornPaperPath = "M 0,24 L 6.4,34.7 L 12.5,20.6 L 21.6,32.2 L 30.7,25.9 L 37.8,35.5 L 44.4,25.3 L 51.5,27.4 L 58.3,33.2 L 68,33.7 L 76.5,27.9 L 86.2,29.4 L 96,31.6 L 105.7,32.4 L 112.1,31 L 119.1,26.7 L 126.3,29.4 L 134.7,27.2 L 143.1,26.8 L 149.6,26 L 157.9,24.8 L 167.6,26.6 L 175.5,21.6 L 183.7,21.8 L 191.4,24.1 L 199.7,25.1 L 208.1,27.1 L 217.6,25.5 L 226.2,37.3 L 234.2,34.2 L 241.1,28.3 L 250.2,30.8 L 257.7,29.9 L 264.2,32.3 L 270.4,25.8 L 279,32.3 L 285.3,32.1 L 294.4,36.8 L 303.1,27.9 L 312.2,36.1 L 319.8,24 L 326.9,31.4 L 334.7,34.2 L 342.1,29.6 L 348.2,33.8 L 357.8,25.6 L 365.6,22.7 L 374.9,28.4 L 383,27.4 L 392.6,20.4 L 401.3,22.1 L 409.1,24.3 L 415.1,13.9 L 422.2,18.8 L 431.9,18.5 L 438.3,10.7 L 444.9,9.6 L 453.8,12.6 L 461.1,17.9 L 468.2,11.4 L 477.9,8.8 L 487.4,14.2 L 495.5,12.3 L 503.8,16 L 511.1,13.4 L 520.5,18.8 L 528.2,13.6 L 536.3,18.7 L 545.2,11.4 L 554.9,17.1 L 563.7,19.6 L 572,12.6 L 580.9,13.4 L 590.5,15.1 L 599.3,16.8 L 608.2,22.9 L 614.2,23.1 L 622.2,25 L 629.3,16 L 637.5,26.1 L 644.1,25.5 L 650.8,23.2 L 657.2,26.6 L 663.5,20.2 L 672.9,23.9 L 679,28.2 L 688.2,23 L 698.1,26 L 705.7,18.3 L 714.2,16.3 L 721.2,24 L 728.8,24.5 L 736.6,27.3 L 744.3,26.5 L 751.1,25.2 L 757.4,20.2 L 765.5,22.3 L 773.3,22.9 L 780.1,20.5 L 789.2,27.8 L 797.6,21.2 L 804.1,18.6 L 812.8,31.5 L 820.5,24 L 829.5,34.9 L 835.6,31.5 L 843.3,30.8 L 850.6,30.2 L 857.2,32.7 L 865.9,33.5 L 873.2,35.7 L 880.8,32.8 L 889.1,39.3 L 898.6,29.2 L 907.3,28.4 L 915.4,38.4 L 925.3,31.7 L 934,28.2 L 941.7,37.4 L 949.2,35.9 L 956.9,31.8 L 966.7,33.5 L 975,30.5 L 982.4,38.4 L 991.9,34.2 L 998.4,33.4 L 1005.5,25.7 L 1015.5,34.3 L 1022.1,29.8 L 1029,27.5 L 1037.2,22.7 L 1043.4,30.2 L 1050.5,22.2 L 1057.6,28.4 L 1065.1,21.6 L 1071.1,24.3 L 1077.8,22.3 L 1087.5,14.2 L 1095,15.2 L 1102.4,20.1 L 1110.8,23.5 L 1119.5,18 L 1126.5,22.3 L 1136.4,20.8 L 1145,21.2 L 1153.1,12.6 L 1160.9,17.9 L 1170.4,20.9 L 1178.2,13.1 L 1185.5,12.6 L 1192.5,10.5 L 1202.4,16.8 L 1210.3,13.7 L 1216.9,16.3 L 1224.6,14.4 L 1232.3,20 L 1238.7,18.3 L 1245,12.8 L 1252.6,13.6 L 1258.9,24.8 L 1265.5,18.6 L 1272.7,27.3 L 1282.5,20.6 L 1290.9,18.6 L 1299.8,25.6 L 1308.4,15.2 L 1318.2,18.8 L 1325.5,19 L 1334.5,17.7 L 1342.2,20.2 L 1349,13.4 L 1356.8,15.6 L 1366,20.5 L 1373.3,17.7 L 1382.8,22.5 L 1391.4,21 L 1398.5,14.1 L 1404.5,23.3 L 1413.2,23.8 L 1419.6,17.2 L 1429.3,19.7 L 1435.6,18.6 L 1440,25.8 L 1440,60 L 0,60 Z";
 
 export default async function RootLayout({ children, params }) {
   const resolvedParams = await params;
@@ -420,7 +421,10 @@ export default async function RootLayout({ children, params }) {
             }
 
             .top-banner-section {
-              min-height: 105px !important;
+              min-height: 130px !important;
+            }
+            .header-embroidery-divider {
+              height: 62px !important;
             }
           }
 
@@ -490,6 +494,7 @@ export default async function RootLayout({ children, params }) {
           }} />
         )}
         <LiveReload />
+        <Analytics />
         <header style={{ position: 'relative', width: '100%' }}>
           {config.top_banner_enabled !== false && (
             <div className="top-banner-section" style={{
@@ -521,31 +526,8 @@ export default async function RootLayout({ children, params }) {
               {/* Spacer matching header height to give room */}
               <div style={{ height: '90px', width: '100%' }}></div>
 
-              {/* Torn Paper Jagged Divider SVG */}
-              <div className="torn-paper-divider" style={{
-                position: 'absolute',
-                bottom: '-1px',
-                left: 0,
-                width: '100%',
-                height: '38px',
-                zIndex: 5,
-                pointerEvents: 'none',
-                lineHeight: 0,
-              }}>
-                <svg viewBox="0 0 1440 60" preserveAspectRatio="none" style={{ width: '100%', height: '100%', display: 'block' }}>
-                  {/* Soft paper fiber shadow */}
-                  <path
-                    d={tornPaperPath}
-                    fill="rgba(0, 0, 0, 0.12)"
-                    transform="translate(0, -3)"
-                  />
-                  {/* Main Torn Paper Fill in global_bg_color (#FFF1E5) */}
-                  <path
-                    d={tornPaperPath}
-                    fill={config.global_bg_color || '#FFF1E5'}
-                  />
-                </svg>
-              </div>
+              {/* Embroidered cloud divider (beige silhouette with faint veins) */}
+              <HeaderEmbroideryDivider bgColor={config.global_bg_color || '#FFF1E5'} />
             </div>
           )}
 

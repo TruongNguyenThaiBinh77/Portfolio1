@@ -54,26 +54,35 @@ function DraggableTimelineMarquee({
     const t2 = setTimeout(centerScroll, 600);
 
     let lastTime = performance.now();
+    // Browsers round scrollLeft to whole (device) pixels, so adding a sub-pixel step each frame
+    // gets lost and slow speeds stall. Keep the exact position in a float and only write it out.
+    let pos = container.scrollLeft;
+    let lastRead = container.scrollLeft;
 
     const loop = (time) => {
-      const dt = (time - lastTime) / 1000;
+      const dt = Math.min((time - lastTime) / 1000, 0.1); // clamp: no big jump after a background tab
       lastTime = time;
 
       const oneThird = track.scrollWidth / 3;
       if (oneThird > 0) {
         // Auto-wrap and auto-scroll ONLY when not actively dragging
         if (!isDraggingRef.current) {
-          if (container.scrollLeft >= 2 * oneThird) {
-            container.scrollLeft -= oneThird;
-          } else if (container.scrollLeft <= oneThird / 2) {
-            container.scrollLeft += oneThird;
+          // scroll position changed from outside (drag, centering, wheel) → adopt it
+          if (container.scrollLeft !== lastRead) pos = container.scrollLeft;
+
+          if (pos >= 2 * oneThird) {
+            pos -= oneThird;
+          } else if (pos <= oneThird / 2) {
+            pos += oneThird;
           }
 
           const canScroll = !marqueePaused && (!marqueePauseHover || !isHoveredRef.current);
           if (canScroll) {
             const pxPerSec = marqueeSpeed > 0 ? (oneThird / marqueeSpeed) : 35;
-            container.scrollLeft += pxPerSec * dt;
+            pos += pxPerSec * dt;
           }
+          container.scrollLeft = pos;
+          lastRead = container.scrollLeft;
         }
       }
 

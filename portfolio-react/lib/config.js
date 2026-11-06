@@ -5,13 +5,17 @@ import matter from 'gray-matter';
 
 // Robust content root resolver across local development and Vercel serverless deployment
 export function getResolvedRoot() {
-  const candidates = [
-    // 1. Bundled content inside portfolio-react (used in Vercel production)
+  const bundled = [
+    // Bundled content inside portfolio-react (synced by sync-content.mjs at build; used in Vercel production)
     path.join(process.cwd(), 'content'),
     path.join(process.cwd(), 'portfolio-react', 'content'),
-    // 2. Parent directory (local development where admin panel modifies files)
-    path.join(process.cwd(), '..'),
-    // 3. Current working directory
+  ];
+  // Repo root: the admin panel writes here. In dev it must win over the bundled copy,
+  // otherwise saved admin settings only appear after the next build/sync.
+  const repoRoot = [path.join(process.cwd(), '..')];
+  const candidates = [
+    ...(process.env.NODE_ENV === 'development' ? [...repoRoot, ...bundled] : [...bundled, ...repoRoot]),
+    // Current working directory
     process.cwd(),
   ];
 

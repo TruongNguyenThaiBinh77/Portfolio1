@@ -11,6 +11,7 @@
     "start:admin": "npm run start:admin --prefix .."
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "bibtex-parse-js": "^0.0.24",
     "gray-matter": "^4.0.3",
     "js-yaml": "^5.4.1",

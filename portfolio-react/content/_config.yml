@@ -544,7 +544,7 @@ header_shadow: true
 header_border_color: rgba(255, 255, 255, 0.3)
 navbar_bg_color: "#D2867C"
 top_banner_bg_color: "#AE0100"
-top_banner_height: 140px
+top_banner_height: 190px
 top_banner_title: ĐẠI HỘI ĐẠI BIỂU TOÀN QUỐC LẦN THỨ XIV CỦA ĐẢNG
 top_banner_enabled: true
 global_bg_image_size: "36"
