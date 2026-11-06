@@ -7112,6 +7112,9 @@ const DEFAULT_HB_CONFIG = {
   poem_line2: "Cháo bẹ rau măng vẫn sẵn sàng.",
   poem_line3: "Bàn đá chông chênh dịch sử Đảng,",
   poem_line4: "Cuộc đời cách mạng thật là sang.”",
+  poem_overlay_strength: 100,
+  poem_overlay_blur: 7,
+  poem_band_enabled: true,
   poem_note: "Mùa xuân năm 1941, sau 30 năm bôn ba tìm đường cứu nước, Bác Hồ trở về Tổ quốc trực tiếp lãnh đạo cách mạng Việt Nam. Giữa núi rừng Pác Bó muôn trùng gian lao, bài thơ thể hiện khí phách lạc quan và phong thái ung dung, tự tại của Người.",
   poem_note_en: "In spring 1941, after 30 years seeking salvation for the nation, Uncle Ho returned to lead the revolution. Amid the hardships of Pac Bo, the poem shows his supreme revolutionary optimism and serene spirit.",
   gocao_enabled: true,
@@ -7377,7 +7380,8 @@ async function loadTuTuongSettings() {
       'portrait_x', 'portrait_y', 'portrait_scale', 'portrait_max_height', 'portrait_opacity', 'portrait_blur',
       'portrait_contrast', 'portrait_brightness', 'portrait_grayscale',
       'subtitle_size', 'title_size', 'text_x', 'text_y', 'bottom_bar_size',
-      'marquee_height', 'marquee_speed', 'marquee_gap'
+      'marquee_height', 'marquee_speed', 'marquee_gap',
+      'poem_overlay_strength', 'poem_overlay_blur'
     ].forEach(k => {
       if (currentHbData[k] !== undefined) {
         currentHbData[k] = Number(currentHbData[k]);
@@ -8217,9 +8221,31 @@ function renderTuTuongUI() {
               </div>
             </div>
 
+            <h5 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin: 18px 0 12px 0;">Ảnh nền Bác về thăm Pác Bó & lớp phủ:</h5>
+            <div class="form-grid" style="margin-bottom: 18px;">
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Độ đậm lớp phủ (trái → phải):</label>
+                  <span id="val-poem-overlay-strength" class="badge badge-primary">${d.poem_overlay_strength ?? 100}%</span>
+                </div>
+                <input type="range" class="form-range" min="0" max="150" step="5" value="${d.poem_overlay_strength ?? 100}" oninput="syncHbField('poem_overlay_strength', Number(this.value)); document.getElementById('val-poem-overlay-strength').innerText = this.value + '%';">
+                <small style="color: var(--text-muted); font-size: 11.5px;">0% = không phủ, 100% = mặc định, &gt;100% = đậm hơn (chữ dễ đọc hơn, ảnh bên phải mờ hơn).</small>
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Độ nhòe kính mờ sau chữ:</label>
+                  <span id="val-poem-overlay-blur" class="badge badge-primary">${d.poem_overlay_blur ?? 7}px</span>
+                </div>
+                <input type="range" class="form-range" min="0" max="20" step="1" value="${d.poem_overlay_blur ?? 7}" oninput="syncHbField('poem_overlay_blur', Number(this.value)); document.getElementById('val-poem-overlay-blur').innerText = this.value + 'px';">
+              </div>
+            </div>
+
             <div class="form-group" style="margin-bottom: 20px;">
-              <label style="font-weight: 600; font-size: 13px; color: var(--text-secondary);">Ý nghĩa lịch sử / Lời bình:</label>
-              <textarea class="form-control" rows="3" oninput="syncHbField('poem_note', this.value)" style="margin-top: 6px; font-size: 13.5px; line-height: 1.5;">${escapeHtml(d.poem_note || 'Mùa xuân năm 1941, sau 30 năm bôn ba tìm đường cứu nước, Bác Hồ trở về Tổ quốc trực tiếp lãnh đạo cách mạng Việt Nam. Giữa núi rừng Pác Bó muôn trùng gian lao, bài thơ thể hiện khí phách lạc quan và phong thái ung dung, tự tại của Người.')}</textarea>
+              <label style="font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; color: var(--text-primary);">
+                <input type="checkbox" ${d.poem_band_enabled !== false ? 'checked' : ''} onchange="syncHbField('poem_band_enabled', this.checked)">
+                Hiện dải hoa văn mây thêu phía trên (mép ảnh nằm dưới hoa văn)
+              </label>
             </div>
           </div>
 

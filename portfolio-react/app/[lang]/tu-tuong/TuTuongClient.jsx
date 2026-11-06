@@ -1,7 +1,25 @@
 'use client';
 
 import React from 'react';
+import PacBoScrollSection, { PACBO_COVER_CLASS, pacboCoverCss } from './PacBoScrollSection';
 import { ribbonTornTopPath, ribbonTornBottomPath, ribbonPaintSplattersPath } from '../../../lib/ribbonTornPaths';
+
+// Mask for the teal ribbon when it slides over the Pác Bó photo: hide the beige "torn paper" band
+// (the photo shows through it instead), keep the teal below the torn line. even-odd = rect minus torn shape.
+const RIBBON_TOP_MASK = `url("data:image/svg+xml,${encodeURIComponent(
+  `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'><path fill-rule='evenodd' d='M0,0 H1440 V100 H0 Z ${ribbonTornTopPath}'/></svg>`
+)}")`;
+const RIBBON_TOP_BAND = 65; // px height of the torn band drawn at the top of the ribbon
+const ribbonCoverMaskStyle = {
+  maskImage: `${RIBBON_TOP_MASK}, linear-gradient(#000, #000)`,
+  WebkitMaskImage: `${RIBBON_TOP_MASK}, linear-gradient(#000, #000)`,
+  maskSize: `100% ${RIBBON_TOP_BAND}px, 100% calc(100% - ${RIBBON_TOP_BAND - 2}px)`,
+  WebkitMaskSize: `100% ${RIBBON_TOP_BAND}px, 100% calc(100% - ${RIBBON_TOP_BAND - 2}px)`,
+  maskPosition: '0 -1px, 0 100%',
+  WebkitMaskPosition: '0 -1px, 0 100%',
+  maskRepeat: 'no-repeat, no-repeat',
+  WebkitMaskRepeat: 'no-repeat, no-repeat',
+};
 
 const tornPaperPath = "M 0,24 L 6.4,34.7 L 12.5,20.6 L 21.6,32.2 L 30.7,25.9 L 37.8,35.5 L 44.4,25.3 L 51.5,27.4 L 58.3,33.2 L 68,33.7 L 76.5,27.9 L 86.2,29.4 L 96,31.6 L 105.7,32.4 L 112.1,31 L 119.1,26.7 L 126.3,29.4 L 134.7,27.2 L 143.1,26.8 L 149.6,26 L 157.9,24.8 L 167.6,26.6 L 175.5,21.6 L 183.7,21.8 L 191.4,24.1 L 199.7,25.1 L 208.1,27.1 L 217.6,25.5 L 226.2,37.3 L 234.2,34.2 L 241.1,28.3 L 250.2,30.8 L 257.7,29.9 L 264.2,32.3 L 270.4,25.8 L 279,32.3 L 285.3,32.1 L 294.4,36.8 L 303.1,27.9 L 312.2,36.1 L 319.8,24 L 326.9,31.4 L 334.7,34.2 L 342.1,29.6 L 348.2,33.8 L 357.8,25.6 L 365.6,22.7 L 374.9,28.4 L 383,27.4 L 392.6,20.4 L 401.3,22.1 L 409.1,24.3 L 415.1,13.9 L 422.2,18.8 L 431.9,18.5 L 438.3,10.7 L 444.9,9.6 L 453.8,12.6 L 461.1,17.9 L 468.2,11.4 L 477.9,8.8 L 487.4,14.2 L 495.5,12.3 L 503.8,16 L 511.1,13.4 L 520.5,18.8 L 528.2,13.6 L 536.3,18.7 L 545.2,11.4 L 554.9,17.1 L 563.7,19.6 L 572,12.6 L 580.9,13.4 L 590.5,15.1 L 599.3,16.8 L 608.2,22.9 L 614.2,23.1 L 622.2,25 L 629.3,16 L 637.5,26.1 L 644.1,25.5 L 650.8,23.2 L 657.2,26.6 L 663.5,20.2 L 672.9,23.9 L 679,28.2 L 688.2,23 L 698.1,26 L 705.7,18.3 L 714.2,16.3 L 721.2,24 L 728.8,24.5 L 736.6,27.3 L 744.3,26.5 L 751.1,25.2 L 757.4,20.2 L 765.5,22.3 L 773.3,22.9 L 780.1,20.5 L 789.2,27.8 L 797.6,21.2 L 804.1,18.6 L 812.8,31.5 L 820.5,24 L 829.5,34.9 L 835.6,31.5 L 843.3,30.8 L 850.6,30.2 L 857.2,32.7 L 865.9,33.5 L 873.2,35.7 L 880.8,32.8 L 889.1,39.3 L 898.6,29.2 L 907.3,28.4 L 915.4,38.4 L 925.3,31.7 L 934,28.2 L 941.7,37.4 L 949.2,35.9 L 956.9,31.8 L 966.7,33.5 L 975,30.5 L 982.4,38.4 L 991.9,34.2 L 998.4,33.4 L 1005.5,25.7 L 1015.5,34.3 L 1022.1,29.8 L 1029,27.5 L 1037.2,22.7 L 1043.4,30.2 L 1050.5,22.2 L 1057.6,28.4 L 1065.1,21.6 L 1071.1,24.3 L 1077.8,22.3 L 1087.5,14.2 L 1095,15.2 L 1102.4,20.1 L 1110.8,23.5 L 1119.5,18 L 1126.5,22.3 L 1136.4,20.8 L 1145,21.2 L 1153.1,12.6 L 1160.9,17.9 L 1170.4,20.9 L 1178.2,13.1 L 1185.5,12.6 L 1192.5,10.5 L 1202.4,16.8 L 1210.3,13.7 L 1216.9,16.3 L 1224.6,14.4 L 1232.3,20 L 1238.7,18.3 L 1245,12.8 L 1252.6,13.6 L 1258.9,24.8 L 1265.5,18.6 L 1272.7,27.3 L 1282.5,20.6 L 1290.9,18.6 L 1299.8,25.6 L 1308.4,15.2 L 1318.2,18.8 L 1325.5,19 L 1334.5,17.7 L 1342.2,20.2 L 1349,13.4 L 1356.8,15.6 L 1366,20.5 L 1373.3,17.7 L 1382.8,22.5 L 1391.4,21 L 1398.5,14.1 L 1404.5,23.3 L 1413.2,23.8 L 1419.6,17.2 L 1429.3,19.7 L 1435.6,18.6 L 1440,25.8 L 1440,60 L 0,60 Z";
 
@@ -433,9 +451,10 @@ export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
     isVi ? (hb.poem_line3 || 'Bàn đá chông chênh dịch sử Đảng,') : (hb.poem_line3_en || 'A shaky stone slab to translate the Party history,'),
     isVi ? (hb.poem_line4 || 'Cuộc đời cách mạng thật là sang.”') : (hb.poem_line4_en || 'What a glorious revolutionary life!”'),
   ];
-  const poemNote = isVi 
-    ? (hb.poem_note || 'Mùa xuân năm 1941, sau 30 năm bôn ba tìm đường cứu nước, Bác Hồ trở về Tổ quốc trực tiếp lãnh đạo cách mạng Việt Nam. Giữa núi rừng Pác Bó muôn trùng gian lao, bài thơ thể hiện khí phách lạc quan và phong thái ung dung, tự tại của Người.')
-    : (hb.poem_note_en || 'In spring 1941, after 30 years seeking salvation for the nation, Uncle Ho returned to lead the revolution. Amid the hardships of Pac Bo, the poem shows his supreme revolutionary optimism and serene spirit.');
+  const poemImage = hb.poem_image || '/assets/img/bac-ho-tham-pac-bo-1961.webp';
+  const poemImageCaption = isVi
+    ? (hb.poem_image_caption || 'Bác Hồ về thăm Pác Bó (tháng 2 - 1961)')
+    : (hb.poem_image_caption_en || 'Uncle Ho revisiting Pac Bo (February 1961)');
 
   // Section 4: Chi bộ ấp Gò Cao
   const gocaoEnabled = hb.gocao_enabled !== false;
@@ -471,6 +490,10 @@ export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
   const marqueeShowLabels = hb.marquee_show_labels === true;
   const marqueeLabelColor = hb.marquee_label_color || '#8B0000';
 
+  // The section right after the Pác Bó poem slides up over it while scrolling (ribbon, else the marquee)
+  const hasRibbon = Boolean(marqueeBadge || marqueeTitle);
+  const pacboHasCover = poemEnabled && (hasRibbon || marqueeEnabled);
+
   const defaultTimelineItems = [
     { id: 1, image: '/assets/img/charles_fourier.webp', name: 'Charles Fourier', year: '1772 – 1837', title: 'Charles Fourier (1772 – 1837)', url: 'https://tulieuvankien.dangcongsan.vn/ho-so-su-kien-nhan-chung/phong-trao-cong-san-cong-nhan-quoc-te/cac-lanh-tu-va-cac-nha-lanh-dao-noi-tieng/charles-fourier-1772-1837-3059?categoryId=104000084', target: '_blank' },
     { id: 2, image: '/assets/img/paul_lafargue.webp', name: 'Paul Lafargue', year: '1842 – 1911', title: 'Paul Lafargue (1842 – 1911)', url: '', target: '_blank' },
@@ -502,10 +525,11 @@ export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
       paddingTop: '25px', 
       paddingBottom: '80px',
       backgroundColor: config.global_bg_color || '#FFF1E5',
-      overflowX: 'hidden',
+      overflowX: 'clip', // 'hidden' would break position: sticky in the Pác Bó section
     }}>
       {/* Mobile Responsive Style Block */}
       <style>{`
+        ${pacboCoverCss}
         .timeline-marquee-container {
           overflow-x: scroll !important;
           overflow-y: hidden !important;
@@ -605,7 +629,7 @@ export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
             margin-bottom: 25px !important;
           }
           .chibo-page {
-            overflow-x: hidden !important;
+            overflow-x: clip !important;
           }
           .chibo-page .container {
             padding-left: 14px !important;
@@ -696,12 +720,6 @@ export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
           .hb-portrait-standalone img {
             max-height: 250px !important;
             max-width: 100% !important;
-          }
-
-          /* Section 3: Bài thơ Pác Bó */
-          .poem-pac-bo-section {
-            overflow: hidden !important;
-            padding: 10px 0 25px 0 !important;
           }
 
           /* Section 4: Chi bộ ấp Gò Cao */
@@ -1027,167 +1045,24 @@ export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
         </div>
 
         {/* ========================================================
-            SECTION 3: BÀI THƠ CỦA BÁC "TỨC CẢNH PÁC BÓ" (1941)
-            Thiết kế trang trọng, hoài niệm với hoa văn truyền thống,
-            chữ ký Chủ tịch Hồ Chí Minh và bối cảnh lịch sử
+            SECTION 3: BÀI THƠ "TỨC CẢNH PÁC BÓ" (1941) + ẢNH BÁC VỀ THĂM PÁC BÓ (1961)
+            Ảnh hiện dần theo lăn chuột, bài thơ bên phải; section kế tiếp trượt lên che phủ
             ======================================================== */}
         {poemEnabled && (
-          <section 
-            className="poem-pac-bo-section"
-            style={{
-              position: 'relative',
-              backgroundColor: 'transparent',
-              padding: '10px 0 35px 0',
-              marginBottom: '35px',
-            }}
-          >
-            {/* Watermark hoa văn Trống đồng chìm mờ nhẹ ở nền */}
-            <div 
-              style={{
-                position: 'absolute',
-                top: '50%',
-                right: '-60px',
-                transform: 'translateY(-50%)',
-                width: '450px',
-                height: '450px',
-                backgroundImage: `url(${drumImg})`,
-                backgroundSize: 'contain',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-                opacity: 0.05,
-                pointerEvents: 'none',
-                filter: 'sepia(40%) saturate(120%)',
-              }}
-            />
-
-            <div 
-              style={{
-                position: 'relative',
-                zIndex: 2,
-                textAlign: 'center',
-              }}
-            >
-              {/* Tên bài thơ: TỨC CẢNH PÁC BÓ */}
-              <h2 
-                style={{
-                  fontFamily: '"Playfair Display", "Roboto Slab", "Times New Roman", serif',
-                  fontSize: 'clamp(28px, 4.2vw, 38px)',
-                  fontWeight: '800',
-                  color: '#68350B',
-                  letterSpacing: '2px',
-                  margin: '0 0 10px 0',
-                  textTransform: 'uppercase',
-                }}
-              >
-                {poemTitle}
-              </h2>
-
-              {/* Địa danh bối cảnh */}
-              <p style={{
-                fontSize: '15px',
-                fontStyle: 'italic',
-                color: '#8A5A36',
-                margin: '0 auto 22px auto',
-                letterSpacing: '0.3px',
-                fontFamily: '"Roboto Slab", "Playfair Display", "Times New Roman", serif',
-              }}>
-                {poemSubtitle}
-              </p>
-
-              {/* Dải phân cách hoa văn ngôi sao */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '14px',
-                maxWidth: '280px',
-                margin: '0 auto 26px auto',
-              }}>
-                <div style={{ flex: 1, height: '1px', background: 'linear-gradient(to left, rgba(197, 160, 89, 0.6), transparent)' }} />
-                <span style={{ color: '#C5A059', fontSize: '14px' }}>✦</span>
-                <span style={{ color: '#D32F2F', fontSize: '16px' }}>★</span>
-                <span style={{ color: '#C5A059', fontSize: '14px' }}>✦</span>
-                <div style={{ flex: 1, height: '1px', background: 'linear-gradient(to right, rgba(197, 160, 89, 0.6), transparent)' }} />
-              </div>
-
-              {/* Bốn câu thơ thất ngôn tứ tuyệt (có dấu “ và ”) */}
-              <div 
-                style={{
-                  maxWidth: '720px',
-                  margin: '0 auto 28px auto',
-                  padding: '10px 0',
-                }}
-              >
-                {poemLines.map((line, idx) => {
-                  let formattedLine = line.trim();
-                  if (idx === 0 && !formattedLine.startsWith('“') && !formattedLine.startsWith('"')) {
-                    formattedLine = '“' + formattedLine;
-                  }
-                  if (idx === poemLines.length - 1 && !formattedLine.endsWith('”') && !formattedLine.endsWith('"')) {
-                    formattedLine = formattedLine + '”';
-                  }
-                  return (
-                    <p 
-                      key={idx}
-                      style={{
-                        fontFamily: '"Playfair Display", "Roboto Slab", "Times New Roman", serif',
-                        fontSize: 'clamp(22px, 3.1vw, 27px)',
-                        fontWeight: '700',
-                        lineHeight: '1.95',
-                        color: idx === 3 ? '#9A2617' : '#27170E',
-                        margin: '0',
-                        letterSpacing: '0.2px',
-                      }}
-                    >
-                      {formattedLine}
-                    </p>
-                  );
-                })}
-              </div>
-
-              {/* Chữ ký Bác Hồ thuần nét (không nền, chỉ hiện chữ ký) */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '28px',
-              }}>
-                <img 
-                  src="/assets/img/ho_chi_minh_signature.svg" 
-                  alt="Chữ ký Chủ tịch Hồ Chí Minh"
-                  style={{
-                    height: '52px',
-                    width: 'auto',
-                    display: 'block',
-                    filter: 'contrast(1.25) brightness(0.9)',
-                  }}
-                />
-              </div>
-
-              {/* Khung ghi chú bối cảnh lịch sử */}
-              <div style={{
-                maxWidth: '780px',
-                margin: '0 auto',
-                padding: '14px 22px',
-                backgroundColor: 'rgba(255, 255, 255, 0.65)',
-                borderLeft: '4px solid #C5A059',
-                borderRadius: '4px 8px 8px 4px',
-                textAlign: 'justify',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.02)',
-              }}>
-                <p style={{
-                  margin: 0,
-                  fontSize: '13.8px',
-                  lineHeight: '1.65',
-                  color: '#5C4433',
-                  fontStyle: 'italic',
-                }}>
-                  <strong>{isVi ? 'Ý nghĩa lịch sử:' : 'Historical significance:'}</strong> {poemNote}
-                </p>
-              </div>
-
-            </div>
-          </section>
+          <PacBoScrollSection
+            title={poemTitle}
+            subtitle={poemSubtitle}
+            lines={poemLines}
+            image={poemImage}
+            caption={poemImageCaption}
+            drumImg={drumImg}
+            hasCover={pacboHasCover}
+            coverEdge={hasRibbon ? RIBBON_TOP_BAND - 4 : 0}
+            bgColor={config.global_bg_color || '#FFF1E5'}
+            overlayStrength={hb.poem_overlay_strength ?? 100}
+            overlayBlur={hb.poem_overlay_blur ?? 7}
+            showBand={hb.poem_band_enabled !== false}
+          />
         )}
 
       </div>
@@ -1198,7 +1073,7 @@ export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
           ======================================================== */}
       {(marqueeBadge || marqueeTitle) && (
         <div 
-          className="chibo-torn-paper-ribbon"
+          className={`chibo-torn-paper-ribbon${pacboHasCover ? ` ${PACBO_COVER_CLASS}` : ''}`}
           style={{
             width: '100%',
             position: 'relative',
@@ -1213,6 +1088,7 @@ export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
             justifyContent: 'center',
             padding: '70px 20px 65px 20px',
             boxSizing: 'border-box',
+            ...(pacboHasCover ? ribbonCoverMaskStyle : {}),
           }}
         >
           {/* Mép rách giấy phía trên: Nền be bên trên rách vào dải xanh */}
@@ -1232,7 +1108,7 @@ export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
               {/* Vệt xơ giấy trắng/sáng dọc mép rách */}
               <path d={ribbonTornTopPath} fill="rgba(255, 255, 255, 0.28)" transform="translate(0, 1.5)" />
               {/* Nền be cắt vào dải xanh */}
-              <path d={ribbonTornTopPath} fill={config.global_bg_color || '#FFF1E5'} />
+              {!pacboHasCover && <path d={ribbonTornTopPath} fill={config.global_bg_color || '#FFF1E5'} />}
             </svg>
           </div>
 
@@ -1383,7 +1259,7 @@ export default function TuTuongClient({ lang = 'vi', fm = {}, config = {} }) {
           ======================================================== */}
       {marqueeEnabled && (
         <section 
-          className="timeline-marquee-section"
+          className={`timeline-marquee-section${pacboHasCover && !hasRibbon ? ` ${PACBO_COVER_CLASS}` : ''}`}
           style={{
             width: '100%',
             overflow: 'hidden',

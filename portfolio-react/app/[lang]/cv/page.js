@@ -4,6 +4,26 @@ import PrintButton from '../../../components/PrintButton';
 import CvQuickNav from '../../../components/CvQuickNav';
 import CountryFlag from '../../../components/CountryFlag';
 import CvEmailList from '../../../components/CvEmailList';
+import { UnifrakturMaguntia } from 'next/font/google';
+
+// Blackletter (Fette Fraktur style) for academic degree words in the Education section.
+// The font has no precomposed Vietnamese letters; browsers compose ử/ạ/ĩ/ế from base + combining marks.
+const fraktur = UnifrakturMaguntia({ weight: '400', subsets: ['latin'], display: 'swap' });
+const DEGREE_RE = /(cử nhân|thạc sĩ|tiến sĩ)/giu;
+
+const renderStudyType = (text) => {
+  if (!text) return text;
+  const parts = String(text).normalize('NFC').split(DEGREE_RE);
+  return parts.map((part, i) =>
+    i % 2 === 1 ? (
+      <span key={i} className={fraktur.className} style={{ fontWeight: 400, fontSize: '1.3em', letterSpacing: '0.01em', lineHeight: 1 }}>
+        {part}
+      </span>
+    ) : (
+      part
+    )
+  );
+};
 
 const getLogoSize = (size) => {
   if (!size) return '100px';
@@ -357,7 +377,7 @@ export default async function CV({ params }) {
                             <div className="col-12 col-md-9 col-lg-10 mt-1 mt-md-0" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                               <div style={{ flex: 1, minWidth: 0 }}>
                                 <h6 className="title font-weight-bold ml-0 ml-md-4" style={{ fontSize: '1.05rem', marginBottom: '6px', color: 'var(--global-text-color)', wordBreak: 'break-word' }}>
-                                  {edu.studyType}
+                                  {renderStudyType(edu.studyType)}
                                 </h6>
                                 {/* Tên trường đại học với Icon fa-building-columns màu cyan/teal */}
                                 <div className="ml-0 ml-md-4" style={{ 
